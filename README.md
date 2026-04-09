@@ -578,33 +578,33 @@ The `backlog.lock` file on main prevents both from picking the same item.
 
 ## Command Reference
 
-| Command | Where | What It Does | Produces |
-|---------|-------|-------------|----------|
-| `/init` | Any | Initialize repo structure and stack | `stack.md`, `docs/` |
-| `/idea` | Any | Capture and shape a product concept | Feature brief |
-| `/epic` | Hub | Define cross-team initiative | Epic + decision records |
-| `/feature` | Service | Spec a feature with YAGNI check | Feature spec + stories (with groups) |
-| `/research` | Any | Deep-dive research | Research document |
-| `/contracts` | Service | Extract, define, validate API contracts | Schema files in `contracts/` |
-| `/plan` | Service | Technical implementation plan | Plan with file references |
-| `/next` | Service | Pick work, lock, create worktree | Locked item + worktree |
-| `/implement` | Worktree | Execute plan phase by phase | Working code |
-| `/commit` | Worktree | Stage and commit | Git commit |
-| `/pr` | Worktree | Create PR, release lock | Pull request |
-| `/worktree` | Service | Manage worktrees | Create/remove/list/clean |
-| `/review` | Any | Code review | Review feedback |
-| `/tech-review` | Any | Architecture review | Review document |
-| `/validate` | Service | Compare spec vs implementation | Gap analysis |
-| `/refine` | Any | Iterate on a document | Updated document |
-| `/bug` | Service | Document a bug | Bug report |
-| `/debug` | Service | Investigate with pattern sweep | Diagnosis + all occurrences |
-| `/check` | Any | Knowledge check quiz | Score + tutoring |
-| `/decisions` | Any | Query project conventions | Bullet list + source refs |
-| `/proposal` | Any | Business proposal | Scope, timeline, costs doc |
-| `/docs` | Any | Generate project documentation | Guides, references, runbooks |
-| `/status` | Any | Project status briefing | Status report |
-| `/handoff` | Any | Session continuity note | Handoff document |
-| `/update-workflow` | Service | Sync workflow files from template | Updated `.claude/` files |
+| Command | Where | What It Does | Produces | When to Use |
+|---------|-------|-------------|----------|-------------|
+| `/init` | Any | Initialize repo structure and stack | `stack.md`, `docs/` | Starting a new project or onboarding an existing repo to the workflow |
+| `/idea` | Any | Capture and shape a product concept | Feature brief | Early-stage thinking — you have a concept but haven't committed to building it yet |
+| `/epic` | Hub | Define cross-team initiative | Epic + decision records | Large initiatives that span multiple features or services |
+| `/feature` | Service | Spec a feature with YAGNI check | Feature spec + stories (with groups) | Ready to commit to building something — this starts the core pipeline |
+| `/research` | Any | Deep-dive research | Research document | Technology evaluation, competitive analysis, or exploring unknowns before speccing |
+| `/contracts` | Service | Extract, define, validate API contracts | Schema files in `contracts/` | After `/feature`, before `/plan` — lock down API shapes so implementation can't drift |
+| `/plan` | Service | Technical implementation plan | Plan with file references | After spec and contracts are stable — produces the step-by-step build plan |
+| `/next` | Service | Pick work, lock, create worktree | Locked item + worktree | Starting a work session — picks the next story, locks it, sets up an isolated branch |
+| `/implement` | Worktree | Execute plan phase by phase | Working code | After `/next` — the only command that writes application code |
+| `/commit` | Worktree | Stage and commit | Git commit | Code is working and you've verified it manually |
+| `/pr` | Worktree | Create PR, release lock | Pull request | Implementation is complete, tests pass, ready for review |
+| `/worktree` | Service | Manage worktrees | Create/remove/list/clean | Housekeeping — list active branches, clean up stale worktrees |
+| `/review` | Any | Code review | Review feedback | Before merging — get a second-opinion review on code changes |
+| `/tech-review` | Any | Architecture review | Review document | Before or after implementation — assess architectural decisions and patterns |
+| `/validate` | Service | Compare spec vs implementation | Gap analysis | After implementation — verify nothing was missed or silently changed vs. the spec |
+| `/refine` | Any | Iterate on a document | Updated document | A spec, plan, or doc needs revision based on feedback or new information |
+| `/bug` | Service | Document a bug | Bug report | You found a bug — document it before investigating or fixing |
+| `/debug` | Service | Investigate with pattern sweep | Diagnosis + all occurrences | After `/bug` — systematic investigation with codebase-wide pattern search |
+| `/check` | Any | Knowledge check quiz | Score + tutoring | Learning the codebase — quiz yourself on conventions, architecture, or decisions |
+| `/decisions` | Any | Query project conventions | Bullet list + source refs | Quick lookup — "what did we decide about X?" without digging through files |
+| `/proposal` | Any | Business proposal | Scope, timeline, costs doc | Client-facing or stakeholder-facing scope and cost estimation |
+| `/docs` | Any | Generate project documentation | Guides, references, runbooks | Project needs user guides, API docs, setup instructions, or runbooks |
+| `/status` | Any | Project status briefing | Status report | Morning startup or check-in — see what's done, in progress, and blocked |
+| `/handoff` | Any | Session continuity note | Handoff document | Ending a session mid-work — capture context so the next session picks up cleanly |
+| `/update-workflow` | Service | Sync workflow files from template | Updated `.claude/` files | Template has been updated and you want to pull in the latest commands and skills |
 
 ## Command Options
 
