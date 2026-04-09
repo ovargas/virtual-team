@@ -7,8 +7,10 @@ This is a **service repository** — an implementation repo. It has its own code
 Work flows through a deliberate pipeline. Each step produces a specific artifact. No step is skipped.
 
 ```
-/feature → /plan → /next → /implement → /pr
+/feature → /contracts → /plan → /next → /implement → /pr
 ```
+
+Or run the full pipeline in one command with `/flow`, which chains all steps and resolves gaps interactively at gates between each step.
 
 - `/feature` captures WHAT to build (with YAGNI challenge and API contract definition)
 - `/contracts` extracts and validates API contracts as concrete schema files
@@ -16,6 +18,7 @@ Work flows through a deliberate pipeline. Each step produces a specific artifact
 - `/next` picks up the work, locks it, creates a worktree — backlog: `[ ]` → `[>]`
 - `/implement` executes the plan phase by phase with verification — backlog: `[>]` → `[=]` (branch) or `[>]` → `[x]` (main)
 - `/pr` auto-commits, creates the PR, and releases the lock — backlog: `[=]` → `[x]`
+- `/flow` orchestrates the entire pipeline with interactive gates — patch TBDs, resolve decisions, and continue without leaving the session
 
 If this service is part of a multi-repo product, features can be driven by hub epics (`/feature --epic=EPIC-NNN`), which brings in cross-team decisions as constraints.
 
@@ -56,6 +59,9 @@ The software-architect agent has a special role: it runs a **dependency check** 
 ## Commands
 
 Commands are the workflow. Pre-implementation commands produce documents, never code. Only `/implement` writes code.
+
+### Pipeline Orchestrator
+- `/flow <description>` — Run the full pipeline (feature → contracts → plan → next → implement → pr) with interactive gates. Resolves TBDs and decisions inline without leaving the session. Use `--to=plan` to stop early, `--from=next` to resume mid-pipeline, `--resume` to continue an interrupted flow.
 
 ### Feature Intake
 - `/idea` — Capture a new product concept (for standalone repos without a hub)

@@ -55,11 +55,13 @@ my-app-api-worktrees/        ← worktrees live here
 │   ├── pattern-finder.md    ← Finds existing implementation patterns
 │   ├── docs-locator.md      ← Finds relevant docs, plans, decisions
 │   └── security-reviewer.md ← Security review of code changes
-├── commands/                ← 24 workflow commands
+├── commands/                ← 26 workflow commands
 │   ├── idea.md              ← Capture a new product concept
 │   ├── epic.md              ← Hub-level initiative with cross-team agreements
 │   ├── feature.md           ← Spec a feature with YAGNI challenge + story groups
+│   ├── flow.md              ← Pipeline orchestrator: feature → contracts → plan → next → implement → pr
 │   ├── research.md          ← Deep-dive research
+│   ├── contracts.md         ← Extract, define, validate API contracts as schema files
 │   ├── plan.md              ← Technical implementation plan + knowledge check
 │   ├── next.md              ← Pick up work, lock it, create worktree (supports story groups)
 │   ├── implement.md         ← Execute plan phase by phase
@@ -555,33 +557,34 @@ The `backlog.lock` file on main prevents both from picking the same item.
 
 ## Command Reference
 
-| Command | Where | What It Does | Produces |
-|---------|-------|-------------|----------|
-| `/init` | Any | Initialize repo structure and stack | `stack.md`, `docs/` |
-| `/idea` | Any | Capture and shape a product concept | Feature brief |
-| `/epic` | Hub | Define cross-team initiative | Epic + decision records |
-| `/feature` | Service | Spec a feature with YAGNI check | Feature spec + stories (with groups) |
-| `/research` | Any | Deep-dive research | Research document |
-| `/contracts` | Service | Extract, define, validate API contracts | Schema files in `contracts/` |
-| `/plan` | Service | Technical implementation plan | Plan with file references |
-| `/next` | Service | Pick work, lock, create worktree | Locked item + worktree |
-| `/implement` | Worktree | Execute plan phase by phase | Working code |
-| `/commit` | Worktree | Stage and commit | Git commit |
-| `/pr` | Worktree | Create PR, release lock | Pull request |
-| `/worktree` | Service | Manage worktrees | Create/remove/list/clean |
-| `/review` | Any | Code review | Review feedback |
-| `/tech-review` | Any | Architecture review | Review document |
-| `/validate` | Service | Compare spec vs implementation | Gap analysis |
-| `/refine` | Any | Iterate on a document | Updated document |
-| `/bug` | Service | Document a bug | Bug report |
-| `/debug` | Service | Investigate with pattern sweep | Diagnosis + all occurrences |
-| `/check` | Any | Knowledge check quiz | Score + tutoring |
-| `/decisions` | Any | Query project conventions | Bullet list + source refs |
-| `/proposal` | Any | Business proposal | Scope, timeline, costs doc |
-| `/docs` | Any | Generate project documentation | Guides, references, runbooks |
-| `/status` | Any | Project status briefing | Status report |
-| `/handoff` | Any | Session continuity note | Handoff document |
-| `/update-workflow` | Service | Sync workflow files from template | Updated `.claude/` files |
+| Command | Where | What It Does | Produces | When to Use |
+|---------|-------|-------------|----------|-------------|
+| `/init` | Any | Initialize repo structure and stack | `stack.md`, `docs/` | Starting a new project or onboarding an existing repo to the workflow |
+| `/idea` | Any | Capture and shape a product concept | Feature brief | Early-stage thinking — you have a concept but haven't committed to building it yet |
+| `/epic` | Hub | Define cross-team initiative | Epic + decision records | Large initiatives that span multiple features or services |
+| `/feature` | Service | Spec a feature with YAGNI check | Feature spec + stories (with groups) | Ready to commit to building something — this starts the core pipeline |
+| `/flow` | Service | Run full pipeline with interactive gates | All pipeline artifacts + PR | Starting a feature end-to-end — chains feature → contracts → plan → next → implement → pr, resolving gaps interactively |
+| `/research` | Any | Deep-dive research | Research document | Technology evaluation, competitive analysis, or exploring unknowns before speccing |
+| `/contracts` | Service | Extract, define, validate API contracts | Schema files in `contracts/` | After `/feature`, before `/plan` — lock down API shapes so implementation can't drift |
+| `/plan` | Service | Technical implementation plan | Plan with file references | After spec and contracts are stable — produces the step-by-step build plan |
+| `/next` | Service | Pick work, lock, create worktree | Locked item + worktree | Starting a work session — picks the next story, locks it, sets up an isolated branch |
+| `/implement` | Worktree | Execute plan phase by phase | Working code | After `/next` — the only command that writes application code |
+| `/commit` | Worktree | Stage and commit | Git commit | Code is working and you've verified it manually |
+| `/pr` | Worktree | Create PR, release lock | Pull request | Implementation is complete, tests pass, ready for review |
+| `/worktree` | Service | Manage worktrees | Create/remove/list/clean | Housekeeping — list active branches, clean up stale worktrees |
+| `/review` | Any | Code review | Review feedback | Before merging — get a second-opinion review on code changes |
+| `/tech-review` | Any | Architecture review | Review document | Before or after implementation — assess architectural decisions and patterns |
+| `/validate` | Service | Compare spec vs implementation | Gap analysis | After implementation — verify nothing was missed or silently changed vs. the spec |
+| `/refine` | Any | Iterate on a document | Updated document | A spec, plan, or doc needs revision based on feedback or new information |
+| `/bug` | Service | Document a bug | Bug report | You found a bug — document it before investigating or fixing |
+| `/debug` | Service | Investigate with pattern sweep | Diagnosis + all occurrences | After `/bug` — systematic investigation with codebase-wide pattern search |
+| `/check` | Any | Knowledge check quiz | Score + tutoring | Learning the codebase — quiz yourself on conventions, architecture, or decisions |
+| `/decisions` | Any | Query project conventions | Bullet list + source refs | Quick lookup — "what did we decide about X?" without digging through files |
+| `/proposal` | Any | Business proposal | Scope, timeline, costs doc | Client-facing or stakeholder-facing scope and cost estimation |
+| `/docs` | Any | Generate project documentation | Guides, references, runbooks | Project needs user guides, API docs, setup instructions, or runbooks |
+| `/status` | Any | Project status briefing | Status report | Morning startup or check-in — see what's done, in progress, and blocked |
+| `/handoff` | Any | Session continuity note | Handoff document | Ending a session mid-work — capture context so the next session picks up cleanly |
+| `/update-workflow` | Service | Sync workflow files from template | Updated `.claude/` files | Template has been updated and you want to pull in the latest commands and skills |
 
 ## Command Options
 
@@ -592,21 +595,21 @@ Many commands support flags to customize behavior.
 #### `--auto` — Autonomous Mode
 Skip confirmations and manual pause points. Use for automated workflows or repeated execution patterns.
 
-Available in: `/plan`, `/implement`, `/next`, `/feature`, `/epic`
+Available in: `/plan`, `/implement`, `/next`, `/feature`, `/epic`, `/flow`
 
 Flags can be combined: `/plan --auto --deep FEAT-007`
 
 #### `--deep` — Agent-Powered Mode
 Spawn specialized research agents for thorough analysis. Without this flag, commands use direct tools (Glob, Grep, Read, WebSearch) — faster and cheaper.
 
-Available in: `/idea`, `/epic`, `/feature`, `/research`, `/plan`, `/implement`, `/debug`
+Available in: `/idea`, `/epic`, `/feature`, `/research`, `/plan`, `/implement`, `/debug`, `/flow`
 
 When to use: complex features touching multiple modules, introducing new dependencies, or requiring deep codebase tracing.
 
 #### `--fresh` — Start from Scratch
 Delete any existing checkpoint file and restart the command from the beginning. Useful when prior progress is stale or the context has changed.
 
-Available in: `/feature`, `/plan`, `/implement`, `/debug`
+Available in: `/feature`, `/plan`, `/implement`, `/debug`, `/flow`
 
 ### Command-Specific Options
 
@@ -620,6 +623,13 @@ Available in: `/feature`, `/plan`, `/implement`, `/debug`
 - `--epic=EPIC-NNN` — create feature driven by a hub epic
 - `--ticket=PROJ-123` — pull context from an external tracker ticket
 - `--deep` — spawn agents for research (default: direct tools)
+
+#### `/flow`
+- `--to=STEP` — stop after this step (values: `feature`, `contracts`, `plan`, `next`, `implement`, `pr`)
+- `--from=STEP` — start from this step, assumes prior steps are done (values: `contracts`, `plan`, `next`, `implement`, `pr`)
+- `--resume` — pick up where the last `/flow` left off (reads the flow checkpoint)
+- `--here` — pass `--here` to `/next` (skip worktree, work on current branch)
+- `--current` — pass `--current` to `/next` (use current branch as-is)
 
 #### `/epic`
 - `--deep` — spawn product-owner and architect agents (default: direct analysis)
@@ -704,6 +714,15 @@ Available in: `/feature`, `/plan`, `/implement`, `/debug`
 
 # Resume interrupted implementation
 /implement --phase=3                  # pick up where you left off
+
+# Full pipeline in one command
+/flow Add search with full-text and aggregation
+
+# Pipeline with agent-powered analysis, stop after plan
+/flow --deep --to=plan Add search capability
+
+# Resume a flow that was interrupted
+/flow --resume
 
 # Knowledge check
 /check --verbose                      # study mode with hints
