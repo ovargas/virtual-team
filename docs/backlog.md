@@ -1,9 +1,9 @@
 # Backlog
 
 ## Doing
+- [>] S-009: Create knowledge directory and capture step — working on main
 
 ## Ready
-- [ ] S-009: Create knowledge directory and capture step — feature:FEAT-011 group:3 order:1
 - [ ] S-010: Add knowledge injection to /plan — feature:FEAT-011 group:3 order:2
 - [ ] S-011: Add specialized parallel review dispatch — feature:FEAT-012 group:4 order:1
 - [ ] S-012: Add auto-fix cycle to quality gate — feature:FEAT-012 group:4 order:2
