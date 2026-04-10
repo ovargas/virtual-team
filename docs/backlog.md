@@ -1,13 +1,13 @@
 # Backlog
 
 ## Doing
-- [>] S-011: Add specialized parallel review dispatch — working on main
 
 ## Ready
 - [ ] S-012: Add auto-fix cycle to quality gate — feature:FEAT-012 group:4 order:2
 - [ ] S-013: Add auto-detection to bare /flow invocation — feature:FEAT-013 group:5 order:1
 
 ## Done
+- [x] S-011: Add specialized parallel review dispatch — completed on main
 - [x] S-010: Add knowledge injection to /plan — completed on main
 - [x] S-009: Create knowledge directory and capture step — completed on main
 - [x] S-008: Group tasks into waves and dispatch in parallel — completed on main
