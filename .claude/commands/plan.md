@@ -157,7 +157,36 @@ Before writing a single line of the plan, understand the terrain. This phase is 
 
    **NEVER organize the plan as:** "Phase 1: All migrations, Phase 2: All services, Phase 3: All endpoints." This means nothing works until everything is done. **ALWAYS organize as:** "Phase 1: User registration end-to-end, Phase 2: Login end-to-end" — something works after Phase 1.
 
-4. **Present your analysis:**
+4. **Load implementation knowledge.** If `docs/knowledge/patterns.md` and `docs/knowledge/errors.md` exist, load relevant entries to inform the plan. If the knowledge directory doesn't exist, skip this step silently.
+
+   **Determine relevant domains:** Based on the feature being planned, identify which domain tags are relevant:
+   - Check which domain skills the implementation will likely need (api-design, data-layer, ui-design, service-layer)
+   - Derive from the spec's "Layers:" annotations in stories
+   - Derive from the file types that will be touched (routes → api-design, migrations → data-layer, etc.)
+
+   **Read and filter knowledge files:**
+   - Read `docs/knowledge/patterns.md` — extract entries under matching `## domain-tag` headings
+   - Read `docs/knowledge/errors.md` — extract entries whose `**Domain:**` field contains matching tags
+   - Sort by date (most recent first) — recent patterns are more likely relevant
+   - Cap at **top-3 patterns + top-3 errors per domain** to prevent context bloat
+   - **Total injection budget: ~500 tokens** — if filtered entries exceed this, truncate from the oldest entries first
+
+   **Format for injection:**
+   ```
+   **Lessons from previous implementations:**
+
+   Patterns:
+   - [domain] [Pattern title] (date): [one-line summary]
+
+   Known errors:
+   - [domain] [Error symptom] (date): [root cause + fix summary]
+   ```
+
+   **Use in planning:** Carry these forward into the plan:
+   - If a known error applies to the planned implementation, add it as a risk in "Risks and Fallbacks" with the known fix as the fallback
+   - If a pattern applies, reference it in the relevant phase's step instructions
+
+5. **Present your analysis:**
 
 ```
 **Architectural gate:** ✅ Passed
@@ -170,6 +199,9 @@ Before writing a single line of the plan, understand the terrain. This phase is 
 **Key findings:**
 - [Finding 1 with file:line reference]
 - [Finding 2 with file:line reference]
+
+**Knowledge from previous implementations:** [N patterns, N errors loaded | No knowledge directory found]
+[If entries found, list the most relevant 1-2 items briefly]
 
 **Incremental delivery plan:**
 1. [Capability 1] — after this phase, [what's testable/demoable]
