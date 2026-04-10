@@ -14,6 +14,56 @@ When `/implement --sdd` is active, the main session becomes an **orchestrator** 
 **Use SDD when:** Plans with 5+ tasks, multi-file implementations, complex features.
 **Don't use SDD when:** Small plans (< 3 tasks), quick fixes, single-file changes. Use inline `/implement` instead.
 
+## Wave Analysis
+
+Run wave analysis BEFORE entering the task dispatch loop. This groups tasks into parallel waves based on file dependencies. The analysis is always run when SDD is active — the fallback (all tasks in one wave = sequential) is identical to current behavior.
+
+### 1. File Reference Extraction
+
+For each task/step in the plan, identify:
+
+- **Creates:** Files listed with `(create)` or `[create]` in the step's "File:" line
+- **Modifies:** Files listed with `(modify)` or `[modify]` in the step's "File:" line
+- **Reads/references:** Files mentioned in "Pattern:" lines or "Follow `file:line`" references
+
+If a step has no explicit "File:" line, treat it as modifying unknown files — it becomes a **dependency barrier** (must run after everything before it, and everything after it depends on it).
+
+### 2. Dependency Edge Rules
+
+- Task B **depends on** Task A if: B reads or modifies a file that A creates or modifies
+- **Read-read is NOT a dependency** — two tasks reading the same file can run in parallel
+- **Create-create on the same file is a CONFLICT** — same file created twice, move one to the next wave
+- **Modify-modify on the same file is a CONFLICT** — same file modified by two parallel tasks, move one to the next wave
+
+### 3. Wave Grouping Algorithm
+
+1. Build dependency edges from the file references
+2. Topologically sort into waves:
+   - **Wave 1:** tasks with no incoming dependency edges
+   - **Wave 2:** tasks whose dependencies are ALL in Wave 1
+   - **Wave N:** tasks whose dependencies are ALL in Waves 1 through N-1
+3. **File conflict resolution:** If two tasks in the same wave both create or modify the same file, move the task with fewer other dependents to the next wave. Log: "T3 and T5 both modify `file.ext` — T5 moved to Wave N+1"
+4. **Fallback:** If all tasks are sequentially dependent (each depends on the previous), produce N waves of 1 task each — behavior is identical to current sequential SDD
+
+### 4. Presentation
+
+Present the wave grouping to the user before dispatching:
+
+```
+## Wave Analysis
+
+**Tasks:** [N] total
+**Waves:** [N] (speedup: [N]x vs sequential)
+
+| Wave | Tasks | Dependencies |
+|------|-------|-------------|
+| 1 | T1, T2 | none (independent) |
+| 2 | T3, T4, T5 | T3→T1, T4→T2, T5→T1+T2 |
+| 3 | T6 | T3, T4, T5 |
+
+**File conflicts resolved:** [none | list]
+```
+
 ## Orchestration Protocol
 
 For each task in the plan:

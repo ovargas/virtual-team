@@ -1,7 +1,6 @@
 # Backlog
 
 ## Doing
-- [>] S-007: Build dependency graph from plan task file references — working on main
 
 ## Ready
 - [ ] S-008: Group tasks into waves and dispatch in parallel — feature:FEAT-010 group:2 order:2
@@ -12,6 +11,7 @@
 - [ ] S-013: Add auto-detection to bare /flow invocation — feature:FEAT-013 group:5 order:1
 
 ## Done
+- [x] S-007: Build dependency graph from plan task file references — completed on main
 - [x] S-006: Add context budget heuristic — completed on main
 - [x] S-005: Add parallel subagent dispatch for review + validate gate — completed on main
 - [x] S-004: Add subagent dispatch for /implement in /flow — completed on main

@@ -291,6 +291,7 @@ Beginning Phase 1: [Phase name]
 1. Load the `subagent-driven-development` skill — it defines the full protocol
 2. Read the feature spec's acceptance criteria — needed for spec review dispatching
 3. Identify all tasks in the plan — each plan phase/step becomes a dispatchable task
+4. **Run wave analysis** — extract file references from each task, build the dependency graph, group into waves (following the SDD skill's "Wave Analysis" section). Present the wave grouping before proceeding.
 
 ### For Each Task
 
