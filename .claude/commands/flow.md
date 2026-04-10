@@ -25,7 +25,8 @@ You are a pipeline orchestrator that runs the full development cycle from idea t
 - `--to=STEP` — stop after this step completes. Values: `feature`, `contracts`, `plan`, `next`, `implement`, `pr`
 - `--from=STEP` — start from this step (assumes prior steps are done). Values: `contracts`, `plan`, `next`, `implement`, `pr`
 - `--resume` — read the flow checkpoint and continue from where the previous run stopped
-- `--deep` — pass `--deep` to `/feature`, `/plan`, and `/implement` for agent-powered analysis
+- `--deep` — pass `--deep` to `/feature`, `/plan`, and `/implement` for agent-powered analysis. Also passes `--sdd` to `/implement` for subagent-driven execution.
+- `--sdd` — pass `--sdd` to `/implement` for subagent-driven development mode. Use for complex features with 5+ plan tasks. Can be used independently of `--deep`.
 - `--auto` — minimize interactive gates. Only stop on hard failures (incomplete contracts, failing tests, unresolved architectural decisions). Soft gates (TBDs that have reasonable defaults, optional improvements) are auto-resolved.
 - `--fresh` — delete any existing flow checkpoint and start from scratch
 - `--here` — pass `--here` to `/next` (skip worktree, work on current branch)

@@ -18,10 +18,12 @@ This is the ONE command that writes code. Every other command in the pre-impleme
 - `/implement --phase=2` — resume from a specific phase (after a session break)
 - `/implement --story=S-005` — implement a specific story
 - `/implement --auto` — autonomous mode, skip manual pause points
+- `/implement --sdd` — subagent-driven development mode, dispatch fresh subagent per task with two-stage review
 
 **Flags:**
 - `--auto` — autonomous mode: skip manual pause/confirmation points between phases. Still runs all automated verification (tests, lint, typecheck) and still stops on failures. Only skips "pause for manual confirmation" gates. Use this for Ralph Wiggum loops or batch processing.
 - `--deep` — allow agent spawning when the plan doesn't provide enough context. Without this flag, all code understanding is done directly (Glob, Grep, Read) — no agents spawned.
+- `--sdd` — subagent-driven development: the main session becomes an orchestrator that never writes code itself. Dispatches a fresh subagent per plan task with two-stage review (spec compliance + code quality). Use for plans with 5+ tasks. Loads the `subagent-driven-development` skill for the full orchestration protocol.
 - `--phase=N` — resume from a specific phase
 - `--fresh` — delete any existing checkpoint and start from scratch
 - Flags combine: `/implement --auto --deep --phase=2`
@@ -301,11 +303,55 @@ Beginning Phase 1: [Phase name]
 
 ---
 
+## SDD Execution Mode
+
+**This section applies only when `--sdd` is passed.** When active, the entire Execution Model above is replaced by this orchestration protocol. The main session becomes an orchestrator — it dispatches subagents but never writes code itself.
+
+### Setup
+
+1. Load the `subagent-driven-development` skill — it defines the full protocol
+2. Read the feature spec's acceptance criteria — needed for spec review dispatching
+3. Identify all tasks in the plan — each plan phase/step becomes a dispatchable task
+
+### For Each Task
+
+Follow the 10-step orchestration protocol from the SDD skill:
+
+1. **Extract** — Pull full task text from the plan. Include step description, file references, pattern references, and what-to-do instructions. **Never tell the subagent to read the plan file.**
+2. **Build context** — Provide scene-setting: tasks completed so far, files created/modified, verification results, where this task fits.
+3. **Select model** — Use the model selection table from the SDD skill. Mechanical tasks → haiku/sonnet. Integration → sonnet. Architecture → opus. When in doubt, sonnet.
+4. **Dispatch implementer** — Use the `implementer-prompt.md` template. Fill `{scene_setting}`, `{task_text}`, `{domain_skill_instruction}` with the relevant Layer 1 domain skill.
+5. **Handle status** — DONE → spec review. DONE_WITH_CONCERNS → assess, then review. NEEDS_CONTEXT → re-dispatch with info. BLOCKED → assess root cause (context → re-dispatch, reasoning → upgrade model, plan → escalate).
+6. **Dispatch spec reviewer** — Use `spec-reviewer-prompt.md`. Fill `{acceptance_criteria}` from the feature spec and `{git_diff_or_sha_range}` from the implementer's changes.
+7. **Handle spec review** — APPROVED → code quality review. ISSUES → dispatch implementer to fix → re-review. Loop max 3 iterations, then escalate.
+8. **Dispatch code quality reviewer** — Use `code-quality-reviewer-prompt.md`. Fill `{plan_requirements}` and `{git_diff_or_sha_range}`.
+9. **Handle quality review** — APPROVED → mark complete. Critical/Important issues → dispatch implementer to fix → re-review. Loop max 3 iterations. Minor issues logged but don't block.
+10. **Mark task complete** — Log outcome, advance to next task.
+
+### After All Tasks
+
+1. Dispatch a final holistic code review across the entire implementation (all tasks combined)
+2. Proceed to the standard completion flow: final verification, DoD alignment, backlog updates (same as inline mode)
+
+### SDD Rules
+
+- **Never dispatch multiple implementers in parallel** — file conflicts
+- **Never skip reviews** — both spec compliance AND code quality, every task
+- **Spec review BEFORE code quality** — wrong order wastes quality reviewer time
+- **Never let implementer read the plan file** — provide full task text directly
+- **Provide scene-setting context** — every subagent starts fresh
+- **Cap review loops at 3 iterations** — escalate to founder after that
+- **Implementer subagents load Layer 0 skills** — TDD, verification, review reception
+
+---
+
 ## Agent Usage
 
-**Default (no `--deep`): do NOT spawn agents.** Use Glob, Grep, and Read directly to understand code. A good plan already tells you which files to read and which patterns to follow. If you can't understand something, read harder — don't reach for an agent.
+**If `--sdd` was passed:** Agent dispatching is governed entirely by the SDD Execution Mode section above. The orchestrator dispatches implementer, spec reviewer, and code quality reviewer subagents per task. The restrictions below do not apply — SDD has its own dispatching rules.
 
-**If `--deep` was passed**, you may spawn up to 1 agent when ALL of these are true:
+**Default (no `--deep`, no `--sdd`): do NOT spawn agents.** Use Glob, Grep, and Read directly to understand code. A good plan already tells you which files to read and which patterns to follow. If you can't understand something, read harder — don't reach for an agent.
+
+**If `--deep` was passed (without `--sdd`)**, you may spawn up to 1 agent when ALL of these are true:
 1. The plan references code you can't understand from reading it directly
 2. You've already tried reading the file and tracing the logic yourself
 3. The question is architectural (not just "what does this function do")
@@ -316,7 +362,13 @@ Beginning Phase 1: [Phase name]
 
 ## Skill Loading
 
-Before writing code, load the relevant skills in two layers:
+Before writing code, load the relevant skills in three layers:
+
+**Layer 0 — Behavioral discipline.** Always load these behavioral skills before starting work. They are **rigid** — follow them exactly, no exceptions. This layer is not optional and does not depend on the type of work being done.
+
+- **`test-driven-development`** — No production code without a failing test first. Defines the red-green-refactor cycle.
+- **`verification-before-completion`** — No completion claims without fresh verification evidence. Every "done" must cite proof from this message.
+- **`receiving-code-review`** — No performative agreement with review feedback. Verify before implementing, push back when wrong.
 
 **Layer 1 — Domain principles.** Load the generic skill that matches the work domain. These cover universal rules (validation, accessibility, migration safety, transaction boundaries) that apply regardless of stack:
 
@@ -331,7 +383,7 @@ If the project has no stack-specific skills, the generic skills are sufficient. 
 
 If a stack-specific skill conflicts with a generic skill, follow the stack-specific one (it reflects the project's actual conventions). If either conflicts with the implementation plan, the plan takes precedence — but flag the conflict.
 
-Only load the skill(s) relevant to the current phase — don't load all of them at once.
+Layer 0 is always loaded. For Layers 1 and 2, only load the skill(s) relevant to the current phase — don't load all of them at once.
 
 ---
 
