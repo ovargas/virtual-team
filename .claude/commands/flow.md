@@ -331,11 +331,23 @@ When executing each step, you follow the FULL logic of that command as defined i
 - Run in foreground — the flow waits for the subagent to complete before evaluating the post-implement gate
 
 ### Executing /review + /validate (parallel)
+
+**Dispatch decision:** If `--deep` or `--sdd` is active, or the context budget heuristic triggers, dispatch both as fresh-context subagents in parallel (see "Fresh-Context Dispatch > Dispatching `/review` + `/validate`"). Otherwise, run inline.
+
+**Inline mode (default):**
 - Execute both in parallel:
   - `/review`: Follow `review.md` — run against the git diff (all changes on the branch). Pass `--deep` if `/flow --deep` was used.
   - `/validate`: Follow `validate.md` — run against the feature spec (FEAT-NNN from flow context). Pass `--deep` if `/flow --deep` was used.
 - Wait for both to complete before evaluating the quality gate
 - The combined results determine whether to proceed to `/pr` or halt
+- If halted: present the combined report and suggest `--from=review` to re-run after fixes
+
+**Subagent mode (when dispatched):**
+- Dispatch two fresh-context subagents in parallel following the protocol in "Fresh-Context Dispatch > Dispatching `/review` + `/validate`":
+  1. Review subagent (opus): git diff, spec, plan → verdict + issues
+  2. Validate subagent (sonnet): spec, plan, diff → coverage + gaps
+- Wait for both to complete before evaluating the quality gate
+- Combine results using the gate evaluation table (unchanged — see "Gate: After /review + /validate" above)
 - If halted: present the combined report and suggest `--from=review` to re-run after fixes
 
 ### Executing /pr
@@ -433,6 +445,83 @@ Write checkpoints as normal. When done, report your completion status:
   ```
 - If the subagent times out or crashes → treat as FAILED, note it in the checkpoint
 
+### Dispatching `/review` + `/validate`
+
+When the dispatch decision triggers for the quality gate, the flow dispatches both commands as parallel fresh-context subagents:
+
+**1. Collect artifacts to pass (shared by both):**
+- Feature spec path (e.g., `docs/features/2026-04-10-feature-name.md`)
+- Plan file path (e.g., `docs/plans/2026-04-10-feature-name.md`)
+- Branch name (for git diff)
+- Feature ID (FEAT-NNN)
+- Story IDs that were implemented
+- Summary of what was implemented (brief — e.g., "Added fresh-context dispatch for /implement and review+validate")
+
+**2. Build the review subagent prompt:**
+
+```
+You are running a code review as part of a `/flow` pipeline quality gate. The implementation
+phase is complete. You are starting with a fresh context to review the changes with maximum
+precision.
+
+**Feature:** [feature name] (FEAT-NNN)
+**Stories implemented:** [story IDs]
+**Branch:** [branch name]
+**What was implemented:** [brief summary]
+
+**Read these files to understand the context:**
+- Feature spec: [spec path] — acceptance criteria and definition of done
+- Implementation plan: [plan path] — what was supposed to be built
+
+**Execute:** Follow `.claude/commands/review.md` to review the git diff on branch [branch].
+Run `git diff main...HEAD` to see all changes. The feature spec at [spec path] has the
+acceptance criteria. Report your verdict:
+- APPROVE / APPROVE WITH NOTES / REQUEST CHANGES
+- List any Must Fix / Should Fix / Nit issues with file:line references
+```
+
+- Model: **opus** (matches review.md's model frontmatter)
+
+**3. Build the validate subagent prompt:**
+
+```
+You are running spec validation as part of a `/flow` pipeline quality gate. The implementation
+phase is complete. You are starting with a fresh context to validate spec alignment with
+maximum precision.
+
+**Feature:** [feature name] (FEAT-NNN)
+**Stories implemented:** [story IDs]
+**What was implemented:** [brief summary]
+
+**Read these files to understand the context:**
+- Feature spec: [spec path] — the requirements to validate against
+- Implementation plan: [plan path] — what was supposed to be built
+
+**Execute:** Follow `.claude/commands/validate.md` for feature [FEAT-NNN]. The spec is at
+[spec path], the plan is at [plan path]. Run `git diff main...HEAD` to see what changed.
+Produce the gap report. Report:
+- Per-requirement status (Met, Partial, Missing, Deviated, Scope creep)
+- Overall coverage (e.g., "8/8 requirements met")
+- Any gaps found with details
+```
+
+- Model: **sonnet** (matches validate.md's model frontmatter)
+
+**4. Parallel dispatch:**
+- Use the Agent tool with **two calls in the same message** — one for review, one for validate
+- Both use `subagent_type: "general-purpose"`
+- Review subagent: `model: "opus"`
+- Validate subagent: `model: "sonnet"`
+- Neither uses `run_in_background` — the flow waits for both to complete before evaluating the gate
+
+**5. Handle combined results:**
+- Extract the review verdict and any Must Fix / Should Fix / Nit issues from the review subagent
+- Extract the per-requirement coverage and any gaps from the validate subagent
+- Apply the gate evaluation table (unchanged — see "Gate: After /review + /validate" above)
+- Update the flow checkpoint with both results (see "Result Integration with Checkpoints" below)
+- If the gate passes → proceed to `/pr`
+- If the gate halts → present the combined quality report with issues from both subagents
+
 ### Result Integration with Checkpoints
 
 When a step is executed as a subagent, the flow checkpoint records the execution mode:
@@ -444,13 +533,17 @@ When a step is executed as a subagent, the flow checkpoint records the execution
 - [x] /plan → docs/plans/2026-04-10-search.md [inline]
 - [x] /next [inline]
 - [x] /implement [subagent — fresh context]
-- [ ] /review + /validate
+- [x] /review + /validate [subagent — parallel fresh context]
+  - /review: APPROVE WITH NOTES (2 nits)
+  - /validate: 8/8 requirements met
 - [ ] /pr
 ```
 
-The `[inline]` or `[subagent — fresh context]` annotation is informational — it helps the user understand what happened. It does not change `--resume` behavior. The checkpoint protocol already handles step completion regardless of execution mode.
+The `[inline]`, `[subagent — fresh context]`, or `[subagent — parallel fresh context]` annotation is informational — it helps the user understand what happened. It does not change `--resume` behavior. The checkpoint protocol already handles step completion regardless of execution mode.
 
-The subagent writes its own `/implement` checkpoint (in `docs/checkpoints/implement-*.md`) as normal. The flow checkpoint is authoritative for flow-level progress. If the subagent crashes between writing its checkpoint and reporting back, `--resume` re-dispatches the implement step (the subagent's checkpoint lets it resume from the last completed phase).
+When review+validate runs as subagents, the checkpoint records each subagent's result on indented sub-lines. This gives visibility into what each subagent found, which is useful for `--resume` (to know whether the gate passed) and for the completion report.
+
+The subagent writes its own `/implement` checkpoint (in `docs/checkpoints/implement-*.md`) as normal. The flow checkpoint is authoritative for flow-level progress. If the subagent crashes between writing its checkpoint and reporting back, `--resume` re-dispatches the step (the subagent's checkpoint lets it resume from the last completed phase). For review+validate, if one subagent completes but the other crashes, `--resume` re-dispatches both (the gate evaluation requires both results).
 
 ## Bug Fix Pipeline (`--fix` mode)
 
