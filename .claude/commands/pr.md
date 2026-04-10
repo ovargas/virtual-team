@@ -257,6 +257,65 @@ gh pr create --base develop --title "<title>" --body "..."
 
 **Note on stale locks:** If a PR is abandoned or a branch is deleted without merging, the lock becomes stale. `/next` calls **`clean_stale_locks()`** automatically to detect and clean them up.
 
+### Step 7.5: Knowledge Capture (optional)
+
+**Skip this step entirely if:**
+- `--auto` was passed (no one to answer)
+- `docs/knowledge/` directory does not exist (feature not enabled — skip silently)
+
+**If `docs/knowledge/` exists and not `--auto`:**
+
+1. **Present the capture prompt** after the PR is submitted and backlog is updated:
+   ```
+   **Knowledge capture** (optional — press Enter to skip)
+
+   Review the implementation you just completed. Were there any:
+
+   1. **Patterns** worth remembering? (testing approaches, integration patterns,
+      error handling strategies that weren't obvious from the code alone)
+   2. **Errors** you hit and fixed? (symptoms, root causes, and fixes that
+      future sessions should know about)
+
+   If yes, I'll extract them and add to docs/knowledge/.
+   If nothing notable, just say "skip" or press Enter.
+   ```
+
+2. **If the user says "skip" or presses Enter:** Skip silently, proceed to Step 8.
+
+3. **If the user provides input or says "yes":**
+   - Review the branch diff (`git diff <base>...HEAD`) and the implementation context
+   - Extract patterns and/or errors following the format in the knowledge files
+   - Derive domain tags from:
+     - The domain skills loaded during implementation (api-design, data-layer, ui-design, service-layer)
+     - File paths in the diff (e.g., `routes/` → api-design, `models/` → data-layer)
+     - The user can override or add tags
+   - Present the extracted entries for confirmation:
+     ```
+     Here's what I'd add:
+
+     **patterns.md** (under `## [domain-tag]`):
+     ### [Pattern title] (YYYY-MM-DD)
+     [Description]
+
+     **errors.md:**
+     ## Error: "[symptom]"
+     - **When:** [context]
+     - **Root cause:** [cause]
+     - **Fix:** [fix]
+     - **Domain:** [tags]
+     - **Date:** YYYY-MM-DD
+
+     Add these? (yes/edit/skip)
+     ```
+   - **On "yes":** Append entries to the knowledge files. If the domain heading (`## domain-tag`) doesn't exist yet in `patterns.md`, create it. Commit and push:
+     ```bash
+     git add docs/knowledge/patterns.md docs/knowledge/errors.md
+     git commit -m "docs(knowledge): capture patterns from [TICKET-ID]"
+     git push
+     ```
+   - **On "edit":** Let the user modify the entries, then append and commit.
+   - **On "skip":** Skip silently, proceed to Step 8.
+
 ### Step 8: Report
 
 ```
