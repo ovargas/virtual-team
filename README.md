@@ -40,6 +40,72 @@ my-app-api-worktrees/        ← worktrees live here
   fix/CTR-45/
 ```
 
+## Quickstart
+
+Once you've set up a repo (hub or service — see below), these are the only commands you need to know:
+
+### Start your day
+
+```
+/status
+```
+
+Shows what's in progress, what's next, and suggests the right command to run. This is your entry point every morning.
+
+### Build a feature end-to-end
+
+```
+/flow Add password reset via email
+```
+
+Runs the full pipeline in one session: `/feature` → `/contracts` → `/plan` → `/next` → `/implement` → `/review` + `/validate` → `/pr`. Interactive gates between each step resolve TBDs and decisions without leaving the session.
+
+### Fix a bug end-to-end
+
+```
+/flow --fix "users can't log in after password reset"
+```
+
+Runs the bug fix pipeline: `/bug` → `/debug` → `/next` → implement fix → `/review` + `/validate` → `/pr`. Includes mandatory pattern sweep to catch all occurrences.
+
+### Common `/flow` variations
+
+```bash
+/flow --deep Add search capability          # agent-powered analysis (slower, more thorough)
+/flow --to=plan Add email notifications     # stop after planning, don't implement yet
+/flow --from=next                           # resume mid-pipeline (spec and plan already exist)
+/flow --resume                              # pick up where last /flow left off
+/flow --auto Add simple utility             # minimal gates, only stop on hard failures
+/flow --fix BUG-003                         # bug already documented, start at /debug
+/flow --fix --quick "typo in error message" # skip bug report, go straight to /debug
+```
+
+### Manual step-by-step (when you want control)
+
+Run each pipeline step individually instead of using `/flow`:
+
+```bash
+/feature Add password reset via email     # spec + stories
+/contracts extract docs/features/...      # lock down API shapes
+/plan FEAT-001                            # technical plan (architect gates)
+/next                                     # lock + worktree
+  # → new session in worktree
+/implement                                # write code
+/commit                                   # commit
+/pr                                       # ship + unlock
+```
+
+### Other useful commands
+
+| Need | Command |
+|------|---------|
+| Capture a rough idea | `/idea Build a task management app` |
+| Multi-repo initiative (hub) | `/epic Add multilingual support` |
+| Research before committing | `/research WebSocket libraries for Go` |
+| Check project conventions | `/decisions testing` or `/decisions api error handling` |
+| Quiz yourself on decisions | `/check` or `/check --verbose` |
+| End a session cleanly | `/handoff` |
+
 ## File Structure
 
 ```
@@ -82,7 +148,8 @@ my-app-api-worktrees/        ← worktrees live here
 │   ├── status.md            ← Project status briefing
 │   ├── handoff.md           ← Session continuity notes
 │   └── update-workflow.md   ← Sync workflow files from template repo
-└── skills/                  ← 8 domain-specific standards
+├── settings.json            ← Hooks: SessionStart (skill-awareness), PreToolUse (TDD + verification)
+└── skills/                  ← 16 skills (domain, behavioral, backlog)
     ├── git-practices/       ← Branch, commit, PR, worktree, backlog lock conventions
     ├── api-design/          ← API endpoint and route handler standards
     ├── ui-design/           ← Frontend component and styling standards
@@ -90,7 +157,15 @@ my-app-api-worktrees/        ← worktrees live here
     ├── service-layer/       ← Business logic, interfaces, dependency injection standards
     ├── go-practices/        ← Go-specific: DI pattern, mockery, project structure (stack: go)
     ├── checkpoints/         ← Checkpoint protocol for resuming multi-phase commands
-    └── knowledge-check/     ← Developer understanding validation protocol
+    ├── knowledge-check/     ← Developer understanding validation protocol
+    ├── test-driven-development/        ← Iron law: no production code without a failing test first
+    ├── verification-before-completion/ ← No completion claims without fresh verification evidence
+    ├── receiving-code-review/          ← Verify before implementing review feedback, no performative agreement
+    ├── subagent-driven-development/    ← Orchestrator protocol for --sdd mode (fresh subagent per task)
+    ├── skill-awareness/     ← SessionStart hook: maps contexts to behavioral skills
+    ├── backlog/             ← Abstract backlog operations interface (20 operations)
+    ├── backlog-local/       ← File-based backlog: docs/backlog.md + docs/backlog.lock
+    └── backlog-external/    ← External service backlog: GitHub Issues, Linear, JIRA
 ```
 
 ## Setting Up a Hub Repo
@@ -458,7 +533,17 @@ This prevents the common failure mode where a bug is "fixed" in one location whi
 
 ## Quick Flows
 
-### Solo feature (no hub, single repo)
+### Automated (recommended)
+
+```bash
+/flow Add password reset via email                    # feature → contracts → plan → implement → review → pr
+/flow --fix "login broken after password reset"       # bug → debug → fix → review → pr
+/flow --deep --sdd Add real-time notifications        # agent-powered + subagent implementation
+/flow --to=plan Add search capability                 # stop after planning
+/flow --resume                                        # continue interrupted flow
+```
+
+### Manual: Solo feature (no hub, single repo)
 
 ```
 /feature Add password reset via email     ← spec + stories
@@ -488,7 +573,9 @@ This prevents the common failure mode where a bug is "fixed" in one location whi
 ### Morning startup
 
 ```
-/status                                   ← what's in progress, what's next
+/status                                   ← what's in progress, what's next, suggests commands
+/status backlog                           ← backlog health only
+/status FEAT-007                          ← status of a specific feature
 /next                                     ← or continue existing work
   ↓
 /implement --phase=3                      ← resume from where you left off
@@ -563,7 +650,7 @@ The `backlog.lock` file on main prevents both from picking the same item.
 | `/idea` | Any | Capture and shape a product concept | Feature brief | Early-stage thinking — you have a concept but haven't committed to building it yet |
 | `/epic` | Hub | Define cross-team initiative | Epic + decision records | Large initiatives that span multiple features or services |
 | `/feature` | Service | Spec a feature with YAGNI check | Feature spec + stories (with groups) | Ready to commit to building something — this starts the core pipeline |
-| `/flow` | Service | Run full pipeline with interactive gates | All pipeline artifacts + PR | Starting a feature end-to-end — chains feature → contracts → plan → next → implement → pr, resolving gaps interactively |
+| `/flow` | Service | Run full pipeline with interactive gates | All pipeline artifacts + PR | Starting a feature end-to-end — chains feature → contracts → plan → next → implement → review + validate → pr. Use `--fix` for bug fix pipeline (bug → debug → fix → pr) |
 | `/research` | Any | Deep-dive research | Research document | Technology evaluation, competitive analysis, or exploring unknowns before speccing |
 | `/contracts` | Service | Extract, define, validate API contracts | Schema files in `contracts/` | After `/feature`, before `/plan` — lock down API shapes so implementation can't drift |
 | `/plan` | Service | Technical implementation plan | Plan with file references | After spec and contracts are stable — produces the step-by-step build plan |
@@ -625,11 +712,15 @@ Available in: `/feature`, `/plan`, `/implement`, `/debug`, `/flow`
 - `--deep` — spawn agents for research (default: direct tools)
 
 #### `/flow`
-- `--to=STEP` — stop after this step (values: `feature`, `contracts`, `plan`, `next`, `implement`, `pr`)
-- `--from=STEP` — start from this step, assumes prior steps are done (values: `contracts`, `plan`, `next`, `implement`, `pr`)
+- `--fix` — run the bug fix pipeline: `/bug` → `/debug` → `/next` → implement fix → `/review` + `/validate` → `/pr`
+- `--fix --quick` — skip `/bug` documentation, start directly at `/debug`
+- `--to=STEP` — stop after this step. Feature: `feature`, `contracts`, `plan`, `next`, `implement`, `review`, `pr`. Fix: `bug`, `debug`, `next`, `implement`, `review`, `pr`
+- `--from=STEP` — start from this step, assumes prior steps are done. Feature: `contracts`, `plan`, `next`, `implement`, `review`, `pr`. Fix: `debug`, `next`, `implement`, `review`, `pr`
 - `--resume` — pick up where the last `/flow` left off (reads the flow checkpoint)
+- `--sdd` — use subagent-driven development for `/implement` (fresh subagent per task, two-stage review). Best for plans with 5+ tasks
 - `--here` — pass `--here` to `/next` (skip worktree, work on current branch)
 - `--current` — pass `--current` to `/next` (use current branch as-is)
+- `--fresh` — delete any existing flow checkpoint and start from scratch
 
 #### `/epic`
 - `--deep` — spawn product-owner and architect agents (default: direct analysis)
@@ -654,6 +745,7 @@ Available in: `/feature`, `/plan`, `/implement`, `/debug`, `/flow`
 #### `/implement`
 - `--auto` — skip manual pause/confirmation points (still runs all automated verification)
 - `--deep` — allow agent spawning when plan doesn't provide enough context
+- `--sdd` — subagent-driven development: orchestrator dispatches fresh subagent per task with two-stage review. Best for plans with 5+ tasks
 - `--phase=N` — resume from a specific phase after a session break
 - `--story=S-005` — implement a specific story
 
@@ -762,6 +854,8 @@ The `/implement` command reads `stack.md` to identify your frameworks, then load
 
 ### Skill Reference
 
+#### Domain Skills (loaded by `/implement` based on file type and `stack.md`)
+
 | Skill | Purpose | When Loaded |
 |-------|---------|-------------|
 | `git-practices` | Branch naming, commit format, PR format, worktree conventions, backlog lock protocol | `/commit`, `/pr`, `/next`, `/worktree` |
@@ -772,6 +866,26 @@ The `/implement` command reads `stack.md` to identify your frameworks, then load
 | `checkpoints` | Protocol for saving and resuming multi-phase commands | `/implement`, `/debug`, `/feature`, `/plan`, `/epic` |
 | `knowledge-check` | Developer understanding validation: question generation, evaluation, tutoring | `/plan`, `/pr`, `/check` |
 | `go-practices` | Go-specific: unexported struct/exported constructor pattern, mockery, project layout | Implementing `.go` files (auto-matched via `stack: go`) |
+
+#### Behavioral Skills (auto-loaded via hooks — no manual invocation needed)
+
+These skills enforce coding discipline automatically. They are loaded by the `SessionStart` hook (`settings.json`) and reinforced by the `PreToolUse` hook on `Edit|Write` calls.
+
+| Skill | Purpose | When Active |
+|-------|---------|-------------|
+| `skill-awareness` | Maps execution contexts to the correct behavioral skills | Every session start (loaded by `SessionStart` hook) |
+| `test-driven-development` | Enforces red-green-refactor: no production code without a failing test first | Before any `Edit`/`Write` to non-test files |
+| `verification-before-completion` | No completion claims ("done", "passes") without fresh verification evidence | Before any completion claim |
+| `receiving-code-review` | Verify feedback before implementing, push back when wrong, no performative agreement | When processing review comments (PR reviews, SDD reviewers, founder feedback) |
+| `subagent-driven-development` | Orchestrator protocol: fresh subagent per task, two-stage review | When `/implement --sdd` is active |
+
+#### Backlog Skills (loaded by any command that reads/writes the backlog)
+
+| Skill | Purpose | When Loaded |
+|-------|---------|-------------|
+| `backlog` | Abstract interface defining 20 operations all commands use (`list`, `start`, `complete`, `lock`, etc.) | First — loaded before any backlog operation, delegates to implementation |
+| `backlog-local` | File-based implementation using `docs/backlog.md` (bracket markers) and `docs/backlog.lock` (YAML) | Default when `stack.md` has `backlog: local` or no `backlog:` field |
+| `backlog-external` | External service implementation (GitHub Issues, Linear, JIRA) | When `stack.md` has `backlog: external` with a `backlog_config` section |
 
 ### Where to Put Architectural Conventions
 
@@ -793,6 +907,22 @@ Two approaches:
 
 1. **Edit in place** — Modify the generic skills with your project-specific conventions. Good for single-project use.
 2. **Keep generic + add stack skills** — Leave generic skills as templates. Create stack-specific skills (e.g., `go-gin/SKILL.md`, `react-nextjs/SKILL.md`) with `stack:` frontmatter for auto-matching. Good if you share the library across projects with different stacks.
+
+## Hooks
+
+The `.claude/settings.json` file configures two hooks that enforce behavioral skills automatically:
+
+### `SessionStart` Hook
+
+Runs `cat .claude/skills/skill-awareness/SKILL.md` at the start of every session. This loads the context-to-skill mapping so behavioral skills activate based on what you're doing, even without explicit slash commands.
+
+### `PreToolUse` Hook (on `Edit|Write`)
+
+Before any `Edit` or `Write` tool call, a prompt-based hook checks:
+1. **TDD discipline** — If writing production code (not test code), is there a failing test first?
+2. **Verification discipline** — Is the agent about to claim completion without fresh evidence?
+
+These hooks are what make behavioral skills "always on" rather than requiring manual activation.
 
 ## Key Design Principles
 
