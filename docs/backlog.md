@@ -1,7 +1,6 @@
 # Backlog
 
 ## Doing
-- [>] S-004: Add subagent dispatch for /implement in /flow — working on main
 
 ## Ready
 - [ ] S-005: Add parallel subagent dispatch for review + validate gate — feature:FEAT-009 group:1 order:2
@@ -15,6 +14,7 @@
 - [ ] S-013: Add auto-detection to bare /flow invocation — feature:FEAT-013 group:5 order:1
 
 ## Done
+- [x] S-004: Add subagent dispatch for /implement in /flow — completed on main
 - [x] S-003: Update remaining pipeline commands and documentation — PR #6
 - [x] S-002: Update /next to use backlog interface — PR #6
 - [x] S-001: Create backlog interface and implementation skills — PR #6

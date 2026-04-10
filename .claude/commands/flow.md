@@ -71,9 +71,9 @@ flags: [--deep, --here]  # flags passed to /flow
 # Flow Checkpoint
 
 ## Completed Steps
-- [x] /feature → docs/features/YYYY-MM-DD-search-capability.md (FEAT-012)
-- [x] /contracts → contracts/endpoints/POST-search.json, contracts/models/search-result.json
-- [x] /plan → docs/plans/YYYY-MM-DD-search-capability.md
+- [x] /feature → docs/features/YYYY-MM-DD-search-capability.md (FEAT-012) [inline]
+- [x] /contracts → contracts/endpoints/POST-search.json, contracts/models/search-result.json [inline]
+- [x] /plan → docs/plans/YYYY-MM-DD-search-capability.md [inline]
 - [ ] /next
 - [ ] /implement
 - [ ] /review + /validate
@@ -313,10 +313,22 @@ When executing each step, you follow the FULL logic of that command as defined i
 - If the feature has multiple stories in a group, use `--feature=FEAT-NNN` mode
 
 ### Executing /implement
+
+**Dispatch decision:** If `--deep` or `--sdd` is active, or the context budget heuristic triggers, dispatch as a fresh-context subagent (see "Fresh-Context Dispatch" section). Otherwise, run inline.
+
+**Inline mode (default):**
 - Follow `implement.md`: execute the plan phase by phase
 - Pass `--deep` if `/flow --deep` was used
 - Pass `--auto` if `/flow --auto` was used (skip manual pause points between phases, but still run verification)
 - Run full verification at the end (tests, lint, typecheck)
+
+**Subagent mode (when dispatched):**
+- Dispatch a fresh subagent following the protocol in "Fresh-Context Dispatch > Dispatching `/implement`"
+- The subagent reads the plan and executes `/implement` logic with a clean 200k context window
+- Pass through `--auto` if the flow has `--auto`
+- Pass through `--sdd` if the flow has `--sdd` or `--deep`
+- The subagent writes its own checkpoints; the flow checkpoint tracks the step-level completion
+- Run in foreground — the flow waits for the subagent to complete before evaluating the post-implement gate
 
 ### Executing /review + /validate (parallel)
 - Execute both in parallel:
@@ -344,6 +356,101 @@ If `/feature` produced multiple stories (e.g., S-015, S-016, S-017 in group:1), 
 5. One PR covers all stories in the group
 
 The gate after each `/implement` still applies — tests must pass before moving to the next story. The quality gate (review + validate) runs once after all stories are implemented, before `/pr`.
+
+## Fresh-Context Dispatch
+
+When running complex features, the flow dispatches execution-phase steps as fresh-context subagents instead of running them inline. This prevents context degradation — the later steps that need the most precision get the cleanest context.
+
+**Dispatch decision:** Dispatch as a fresh-context subagent if ANY of:
+1. `--deep` or `--sdd` flag is active (explicit override)
+2. Context budget heuristic triggers (see "Context Budget Heuristic" below)
+
+Otherwise, run inline as described in "Step Execution" above.
+
+**Which steps are dispatched:**
+
+| Step | Dispatch? | Reason |
+|---|---|---|
+| `/feature` | Never — inline | Needs user conversation |
+| `/contracts` | Never — inline | Needs user input for payload decisions |
+| `/plan` | Never — inline | Needs user approval |
+| `/next` | Never — inline | Mechanical, negligible context cost |
+| `/implement` | Yes, when triggered | Heaviest context consumer, benefits most from fresh window |
+| `/review` + `/validate` | Yes, when triggered | Parallel execution in fresh context |
+| `/pr` | Never — inline | Needs user confirmation, lightweight |
+
+### Dispatching `/implement`
+
+When the dispatch decision triggers for `/implement`, the flow does the following:
+
+**1. Collect artifacts to pass:**
+- Plan file path (e.g., `docs/plans/2026-04-10-feature-name.md`)
+- Feature spec path (e.g., `docs/features/2026-04-10-feature-name.md`)
+- Contracts directory path (if `contracts/` exists)
+- Stack definition path (`stack.md`)
+- Decisions directory (`docs/decisions/` if it exists)
+- Current story ID and branch name
+
+**2. Build the subagent prompt:**
+
+```
+You are implementing a feature as part of a `/flow` pipeline. The interactive phases
+(feature spec, contracts, plan) are already complete. You are starting with a fresh
+context to execute the implementation with maximum precision.
+
+**Feature:** [feature name] (FEAT-NNN)
+**Stories:** [story IDs being implemented]
+**Branch:** [branch name]
+
+**Read these files to understand the work:**
+- Implementation plan: [plan path] — this is your primary guide
+- Feature spec: [spec path] — acceptance criteria and definition of done
+- Contracts: [contracts dir or "none"]
+- Stack: [stack.md path]
+
+**Execute:** Follow `.claude/commands/implement.md` to implement the plan.
+**Flags:** [pass through --auto, --sdd, --deep as applicable]
+
+Write checkpoints as normal. When done, report your completion status:
+- DONE — all phases complete, verification passing
+- FAILED — describe what failed and where
+```
+
+**3. Dispatch:**
+- Use the Agent tool with `subagent_type: "general-purpose"` and `model: "opus"`
+- Run in **foreground** — the flow waits for the subagent to complete
+- Do NOT use `run_in_background` — the flow needs the result before proceeding to the quality gate
+
+**4. Handle the result:**
+- If the subagent reports DONE → update the flow checkpoint, proceed to the quality gate
+- If the subagent reports FAILED → halt the flow and present the error:
+  ```
+  ⛔ Implementation failed (subagent execution).
+
+  [Error details from subagent]
+
+  Fix the issues and run `/flow --from=implement` to retry.
+  ```
+- If the subagent times out or crashes → treat as FAILED, note it in the checkpoint
+
+### Result Integration with Checkpoints
+
+When a step is executed as a subagent, the flow checkpoint records the execution mode:
+
+```markdown
+## Completed Steps
+- [x] /feature → docs/features/2026-04-10-search.md (FEAT-012) [inline]
+- [x] /contracts → contracts/endpoints/POST-search.json [inline]
+- [x] /plan → docs/plans/2026-04-10-search.md [inline]
+- [x] /next [inline]
+- [x] /implement [subagent — fresh context]
+- [ ] /review + /validate
+- [ ] /pr
+```
+
+The `[inline]` or `[subagent — fresh context]` annotation is informational — it helps the user understand what happened. It does not change `--resume` behavior. The checkpoint protocol already handles step completion regardless of execution mode.
+
+The subagent writes its own `/implement` checkpoint (in `docs/checkpoints/implement-*.md`) as normal. The flow checkpoint is authoritative for flow-level progress. If the subagent crashes between writing its checkpoint and reporting back, `--resume` re-dispatches the implement step (the subagent's checkpoint lets it resume from the last completed phase).
 
 ## Bug Fix Pipeline (`--fix` mode)
 
