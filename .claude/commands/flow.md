@@ -31,7 +31,7 @@ You are a pipeline orchestrator that runs the full development cycle from idea t
 - `--to=STEP` — stop after this step completes. Feature mode values: `feature`, `contracts`, `plan`, `next`, `implement`, `review`, `pr`. Fix mode values: `bug`, `debug`, `next`, `implement`, `review`, `pr`.
 - `--from=STEP` — start from this step (assumes prior steps are done). Feature mode values: `contracts`, `plan`, `next`, `implement`, `review`, `pr`. Fix mode values: `debug`, `next`, `implement`, `review`, `pr`.
 - `--resume` — read the flow checkpoint and continue from where the previous run stopped
-- `--deep` — pass `--deep` to `/feature`, `/plan`, `/implement`, `/review`, and `/validate` for agent-powered analysis. Also passes `--sdd` to `/implement` for subagent-driven execution.
+- `--deep` — pass `--deep` to `/feature`, `/plan`, `/implement`, and `/validate` for agent-powered analysis. Also passes `--sdd` to `/implement` for subagent-driven execution. Note: `/review` always uses specialized dispatch (no `--deep` needed).
 - `--sdd` — pass `--sdd` to `/implement` for subagent-driven development mode. Use for complex features with 5+ plan tasks. Can be used independently of `--deep`.
 - `--auto` — minimize interactive gates. Only stop on hard failures (incomplete contracts, failing tests, unresolved architectural decisions). Soft gates (TBDs that have reasonable defaults, optional improvements) are auto-resolved.
 - `--fresh` — delete any existing flow checkpoint and start from scratch
@@ -214,7 +214,7 @@ For architectural or scope questions that could reshape the work. The flow:
 **Parallel execution:**
 - `/review` runs against the git diff (all changes on the branch). Uses the feature ID from the flow context to load the spec and plan for acceptance criteria checking.
 - `/validate` runs against the feature spec (FEAT-NNN from the flow context). Traces each requirement through the actual codebase to produce a gap report.
-- If `/flow --deep` was used, pass `--deep` to both commands (spawns pattern-finder + security-reviewer for review; codebase agents for validate).
+- `/review` always dispatches specialized review passes (code quality + security + domain) — no `--deep` flag needed. If `/flow --deep` was used, pass `--deep` to `/validate` (spawns codebase agents).
 
 **Check for:**
 - `/review` verdict: APPROVE, APPROVE WITH NOTES, or REQUEST CHANGES
@@ -336,7 +336,7 @@ When executing each step, you follow the FULL logic of that command as defined i
 
 **Inline mode (default):**
 - Execute both in parallel:
-  - `/review`: Follow `review.md` — run against the git diff (all changes on the branch). Pass `--deep` if `/flow --deep` was used.
+  - `/review`: Follow `review.md` — run against the git diff (all changes on the branch). Review always dispatches specialized passes (no `--deep` flag needed).
   - `/validate`: Follow `validate.md` — run against the feature spec (FEAT-NNN from flow context). Pass `--deep` if `/flow --deep` was used.
 - Wait for both to complete before evaluating the quality gate
 - The combined results determine whether to proceed to `/pr` or halt
@@ -673,7 +673,7 @@ After implementation passes, the quality gate runs exactly as in the feature pip
 - `/review` checks the fix for correctness, patterns, security
 - `/validate` checks against the bug report's expected behavior and all listed occurrences
 - Halt on Must Fix issues or validation gaps (even in `--auto`)
-- If `--deep` was passed, pass `--deep` to both `/review` and `/validate`
+- `/review` always dispatches specialized passes (no `--deep` needed). If `--deep` was passed, pass `--deep` to `/validate`
 
 ### Executing /pr (fix mode)
 

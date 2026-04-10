@@ -17,10 +17,6 @@ This is the founder's "second pair of eyes" since they're working solo.
 - `/review --staged` — review only staged changes
 - `/review path/to/file.ext` — review a specific file
 - `/review FEAT-003` — review all changes related to a feature (matches against the plan's file list)
-- `/review --deep` — spawn pattern-finder and security-reviewer agents for thorough analysis
-
-**Flags:**
-- `--deep` — spawn agents for pattern matching and security review. Without this flag, all review is done directly by reading the diff, checking patterns with Grep, and applying security knowledge. Default is lightweight.
 
 ## Process
 
@@ -38,51 +34,78 @@ This is the founder's "second pair of eyes" since they're working solo.
 
 3. **Read the changed files fully.** Don't review from diffs alone — understand the full file context.
 
-### Step 2: Pattern and Security Analysis
+### Step 2: Specialized Review Dispatch
 
-**Default (no `--deep`):** Do this yourself. Use Grep to find existing patterns for the type of changes made (e.g., search for similar endpoints, components). Review the changed files for security issues directly — check auth, input validation, data exposure, SQL injection, etc.
+Dispatch 3 parallel review passes, each focused on one dimension. This ensures thorough coverage without a single reviewer context-switching between concerns.
 
-**If `--deep` was passed:** Spawn in parallel:
-- Spawn **pattern-finder** agent: "Find the existing codebase patterns for [the type of changes made]. I need to verify the new code follows established conventions."
-- Spawn **security-reviewer** agent: "Review these files for security issues: [list of changed files]. Focus on [relevant area — auth, input validation, data exposure, etc.]."
+**Pass 1 — Code quality (agent):**
+Spawn **pattern-finder** agent (`.claude/agents/pattern-finder.md`):
+- "Find the existing codebase patterns for [the type of changes made — endpoints, components, services, etc.]. I need to verify the new code follows established conventions. Check: naming, file structure, test patterns, and DRY."
+- Model: sonnet
 
-Wait for both to return.
+**Pass 2 — Security (agent):**
+Spawn **security-reviewer** agent (`.claude/agents/security-reviewer.md`):
+- "Review these files for security issues: [list of changed files]. Focus on [relevant area — auth, input validation, data exposure, SQL injection, secrets, etc.]."
+- Model: sonnet
 
-### Step 3: Review Against Criteria
+**Pass 3 — Domain (inline):**
+Determine the relevant domain from the changed file paths and load the matching domain skill:
+- routes/handlers/endpoints → `api-design` skill
+- models/migrations/schemas → `data-layer` skill
+- components/pages/styles → `ui-design` skill
+- services/business logic → `service-layer` skill
+- If multiple domains: load the primary (most files changed), note secondary domains
 
-Check each change against multiple dimensions:
+Read the domain skill from `.claude/skills/{domain}/SKILL.md`. Review the changed files against the domain skill's rules and principles. Produce findings in Must Fix / Should Fix / Nit format.
+
+**Dispatch order:** Spawn Pass 1 and Pass 2 agents in parallel (use the Agent tool with two calls in a single message). Run Pass 3 inline while waiting for agents to return. Wait for all 3 passes to complete before proceeding.
+
+### Step 3: Merge Findings
+
+Combine results from all 3 passes into a unified findings list:
+
+1. **Map agent output formats** to the review categories:
+   - `security-reviewer`: Critical → **Must Fix**, Warning → **Should Fix**, Note → **Nit**
+   - `pattern-finder`: Pattern violations → **Should Fix**, adaptation notes → **Nit**
+   - Domain pass: findings already in Must Fix / Should Fix / Nit format (no mapping needed)
+
+2. **Deduplicate:** If two passes flag the same `file:line`, keep the higher-severity finding and merge the descriptions from both passes into one entry. Example: if security flags a Critical at `auth.py:42` and domain flags a Should Fix at the same location, keep it as Must Fix with both explanations.
+
+3. **Organize** the merged findings by severity (Must Fix first, then Should Fix, then Nit). Within each severity level, group by file.
+
+### Step 4: Review Against Criteria
+
+Using the merged findings from Step 3 as a starting point, validate and supplement across these dimensions:
 
 #### Correctness
 - Does the code do what the acceptance criteria say it should?
 - Are edge cases handled?
 - Are error paths reasonable?
 - Do the types/interfaces match what's expected?
+- Add any correctness issues not caught by the specialized passes
 
 #### Pattern Consistency
-Using the pattern-finder's results:
-- Does the new code follow established conventions?
-- Are naming patterns consistent with the rest of the codebase?
-- Is the file structure in the right place?
-- Do tests follow the existing test patterns?
+Using the pattern-finder's results (already merged in Step 3):
+- Confirm the findings are accurate — check any flagged patterns against the actual codebase
+- Add any pattern issues the agent missed that you notice from reading the full files
 
 #### Security
-Using the security-reviewer's results:
-- Are there any vulnerabilities introduced?
-- Is input validated?
-- Is sensitive data handled correctly?
-- Are auth/permission checks in place?
+Using the security-reviewer's results (already merged in Step 3):
+- Confirm the findings are accurate
+- Add any security concerns specific to the application context that a generic reviewer wouldn't catch
 
 #### Spec Alignment
 - Does this implementation match the feature spec's definition of done?
 - Is the scope correct — not too much, not too little?
 - Are any YAGNI boundaries being crossed?
 
-### Step 4: Present the Review
+### Step 5: Present the Review
 
 ```
 # Code Review: [Feature/Story Name]
 
 **Files reviewed:** [N]
+**Review passes:** code-quality ✅ | security ✅ | domain ([domain-name]) ✅
 **Verdict:** [APPROVE | APPROVE WITH NOTES | REQUEST CHANGES]
 
 ## Issues
@@ -111,7 +134,7 @@ Using the security-reviewer's results:
 [Call out 1-2 things done well — good for morale on a solo project]
 ```
 
-### Step 5: After Review
+### Step 6: After Review
 
 Depending on verdict:
 
@@ -146,4 +169,4 @@ Depending on verdict:
    - Focus on bugs, security, and spec alignment first; style last
 
 5. **Track progress with TodoWrite:**
-   - Create todos for: gather changes, spawn agents, review correctness, review patterns, review security, check spec alignment, present review
+   - Create todos for: gather changes, dispatch review passes, merge findings, review against criteria, present review
