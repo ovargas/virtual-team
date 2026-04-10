@@ -1,9 +1,9 @@
 # Backlog
 
 ## Doing
+- [>] S-005: Add parallel subagent dispatch for review + validate gate — working on main
 
 ## Ready
-- [ ] S-005: Add parallel subagent dispatch for review + validate gate — feature:FEAT-009 group:1 order:2
 - [ ] S-006: Add context budget heuristic — feature:FEAT-009 group:1 order:3
 - [ ] S-007: Build dependency graph from plan task file references — feature:FEAT-010 group:2 order:1
 - [ ] S-008: Group tasks into waves and dispatch in parallel — feature:FEAT-010 group:2 order:2
