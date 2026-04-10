@@ -1,8 +1,18 @@
 # Backlog
 
 ## Doing
+- [>] S-004: Add subagent dispatch for /implement in /flow — working on main
 
 ## Ready
+- [ ] S-005: Add parallel subagent dispatch for review + validate gate — feature:FEAT-009 group:1 order:2
+- [ ] S-006: Add context budget heuristic — feature:FEAT-009 group:1 order:3
+- [ ] S-007: Build dependency graph from plan task file references — feature:FEAT-010 group:2 order:1
+- [ ] S-008: Group tasks into waves and dispatch in parallel — feature:FEAT-010 group:2 order:2
+- [ ] S-009: Create knowledge directory and capture step — feature:FEAT-011 group:3 order:1
+- [ ] S-010: Add knowledge injection to /plan — feature:FEAT-011 group:3 order:2
+- [ ] S-011: Add specialized parallel review dispatch — feature:FEAT-012 group:4 order:1
+- [ ] S-012: Add auto-fix cycle to quality gate — feature:FEAT-012 group:4 order:2
+- [ ] S-013: Add auto-detection to bare /flow invocation — feature:FEAT-013 group:5 order:1
 
 ## Done
 - [x] S-003: Update remaining pipeline commands and documentation — PR #6
