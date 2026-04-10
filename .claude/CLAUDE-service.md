@@ -7,7 +7,7 @@ This is a **service repository** — an implementation repo. It has its own code
 Work flows through a deliberate pipeline. Each step produces a specific artifact. No step is skipped.
 
 ```
-/feature → /contracts → /plan → /next → /implement → /pr
+/feature → /contracts → /plan → /next → /implement → /review + /validate → /pr
 ```
 
 Or run the full pipeline in one command with `/flow`, which chains all steps and resolves gaps interactively at gates between each step.
@@ -56,12 +56,21 @@ Eight specialized agents live in `.claude/agents/`. They are sub-agents spawned 
 
 The software-architect agent has a special role: it runs a **dependency check** before any plan is written. It reads `stack.md`, identifies TBD items, and cross-references them against the feature's requirements. If the feature needs something that hasn't been decided (e.g., database is TBD but the feature needs queries), it **halts** the entire planning process with options and recommendations. This is not optional — it prevents building on unresolved foundations.
 
+## Quick Start
+
+Most of the time, you only need three commands:
+- **`/flow <description>`** — build a feature end-to-end (spec → contracts → plan → implement → review → PR)
+- **`/flow --fix "description"`** — fix a bug end-to-end (report → investigate → fix → review → PR)
+- **`/status`** — see what's happening and what to do next
+
+Everything else is available when you need it. See the full command reference below.
+
 ## Commands
 
 Commands are the workflow. Pre-implementation commands produce documents, never code. Only `/implement` writes code.
 
 ### Pipeline Orchestrator
-- `/flow <description>` — Run the full pipeline (feature → contracts → plan → next → implement → pr) with interactive gates. Resolves TBDs and decisions inline without leaving the session. Use `--to=plan` to stop early, `--from=next` to resume mid-pipeline, `--resume` to continue an interrupted flow.
+- `/flow <description>` — Run the full pipeline (feature → contracts → plan → next → implement → review + validate → pr) with interactive gates. Use `--fix` for the bug fix pipeline (bug → debug → next → implement fix → review + validate → pr). Use `--to=plan` to stop early, `--from=next` to resume mid-pipeline, `--resume` to continue an interrupted flow.
 
 ### Feature Intake
 - `/idea` — Capture a new product concept (for standalone repos without a hub)

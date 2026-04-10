@@ -1,6 +1,6 @@
 ---
 name: flow
-description: Run the full pipeline (feature → contracts → plan → next → implement → pr) with interactive gates between steps
+description: Run the full pipeline (feature → contracts → plan → next → implement → review + validate → pr) with interactive gates between steps. Use --fix for the bug fix pipeline (bug → debug → next → fix → review + validate → pr).
 model: opus
 ---
 
@@ -20,12 +20,18 @@ You are a pipeline orchestrator that runs the full development cycle from idea t
 - `/flow --resume` — pick up where the last `/flow` left off (reads the flow checkpoint)
 - `/flow --deep Add email notifications` — enable `--deep` (agent-powered) mode for `/feature`, `/plan`, and `/implement`
 - `/flow --auto Add simple utility function` — minimal gates, only stop on hard failures (contracts incomplete, tests failing)
+- `/flow --fix "users can't log in after password reset"` — run the bug fix pipeline from report to PR
+- `/flow --fix BUG-003` — skip `/bug` (report already exists), start at `/debug`
+- `/flow --fix --quick "typo in error message"` — skip `/bug` documentation, start at `/debug`
+- `/flow --fix --from=next` — resume from `/next` onward (bug already documented and investigated)
 
 **Flags:**
-- `--to=STEP` — stop after this step completes. Values: `feature`, `contracts`, `plan`, `next`, `implement`, `pr`
-- `--from=STEP` — start from this step (assumes prior steps are done). Values: `contracts`, `plan`, `next`, `implement`, `pr`
+- `--fix` — run the bug fix pipeline instead of the feature pipeline. Pipeline: `/bug` → `/debug` → `/next` → implement fix → `/review` + `/validate` → `/pr`. Accepts a bug description or BUG-NNN ID.
+- `--quick` — (only with `--fix`) skip the `/bug` documentation step, start directly at `/debug`. Use for trivial fixes where a formal bug report isn't needed.
+- `--to=STEP` — stop after this step completes. Feature mode values: `feature`, `contracts`, `plan`, `next`, `implement`, `review`, `pr`. Fix mode values: `bug`, `debug`, `next`, `implement`, `review`, `pr`.
+- `--from=STEP` — start from this step (assumes prior steps are done). Feature mode values: `contracts`, `plan`, `next`, `implement`, `review`, `pr`. Fix mode values: `debug`, `next`, `implement`, `review`, `pr`.
 - `--resume` — read the flow checkpoint and continue from where the previous run stopped
-- `--deep` — pass `--deep` to `/feature`, `/plan`, and `/implement` for agent-powered analysis. Also passes `--sdd` to `/implement` for subagent-driven execution.
+- `--deep` — pass `--deep` to `/feature`, `/plan`, `/implement`, `/review`, and `/validate` for agent-powered analysis. Also passes `--sdd` to `/implement` for subagent-driven execution.
 - `--sdd` — pass `--sdd` to `/implement` for subagent-driven development mode. Use for complex features with 5+ plan tasks. Can be used independently of `--deep`.
 - `--auto` — minimize interactive gates. Only stop on hard failures (incomplete contracts, failing tests, unresolved architectural decisions). Soft gates (TBDs that have reasonable defaults, optional improvements) are auto-resolved.
 - `--fresh` — delete any existing flow checkpoint and start from scratch
@@ -46,7 +52,7 @@ Flags combine: `/flow --deep --to=plan Add search capability` runs agent-powered
 The full pipeline is:
 
 ```
-/feature → /contracts → /plan → /next → /implement → /pr
+/feature → /contracts → /plan → /next → /implement → /review + /validate → /pr
 ```
 
 Each step is executed by invoking the actual command's logic (not by literally running a slash command — you ARE the orchestrator, you execute each step's full process inline).
@@ -70,6 +76,7 @@ flags: [--deep, --here]  # flags passed to /flow
 - [x] /plan → docs/plans/YYYY-MM-DD-search-capability.md
 - [ ] /next
 - [ ] /implement
+- [ ] /review + /validate
 - [ ] /pr
 
 ## Resolved Gates
@@ -198,17 +205,59 @@ For architectural or scope questions that could reshape the work. The flow:
 
 **Auto mode:** Retry failing tests once. If still failing, stop.
 
-**Important:** After `/implement` completes and the gate passes, **always pause for manual verification** unless `--auto` was passed. Say:
-```
-Implementation complete. All automated checks pass.
+**Important:** After `/implement` completes and the gate passes, proceed to the quality gate (`/review` + `/validate`). The quality gate replaces the manual verification step — it provides automated code review and spec validation instead of relying on the user to manually check. If the quality gate passes and `--auto` is NOT set, pause for final confirmation before `/pr`.
 
-Please verify manually before I create the PR:
-- [ ] Test the feature locally
-- [ ] Review the key changes
-- [ ] Confirm it matches expectations
+### Gate: After /review + /validate (Quality Gate)
 
-Ready to proceed with /pr? (yes / or describe what needs fixing)
+**This gate runs both `/review` and `/validate` in parallel** after the `/implement` gate passes. They check orthogonal concerns — code quality vs spec alignment — so they don't need to wait for each other.
+
+**Parallel execution:**
+- `/review` runs against the git diff (all changes on the branch). Uses the feature ID from the flow context to load the spec and plan for acceptance criteria checking.
+- `/validate` runs against the feature spec (FEAT-NNN from the flow context). Traces each requirement through the actual codebase to produce a gap report.
+- If `/flow --deep` was used, pass `--deep` to both commands (spawns pattern-finder + security-reviewer for review; codebase agents for validate).
+
+**Check for:**
+- `/review` verdict: APPROVE, APPROVE WITH NOTES, or REQUEST CHANGES
+- `/review` issue categories: Must Fix (blocking), Should Fix (non-blocking), Nits (optional)
+- `/validate` gap report: per-requirement status (Met, Partial, Missing, Deviated, Scope creep)
+
+**Gate evaluation — combine results from both:**
+
+| Review Verdict | Validate Result | Gate Action |
+|---------------|----------------|-------------|
+| APPROVE | All requirements met | **Continue** to `/pr` |
+| APPROVE WITH NOTES | All requirements met | **Continue** (log notes in checkpoint) |
+| APPROVE WITH NOTES | Any gaps found | **Halt** |
+| REQUEST CHANGES | All requirements met | **Halt** |
+| REQUEST CHANGES | Any gaps found | **Halt** |
+
+The gate halts if `/review` has **any Must Fix issues** OR `/validate` has **any gaps** (Missing, Partial, or Deviated requirements).
+
+**On halt — present a combined quality report:**
 ```
+Quality gate failed. Fix the issues below before proceeding to /pr.
+
+## Code Review
+Verdict: [verdict]
+Must Fix:
+- file.ext:42 — [issue description]. Suggestion: [how to fix]
+
+Should Fix:
+- file.ext:78 — [issue description]
+
+## Spec Validation
+Gaps found:
+- [Requirement] — [Missing|Partial|Deviated]: [what's wrong]
+
+Fix these issues and run `/flow --from=review` to re-run the quality gate.
+```
+
+**Auto mode:** This is a **hard gate** — it halts even in `--auto` mode when Must Fix issues or spec gaps are found. The only difference in `--auto`:
+- APPROVE + all met → continue silently (no confirmation prompt)
+- APPROVE WITH NOTES + all met → continue, log notes in checkpoint (no confirmation prompt)
+- Any Must Fix or any gaps → **halt even in `--auto`**
+
+**On clean pass:** Report "Quality gate passed — proceeding to /pr" and continue.
 
 ### Gate: After /pr
 
@@ -269,6 +318,14 @@ When executing each step, you follow the FULL logic of that command as defined i
 - Pass `--auto` if `/flow --auto` was used (skip manual pause points between phases, but still run verification)
 - Run full verification at the end (tests, lint, typecheck)
 
+### Executing /review + /validate (parallel)
+- Execute both in parallel:
+  - `/review`: Follow `review.md` — run against the git diff (all changes on the branch). Pass `--deep` if `/flow --deep` was used.
+  - `/validate`: Follow `validate.md` — run against the feature spec (FEAT-NNN from flow context). Pass `--deep` if `/flow --deep` was used.
+- Wait for both to complete before evaluating the quality gate
+- The combined results determine whether to proceed to `/pr` or halt
+- If halted: present the combined report and suggest `--from=review` to re-run after fixes
+
 ### Executing /pr
 - Follow `pr.md`: review changes, write PR description, submit
 - Always include the feature ID and story references in the PR
@@ -282,10 +339,202 @@ If `/feature` produced multiple stories (e.g., S-015, S-016, S-017 in group:1), 
 2. `/implement` runs for the first story (lowest order)
 3. After implementation, check: are there more stories in the group?
    - Yes → `/next --current` picks the next story, `/implement` runs again
-   - No → proceed to `/pr`
-4. One PR covers all stories in the group
+   - No → proceed to the quality gate (`/review` + `/validate`), then `/pr`
+4. The quality gate runs once covering all changes across all stories in the group
+5. One PR covers all stories in the group
 
-The gate after each `/implement` still applies — tests must pass before moving to the next story.
+The gate after each `/implement` still applies — tests must pass before moving to the next story. The quality gate (review + validate) runs once after all stories are implemented, before `/pr`.
+
+## Bug Fix Pipeline (`--fix` mode)
+
+When `--fix` is passed, the orchestrator runs a compressed pipeline designed for bug fixes:
+
+```
+/bug → /debug → /next → implement fix → /review + /validate → /pr
+```
+
+No `/feature`, `/contracts`, or formal `/plan` — the bug report and debug investigation serve as the spec. The debug output (root cause, all occurrences, suggested fix) becomes the implementation guide.
+
+### Mode Detection
+
+The orchestrator checks for `--fix` at startup:
+- `--fix` present → run the bug fix pipeline (this section)
+- `--fix` absent → run the feature pipeline (above)
+
+This is explicit, not inferred. The user decides whether they're fixing a bug or building a feature.
+
+### Input Handling
+
+- `/flow --fix "description"` → description becomes input to `/bug`
+- `/flow --fix BUG-NNN` → skip `/bug`, load the existing report, start at `/debug`
+- `/flow --fix --quick "description"` → skip `/bug`, description becomes input to `/debug`
+
+### Gate: After /bug
+
+**Check for:**
+- Bug report has reproduction steps (at minimum, what was observed and what was expected)
+- Severity is set
+- Report is saved to `docs/bugs/`
+
+**Patch-and-continue:** If the user's description is too vague, ask focused questions to fill gaps (reproduction steps, expected behavior, environment).
+
+**Auto mode:** Auto-accept if reproduction steps and severity exist. Stop only if the report is too vague to investigate.
+
+**On clean pass:** Report "Bug documented — proceeding to /debug" and continue.
+
+### Gate: After /debug (Complexity Gate)
+
+This is the most critical gate in the bug fix pipeline. It evaluates the debug investigation findings to determine whether a compressed fix pipeline is appropriate or whether the bug is systemic enough to warrant a full feature pipeline.
+
+**Check for:**
+- Root cause identified
+- Pattern sweep completed (mandatory — `debug.md` requires it)
+- Occurrence count and scope classification
+
+**Gate evaluation — complexity check:**
+
+| Scope | Occurrences | Gate Action |
+|-------|------------|-------------|
+| Isolated | 1-3 confirmed (🔴) | **Continue** — straightforward fix |
+| Multi-file | 4-9 confirmed (🔴) | **Continue with caution** — note scope in checkpoint |
+| Systemic | 10+ confirmed (🔴) or architectural issue | **Halt** — recommend feature pipeline |
+
+**On halt (systemic):**
+```
+⚠️ This bug is systemic — [N] confirmed occurrences across [N] files.
+
+A bug fix pipeline handles isolated issues. This needs a planned approach:
+1. Run `/flow` (feature pipeline) to spec and plan a systematic fix
+2. The bug report and investigation are preserved at [path] — use them as input
+
+The debug investigation is complete and saved. No work is lost.
+```
+
+**Auto mode:** Continue on isolated/multi-file. Halt on systemic (always — this is a hard gate).
+
+**On clean pass:** Report "Root cause found — [scope] ([N] occurrences). Proceeding to /next" and continue.
+
+### Gate: After /next (fix mode)
+
+Same as the feature pipeline gate — mechanical operation, almost always clean. Lock acquired, worktree/branch created, context is readable.
+
+### Inline Fix Implementation
+
+This replaces the formal `/implement` step. The orchestrator implements the fix inline — no formal plan document. The debug investigation IS the plan.
+
+1. **Read the debug findings:** root cause, all occurrences (🔴 confirmed + 🟡 likely), suggested fix approach
+2. **Load behavioral skills:** `test-driven-development`, `verification-before-completion`
+3. **Load domain skill** if applicable (api-design, data-layer, etc. based on the files being modified). If `--deep` was passed, also load the relevant stack-specific skill.
+4. **Generate inline fix plan:** List which occurrences to fix, in what order, what regression tests to write. Present the plan briefly before executing.
+5. **TDD cycle for each occurrence:**
+   a. Write a regression test that reproduces the bug for this occurrence
+   b. Verify the test fails (confirms the bug exists)
+   c. Apply the fix
+   d. Verify the test passes
+   e. Run full verification (tests, lint, typecheck)
+6. **Cover ALL confirmed (🔴) and likely (🟡) occurrences** from the pattern sweep — not just the primary one. A fix that only patches the reported instance is incomplete.
+
+**Gate after implementation:** Same as the feature pipeline — all tests pass, lint clean, typecheck clean. If tests fail, fix and re-verify.
+
+**Auto mode:** Skip manual confirmations between occurrences, but still run all verification.
+
+### Quality Gate (fix mode)
+
+After implementation passes, the quality gate runs exactly as in the feature pipeline (see "Gate: After /review + /validate" above):
+- `/review` checks the fix for correctness, patterns, security
+- `/validate` checks against the bug report's expected behavior and all listed occurrences
+- Halt on Must Fix issues or validation gaps (even in `--auto`)
+- If `--deep` was passed, pass `--deep` to both `/review` and `/validate`
+
+### Executing /pr (fix mode)
+
+- Follow `pr.md`: include bug ID and occurrence count in the PR description
+- Release the backlog lock
+- Update bug status to `fixed` in the bug report frontmatter
+
+### Bug Fix Checkpoint Format
+
+```markdown
+---
+started: YYYY-MM-DD HH:MM
+bug_description: "users can't log in after password reset"
+bug_id: BUG-007
+flags: [--fix]
+---
+
+# Flow Checkpoint (Bug Fix)
+
+## Completed Steps
+- [x] /bug → docs/bugs/2026-04-09-login-after-reset.md (BUG-007)
+- [x] /debug → root cause found: session token not invalidated on password change
+- [ ] /next
+- [ ] implement fix
+- [ ] /review + /validate
+- [ ] /pr
+
+## Resolved Gates
+- Gate after /debug: Straightforward — isolated to 1 file (auth/session.go:142)
+```
+
+### Bug Fix Completion Report
+
+```
+✅ Bug fix complete.
+
+Pipeline summary:
+- Bug: BUG-007 — Users can't log in after password reset
+- Root cause: Session token not invalidated on password change
+- Occurrences fixed: 2 confirmed + 1 likely
+- Branch: fix/BUG-007-login-after-reset
+- PR: #45 — [link]
+
+Artifacts produced:
+- docs/bugs/2026-04-09-login-after-reset.md (created + updated with investigation)
+- 3 regression tests added
+
+Flow checkpoint cleaned up.
+```
+
+Delete the flow checkpoint file on successful completion.
+
+### Bug Fix Step Execution
+
+When `--fix` is active, the step execution differs from the feature pipeline:
+
+#### Executing /bug (fix mode)
+- Follow `bug.md`: structured intake, severity assessment, backlog addition
+- The bug description from `/flow --fix`'s arguments becomes the input
+- Skipped if BUG-NNN ID provided or `--quick` flag passed
+- Write the checkpoint after the report is saved
+
+#### Executing /debug (fix mode)
+- Follow `debug.md`: reproduce, trace, root cause, pattern sweep, document
+- Input: the bug report from `/bug`, or the BUG-NNN ID, or the `--quick` description
+- Pass `--deep` if `/flow --fix --deep` was used
+- The pattern sweep is mandatory — it feeds the inline fix plan
+
+#### Executing /next (fix mode)
+- Follow `next.md`: lock the bug item in the backlog, create worktree/branch
+- Pass `--here` or `--current` if those flags were given
+- Branch naming: `fix/BUG-NNN-description` (following git-practices skill)
+
+#### Executing inline fix (fix mode)
+- This is orchestrator-managed, not a full `/implement` run
+- Read debug findings, generate inline fix plan, execute with TDD discipline
+- Load `test-driven-development` and `verification-before-completion` skills
+- If `--deep` was passed, also load the relevant domain skill (api-design, data-layer, etc.)
+- Run full verification after all occurrences are fixed
+
+#### Executing /review + /validate (fix mode)
+- Same parallel execution as the feature pipeline
+- `/review` runs against the git diff
+- `/validate` runs against the bug report (expected behavior + all occurrences)
+- Pass `--deep` if `/flow --fix --deep` was used
+
+#### Executing /pr (fix mode)
+- Follow `pr.md`: include bug ID and occurrence count in the PR
+- Release the backlog lock
+- Update bug status to `fixed` in the bug report frontmatter
 
 ## Error Recovery
 

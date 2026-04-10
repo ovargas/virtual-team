@@ -7,8 +7,10 @@ This is a **hub repository** — the product brain. It holds epics, cross-team d
 The hub captures WHAT to build and WHY. Service repos figure out HOW. Work flows like this:
 
 ```
-/idea → /epic --idea=IDEA-NNN (repeat until all MVP items covered) → service repos run /feature --epic=EPIC-NNN → /plan → /implement
+/idea → /epic --idea=IDEA-NNN (repeat until all MVP items covered) → service repos run /feature --epic=EPIC-NNN → /plan → /implement → /review + /validate → /pr
 ```
+
+For bug fixes, service repos use `/flow --fix` which runs a compressed pipeline: `/bug` → `/debug` → `/next` → implement fix → `/review` + `/validate` → `/pr`.
 
 An idea's MVP scope usually requires multiple epics. Run `/epic --idea=IDEA-NNN` repeatedly — each run reads the idea, checks which MVP items already have epics, and proposes the next one. The idea status tracks progress: `draft` → `active` (first epic) → `fulfilled` (all items covered).
 
@@ -37,6 +39,15 @@ Eight specialized agents live in `.claude/agents/`. They are read-only sub-agent
 | **pattern-finder** | Finds existing implementation patterns | `/plan`, `/feature` |
 | **docs-locator** | Finds relevant docs, plans, decisions | `/feature`, `/plan` |
 | **security-reviewer** | Reviews code for security concerns | `/review`, `/tech-review` |
+
+## Quick Start
+
+Most of the time, you only need three commands:
+- **`/idea <concept>`** — capture and shape a new product concept
+- **`/epic --idea=IDEA-NNN`** — break an idea into epics for service repos
+- **`/status`** — see what's happening and what to do next
+
+Everything else is available when you need it. See the full command reference below.
 
 ## Commands
 

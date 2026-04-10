@@ -217,11 +217,30 @@ Plan: [docs/plans/... | not yet planned]
    → Or run `/feature --epic=EPIC-NNN` if you know which epic to continue
    ```
 
-6. **End with a recommendation:**
+6. **End with contextual suggestions:**
 
-```
-**Suggested next action:** [What to work on and why — based on priorities, dependencies, and momentum]
-```
+   Based on the project state, suggest the most likely next commands. Use this decision matrix:
+
+   | State | Suggestion |
+   |-------|-----------|
+   | Items in Doing (`[>]`) | `→ Run /implement to continue [story name]` |
+   | Items marked Implemented (`[=]`) | `→ Run /pr to ship [story name]` |
+   | Items in Ready, none in Doing | `→ Run /next to pick up [top ready item]` |
+   | Features specced but no plan | `→ Run /plan FEAT-NNN to plan [feature name]` |
+   | Backlog empty, hub accessible | `→ Run /status in the hub to find available epics` |
+   | Backlog empty, no hub | `→ Run /flow <description> to start a new feature` |
+   | Attention items found | `→ [Specific fix command for the highest priority anomaly]` |
+
+   Format as a short list — max 3 suggestions, most relevant first:
+
+   ```
+   **What to do next:**
+   → Run `/implement` to continue S-015 (search endpoint — in progress)
+   → Or `/flow <description>` to start a new feature (3 items in Ready)
+   → Run `/refine FEAT-003` to resolve 2 open questions
+   ```
+
+   This section is the onboarding entry point — a new user who runs `/status` should immediately know which command to run next without reading any other documentation.
 
 ---
 
