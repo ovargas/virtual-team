@@ -1,7 +1,7 @@
 # Backlog
 
 ## Doing
-- [>] S-003: Update remaining pipeline commands and documentation — `feat/FEAT-008`
+- [=] S-003: Update remaining pipeline commands and documentation — `feat/FEAT-008` — implemented, pending PR
 
 ## Ready
 
