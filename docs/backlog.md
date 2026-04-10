@@ -1,7 +1,6 @@
 # Backlog
 
 ## Doing
-- [>] S-006: Add context budget heuristic — working on main
 
 ## Ready
 - [ ] S-007: Build dependency graph from plan task file references — feature:FEAT-010 group:2 order:1
@@ -13,6 +12,7 @@
 - [ ] S-013: Add auto-detection to bare /flow invocation — feature:FEAT-013 group:5 order:1
 
 ## Done
+- [x] S-006: Add context budget heuristic — completed on main
 - [x] S-005: Add parallel subagent dispatch for review + validate gate — completed on main
 - [x] S-004: Add subagent dispatch for /implement in /flow — completed on main
 - [x] S-003: Update remaining pipeline commands and documentation — PR #6

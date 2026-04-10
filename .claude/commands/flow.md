@@ -522,6 +522,35 @@ Produce the gap report. Report:
 - If the gate passes → proceed to `/pr`
 - If the gate halts → present the combined quality report with issues from both subagents
 
+### Context Budget Heuristic
+
+**Context dispatch threshold:** 4 tasks (configurable — increase for smaller models, decrease for aggressive freshness)
+
+Before dispatching a step inline or as a subagent, estimate context pressure using the plan's task count. This is the simplest reliable signal — each plan task involves reading files, writing code, and running verification, all of which consume significant context.
+
+**Estimation inputs:**
+- Number of plan tasks/phases (read from the plan file)
+- Number of stories being implemented in this flow run
+
+**Threshold rule:**
+- If the plan has **4+ tasks** → dispatch as subagent (the quality cliff starts around task 5, so dispatch preemptively at 4)
+- If `--deep` or `--sdd` is active → dispatch as subagent (explicit override, always — regardless of task count)
+- Otherwise → run inline
+
+This heuristic is deliberately simple. Do not over-engineer it with token counting or file size analysis. Task count is the strongest signal of context pressure and the easiest to measure. The threshold can be adjusted based on experience.
+
+**How the flow applies this:**
+1. After `/plan` completes (or on `--resume`/`--from`), count the tasks in the plan
+2. If the count meets the threshold, set an internal flag: `dispatch_mode = subagent`
+3. Both "Executing /implement" and "Executing /review + /validate" check this flag (along with `--deep`/`--sdd`) to decide inline vs. subagent
+
+### Execution Modes
+
+- **Inline (small features):** All steps run in the main session context. Fast, no overhead. Typical for features with 1-3 plan tasks.
+- **Subagent (complex features):** Implementation and quality gate steps dispatch as fresh-context subagents. The main session handles interactive steps (feature, contracts, plan, next) and the final PR step. Subagents get clean 200k windows for the work that needs precision.
+
+The transition between modes is transparent — the user runs `/flow` the same way. The heuristic (or explicit flags) determines the mode.
+
 ### Result Integration with Checkpoints
 
 When a step is executed as a subagent, the flow checkpoint records the execution mode:
