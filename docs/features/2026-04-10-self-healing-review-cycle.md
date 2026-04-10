@@ -1,7 +1,7 @@
 ---
 id: FEAT-012
 date: 2026-04-10
-status: draft
+status: done
 plan: docs/plans/2026-04-10-self-healing-review-cycle.md
 type: feature
 research_level: light

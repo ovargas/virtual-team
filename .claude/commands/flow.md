@@ -87,9 +87,14 @@ flags: [--deep, --here]  # flags passed to /flow
 Last completed: /plan
 Next step: /next
 Story target: S-015 (from FEAT-012)
+
+## Auto-Fix Tracking
+quality_gate_iteration: 0        # incremented each time the auto-fix cycle re-runs the quality gate (max 3)
+auto_fixed_issues: []             # list of issues auto-fixed in this flow run
+remaining_architectural: []       # architectural issues waiting for human judgment
 ```
 
-This checkpoint enables `--resume` to pick up exactly where the flow stopped.
+This checkpoint enables `--resume` to pick up exactly where the flow stopped. The auto-fix tracking fields are only present when the quality gate has triggered the auto-fix cycle.
 
 ## Gate Logic
 
@@ -252,10 +257,54 @@ Gaps found:
 Fix these issues and run `/flow --from=review` to re-run the quality gate.
 ```
 
-**Auto mode:** This is a **hard gate** — it halts even in `--auto` mode when Must Fix issues or spec gaps are found. The only difference in `--auto`:
+**Auto-fix cycle (when Must Fix issues are found):**
+
+Before halting, classify each Must Fix finding and attempt to auto-fix mechanical issues. This makes `/flow --auto` truly autonomous for fixable problems.
+
+**Issue classification rules:**
+
+| Category | Auto-fixable? | Examples |
+|----------|:------------:|---------|
+| Missing error handling | Yes | Unhandled error case, missing validation |
+| Incorrect status codes | Yes | Returns 200 instead of 201 on creation |
+| Missing test coverage | Yes | Acceptance criteria not tested |
+| Naming/pattern inconsistency | Yes | Doesn't follow established convention |
+| Fixable security vulnerability | Yes | SQL injection, missing input sanitization |
+| Architectural concern | No | Wrong abstraction, coupling issue |
+| Performance concern | No | Algorithm choice, caching strategy |
+| Scope deviation | No | Feature does more/less than spec says |
+
+**Classification requirement:** A finding must have a `file:line` reference to be auto-fixable. If the finding has no precise location, it cannot be mechanically fixed. **Conservative default:** if uncertain whether a finding is mechanical or architectural, classify it as architectural.
+
+**Auto-fix cycle logic:**
+
+1. **Classify** each Must Fix finding as mechanical or architectural
+2. **If ALL findings are architectural** → halt immediately (existing behavior, no auto-fix attempt)
+3. **If ANY findings are mechanical:**
+   a. Generate a mini fix plan — one task per mechanical Must Fix with: the `file:line`, issue description, and suggested fix from the review finding
+   b. Execute each fix task inline (load `test-driven-development` and `verification-before-completion` skills)
+   c. Run full verification (tests, lint, typecheck) after all fixes applied
+   d. Re-run the quality gate (`/review` + `/validate`) — this is iteration N+1
+   e. **Iteration limit: max 3.** Track the iteration count in the flow checkpoint.
+4. **If architectural findings exist alongside mechanical ones** → auto-fix the mechanical issues first, then after the cycle completes (all mechanical resolved or iteration limit hit), halt to present the remaining architectural findings for human judgment
+5. **If iteration limit reached** (3 attempts) with Must Fix issues still remaining → escalate:
+   ```
+   ⛔ Auto-fix limit reached (3 iterations). These issues persist:
+
+   Must Fix (still unresolved):
+   - file.ext:42 — [issue description]
+   - file.ext:78 — [issue description]
+
+   These likely need a design change, not a mechanical fix.
+   Review the issues above and fix manually, then run `/flow --from=review`.
+   ```
+
+**Auto mode:** This is a **hard gate** — architectural Must Fix issues and spec gaps halt even in `--auto` mode. The difference in `--auto`:
 - APPROVE + all met → continue silently (no confirmation prompt)
 - APPROVE WITH NOTES + all met → continue, log notes in checkpoint (no confirmation prompt)
-- Any Must Fix or any gaps → **halt even in `--auto`**
+- Mechanical Must Fix (no architectural issues, no spec gaps) → **auto-fix cycle runs automatically** (no prompt, up to 3 iterations)
+- Architectural Must Fix or any spec gaps → **halt even in `--auto`**
+- Without `--auto`: the auto-fix cycle still runs for mechanical issues, but pauses for confirmation before each iteration
 
 **On clean pass:** Report "Quality gate passed — proceeding to /pr" and continue.
 
@@ -674,6 +723,7 @@ After implementation passes, the quality gate runs exactly as in the feature pip
 - `/validate` checks against the bug report's expected behavior and all listed occurrences
 - Halt on Must Fix issues or validation gaps (even in `--auto`)
 - `/review` always dispatches specialized passes (no `--deep` needed). If `--deep` was passed, pass `--deep` to `/validate`
+- The auto-fix cycle applies here too — mechanical Must Fix issues are auto-fixed and re-reviewed (max 3 iterations), architectural concerns halt for human judgment
 
 ### Executing /pr (fix mode)
 

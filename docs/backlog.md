@@ -1,12 +1,12 @@
 # Backlog
 
 ## Doing
-- [>] S-012: Add auto-fix cycle to quality gate — working on main
 
 ## Ready
 - [ ] S-013: Add auto-detection to bare /flow invocation — feature:FEAT-013 group:5 order:1
 
 ## Done
+- [x] S-012: Add auto-fix cycle to quality gate — completed on main
 - [x] S-011: Add specialized parallel review dispatch — completed on main
 - [x] S-010: Add knowledge injection to /plan — completed on main
 - [x] S-009: Create knowledge directory and capture step — completed on main
