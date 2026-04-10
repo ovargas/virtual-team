@@ -293,29 +293,45 @@ Beginning Phase 1: [Phase name]
 3. Identify all tasks in the plan — each plan phase/step becomes a dispatchable task
 4. **Run wave analysis** — extract file references from each task, build the dependency graph, group into waves (following the SDD skill's "Wave Analysis" section). Present the wave grouping before proceeding.
 
-### For Each Task
+### For Each Wave
 
-Follow the 10-step orchestration protocol from the SDD skill:
+The wave analysis (from Setup step 4) determines the task grouping. Execute waves sequentially; within each wave, dispatch tasks in parallel.
 
-1. **Extract** — Pull full task text from the plan. Include step description, file references, pattern references, and what-to-do instructions. **Never tell the subagent to read the plan file.**
-2. **Build context** — Provide scene-setting: tasks completed so far, files created/modified, verification results, where this task fits.
-3. **Select model** — Use the model selection table from the SDD skill. Mechanical tasks → haiku/sonnet. Integration → sonnet. Architecture → opus. When in doubt, sonnet.
-4. **Dispatch implementer** — Use the `implementer-prompt.md` template. Fill `{scene_setting}`, `{task_text}`, `{domain_skill_instruction}` with the relevant Layer 1 domain skill.
-5. **Handle status** — DONE → spec review. DONE_WITH_CONCERNS → assess, then review. NEEDS_CONTEXT → re-dispatch with info. BLOCKED → assess root cause (context → re-dispatch, reasoning → upgrade model, plan → escalate).
-6. **Dispatch spec reviewer** — Use `spec-reviewer-prompt.md`. Fill `{acceptance_criteria}` from the feature spec and `{git_diff_or_sha_range}` from the implementer's changes.
-7. **Handle spec review** — APPROVED → code quality review. ISSUES → dispatch implementer to fix → re-review. Loop max 3 iterations, then escalate.
-8. **Dispatch code quality reviewer** — Use `code-quality-reviewer-prompt.md`. Fill `{plan_requirements}` and `{git_diff_or_sha_range}`.
-9. **Handle quality review** — APPROVED → mark complete. Critical/Important issues → dispatch implementer to fix → re-review. Loop max 3 iterations. Minor issues logged but don't block.
-10. **Mark task complete** — Log outcome, advance to next task.
+**1. Dispatch wave tasks in parallel (steps 1-4 per task):**
 
-### After All Tasks
+For each task in the current wave, prepare simultaneously:
+1. **Extract** task text from the plan
+2. **Build context** with scene-setting (include all previous wave results)
+3. **Select model** per the SDD skill's model selection table
+4. **Dispatch implementer** — use the Agent tool with multiple calls in a single message
+
+All implementers in the wave run simultaneously. Wait for all to return.
+
+**2. Review each task sequentially (steps 5-10 per task):**
+
+After all implementers return, review each task one at a time:
+5-7. Spec review cycle (max 3 iterations)
+8-9. Quality review cycle (max 3 iterations)
+10. Mark task complete
+
+**3. Advance to next wave:**
+
+Build cumulative context (files modified, review results, issues resolved).
+Proceed to the next wave.
+
+**Parallel dispatch cap:** Max 3 simultaneous implementers per wave. Larger waves split into sub-waves.
+
+**Sequential fallback:** If all tasks are in separate waves (fully dependent plan), this loop is identical to the current sequential protocol.
+
+### After All Waves
 
 1. Dispatch a final holistic code review across the entire implementation (all tasks combined)
 2. Proceed to the standard completion flow: final verification, DoD alignment, backlog updates (same as inline mode)
 
 ### SDD Rules
 
-- **Never dispatch multiple implementers in parallel** — file conflicts
+- **Never dispatch multiple implementers for the SAME file in parallel** — Wave analysis ensures tasks in the same wave don't share files. Within a wave, parallel dispatch is safe.
+- **Cap parallel dispatch at 3 subagents per wave** — prevents API rate limit issues
 - **Never skip reviews** — both spec compliance AND code quality, every task
 - **Spec review BEFORE code quality** — wrong order wastes quality reviewer time
 - **Never let implementer read the plan file** — provide full task text directly

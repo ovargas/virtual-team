@@ -1,7 +1,7 @@
 ---
 id: FEAT-010
 date: 2026-04-10
-status: draft
+status: implemented
 type: feature
 research_level: light
 yagni_verdict: build

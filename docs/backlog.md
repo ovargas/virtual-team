@@ -1,7 +1,6 @@
 # Backlog
 
 ## Doing
-- [>] S-008: Group tasks into waves and dispatch in parallel — working on main
 
 ## Ready
 - [ ] S-009: Create knowledge directory and capture step — feature:FEAT-011 group:3 order:1
@@ -11,6 +10,7 @@
 - [ ] S-013: Add auto-detection to bare /flow invocation — feature:FEAT-013 group:5 order:1
 
 ## Done
+- [x] S-008: Group tasks into waves and dispatch in parallel — completed on main
 - [x] S-007: Build dependency graph from plan task file references — completed on main
 - [x] S-006: Add context budget heuristic — completed on main
 - [x] S-005: Add parallel subagent dispatch for review + validate gate — completed on main
