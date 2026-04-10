@@ -1,0 +1,17 @@
+# Managed by /next and /pr commands — do not edit manually
+locks:
+  - item: "S-001"
+    feature: "FEAT-008"
+    branch: "feat/FEAT-008"
+    worktree: "in-place"
+    started: "2026-04-10T10:00:00"
+  - item: "S-002"
+    feature: "FEAT-008"
+    branch: "feat/FEAT-008"
+    worktree: "in-place"
+    started: "2026-04-10T10:00:00"
+  - item: "S-003"
+    feature: "FEAT-008"
+    branch: "feat/FEAT-008"
+    worktree: "in-place"
+    started: "2026-04-10T10:00:00"
