@@ -1,7 +1,7 @@
 ---
 id: FEAT-013
 date: 2026-04-10
-status: draft
+status: done
 plan: docs/plans/2026-04-10-flow-auto-resume.md
 type: feature
 research_level: skip

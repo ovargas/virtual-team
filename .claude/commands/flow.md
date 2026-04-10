@@ -13,6 +13,7 @@ You are a pipeline orchestrator that runs the full development cycle from idea t
 ## Invocation
 
 **Usage patterns:**
+- `/flow` — auto-detect pipeline state and resume (checkpoint → backlog → plans → specs)
 - `/flow Add search with full-text and aggregation` — run the full pipeline from feature to PR
 - `/flow --to=plan Add search capability` — run only feature → contracts → plan, then stop
 - `/flow --from=next` — resume from `/next` onward (spec and plan already exist)
@@ -30,7 +31,7 @@ You are a pipeline orchestrator that runs the full development cycle from idea t
 - `--quick` — (only with `--fix`) skip the `/bug` documentation step, start directly at `/debug`. Use for trivial fixes where a formal bug report isn't needed.
 - `--to=STEP` — stop after this step completes. Feature mode values: `feature`, `contracts`, `plan`, `next`, `implement`, `review`, `pr`. Fix mode values: `bug`, `debug`, `next`, `implement`, `review`, `pr`.
 - `--from=STEP` — start from this step (assumes prior steps are done). Feature mode values: `contracts`, `plan`, `next`, `implement`, `review`, `pr`. Fix mode values: `debug`, `next`, `implement`, `review`, `pr`.
-- `--resume` — read the flow checkpoint and continue from where the previous run stopped
+- `--resume` — read the flow checkpoint and continue from where the previous run stopped (note: bare `/flow` does this automatically — `--resume` is now redundant but still supported)
 - `--deep` — pass `--deep` to `/feature`, `/plan`, `/implement`, and `/validate` for agent-powered analysis. Also passes `--sdd` to `/implement` for subagent-driven execution. Note: `/review` always uses specialized dispatch (no `--deep` needed).
 - `--sdd` — pass `--sdd` to `/implement` for subagent-driven development mode. Use for complex features with 5+ plan tasks. Can be used independently of `--deep`.
 - `--auto` — minimize interactive gates. Only stop on hard failures (incomplete contracts, failing tests, unresolved architectural decisions). Soft gates (TBDs that have reasonable defaults, optional improvements) are auto-resolved.
@@ -46,6 +47,114 @@ Flags combine: `/flow --deep --to=plan Add search capability` runs agent-powered
 1. Read `stack.md` — understand the project
 2. Load the backlog skill (read `.claude/skills/backlog/SKILL.md` → read `stack.md` for `backlog:` field → read `.claude/skills/backlog-{value}/SKILL.md`) and call **`list(status=all)`** to understand current state
 3. Check `docs/checkpoints/flow-*.md` if `--resume` was passed
+
+## Auto-Detection (bare invocation)
+
+When `/flow` is invoked with **zero arguments AND zero flags**, auto-detect the pipeline state and resume from the correct step. If ANY flag or feature description is provided, skip this section entirely and use existing behavior.
+
+**Detection priority order** — check in this exact sequence, stop at first match:
+
+### Level 1: Flow checkpoint exists
+
+Check if `docs/checkpoints/flow-checkpoint.md` exists.
+
+**If YES:**
+1. Read the checkpoint
+2. **Staleness check:** If the checkpoint references a branch, verify the branch still exists (`git branch --list <branch>`). If the branch was deleted or a merged PR covers it, the checkpoint is stale — delete it and continue to Level 2.
+3. **If not stale:** Announce and resume (same behavior as `--resume`):
+   ```
+   Detected active pipeline state:
+
+   **Checkpoint:** flow-checkpoint.md found
+   **Last completed:** /[last completed step] (FEAT-NNN)
+   **Next step:** /[next step]
+
+   Resuming from /[next step]...
+   ```
+
+### Level 2: Backlog has items in "doing" status
+
+Call `list(status=doing)` using the backlog skill.
+
+**If items found:**
+- **If multiple doing items exist** → present a selection menu (see "Multi-item selection" below)
+- **For the selected item:** check if it has an approved plan in `docs/plans/`
+  - **Has approved plan** → announce and resume from `/implement`:
+    ```
+    Detected active pipeline state:
+
+    **Backlog:** [story ID] is in Doing status (FEAT-NNN)
+    **Plan:** [plan path] (approved)
+    **Branch:** [branch name from backlog]
+
+    Resuming from /implement...
+    ```
+  - **No plan** → announce and resume from `/plan`:
+    ```
+    Detected active pipeline state:
+
+    **Backlog:** [story ID] is in Doing status (FEAT-NNN)
+    **Plan:** not yet created
+
+    Resuming from /plan...
+    ```
+
+### Level 3: Approved but unstarted plans exist
+
+Scan `docs/plans/*.md` for plans with `status: approved`. Cross-reference with the backlog — the plan's stories should still be in "ready" status (not yet picked up).
+
+**If found:**
+- **If multiple** → present a selection menu
+- Announce and resume from `/next`:
+  ```
+  Detected active pipeline state:
+
+  **Plan:** [plan path] (approved, stories not yet started)
+  **Feature:** FEAT-NNN — [feature name]
+
+  Resuming from /next...
+  ```
+
+### Level 4: Draft feature specs without plans
+
+Scan `docs/features/*.md` for specs with `status: draft` or `status: refined` that have no `plan:` field in their frontmatter.
+
+**If found:**
+- **If the spec has a `contracts/` directory with matching schemas** → resume from `/plan`
+- **If no contracts** → resume from `/contracts` (or `/plan` if no `contracts/` directory exists in the project)
+- **If multiple** → present a selection menu
+- Announce and resume from the determined step:
+  ```
+  Detected active pipeline state:
+
+  **Spec:** [spec path] (draft, no plan yet)
+  **Feature:** FEAT-NNN — [feature name]
+
+  Resuming from /[contracts or plan]...
+  ```
+
+### Level 5: No active work detected
+
+If none of the above levels match:
+```
+No active pipeline detected. Describe a feature to start a new flow,
+or use `/next` to pick up work from the backlog.
+```
+
+### Multi-item selection
+
+When multiple candidates exist at any detection level, present a choice instead of guessing:
+
+```
+Multiple active items detected:
+
+1. FEAT-012: Self-Healing Review — S-015 in Doing, has approved plan
+2. FEAT-013: Flow Auto-Resume — S-013 in Doing, no plan yet
+
+Which item should I resume? (Enter number, or describe a new feature to start fresh)
+```
+
+Wait for the user's selection before proceeding. If the user provides a feature description instead of a number, treat it as a new `/flow <description>` invocation.
 
 ## Pipeline Steps
 

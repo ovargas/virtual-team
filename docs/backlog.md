@@ -1,11 +1,11 @@
 # Backlog
 
 ## Doing
-- [>] S-013: Add auto-detection to bare /flow invocation — working on main
 
 ## Ready
 
 ## Done
+- [x] S-013: Add auto-detection to bare /flow invocation — completed on main
 - [x] S-012: Add auto-fix cycle to quality gate — completed on main
 - [x] S-011: Add specialized parallel review dispatch — completed on main
 - [x] S-010: Add knowledge injection to /plan — completed on main
