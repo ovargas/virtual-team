@@ -1,7 +1,6 @@
 # Backlog
 
 ## Doing
-- [>] S-010: Add knowledge injection to /plan — working on main
 
 ## Ready
 - [ ] S-011: Add specialized parallel review dispatch — feature:FEAT-012 group:4 order:1
@@ -9,6 +8,7 @@
 - [ ] S-013: Add auto-detection to bare /flow invocation — feature:FEAT-013 group:5 order:1
 
 ## Done
+- [x] S-010: Add knowledge injection to /plan — completed on main
 - [x] S-009: Create knowledge directory and capture step — completed on main
 - [x] S-008: Group tasks into waves and dispatch in parallel — completed on main
 - [x] S-007: Build dependency graph from plan task file references — completed on main
