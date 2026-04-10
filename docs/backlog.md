@@ -1,9 +1,9 @@
 # Backlog
 
 ## Doing
+- [>] S-013: Add auto-detection to bare /flow invocation — working on main
 
 ## Ready
-- [ ] S-013: Add auto-detection to bare /flow invocation — feature:FEAT-013 group:5 order:1
 
 ## Done
 - [x] S-012: Add auto-fix cycle to quality gate — completed on main

@@ -1,2 +1,7 @@
 # Managed by backlog skill — do not edit manually
 locks:
+  - item: "S-013"
+    feature: "FEAT-013"
+    branch: "main"
+    worktree: "current-branch"
+    started: "2026-04-10T12:30:00"
