@@ -1,9 +1,9 @@
 # Backlog
 
 ## Doing
+- [>] S-007: Build dependency graph from plan task file references — working on main
 
 ## Ready
-- [ ] S-007: Build dependency graph from plan task file references — feature:FEAT-010 group:2 order:1
 - [ ] S-008: Group tasks into waves and dispatch in parallel — feature:FEAT-010 group:2 order:2
 - [ ] S-009: Create knowledge directory and capture step — feature:FEAT-011 group:3 order:1
 - [ ] S-010: Add knowledge injection to /plan — feature:FEAT-011 group:3 order:2
