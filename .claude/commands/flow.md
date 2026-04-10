@@ -44,7 +44,7 @@ Flags combine: `/flow --deep --to=plan Add search capability` runs agent-powered
 
 **Before doing anything else:**
 1. Read `stack.md` — understand the project
-2. Read `docs/backlog.md` if it exists — understand current state
+2. Load the backlog skill (read `.claude/skills/backlog/SKILL.md` → read `stack.md` for `backlog:` field → read `.claude/skills/backlog-{value}/SKILL.md`) and call **`list(status=all)`** to understand current state
 3. Check `docs/checkpoints/flow-*.md` if `--resume` was passed
 
 ## Pipeline Steps
@@ -308,7 +308,7 @@ When executing each step, you follow the FULL logic of that command as defined i
 - Reference the contracts as implementation constraints
 
 ### Executing /next
-- Follow `next.md`: read the backlog, lock the first story from the feature just specced
+- Follow `next.md`: use the backlog skill to find and lock the first story from the feature just specced
 - Pass `--here` or `--current` if those flags were given to `/flow`
 - If the feature has multiple stories in a group, use `--feature=FEAT-NNN` mode
 
@@ -329,7 +329,7 @@ When executing each step, you follow the FULL logic of that command as defined i
 ### Executing /pr
 - Follow `pr.md`: review changes, write PR description, submit
 - Always include the feature ID and story references in the PR
-- Release the backlog lock
+- Call **`complete_all_on_branch(branch, pr_number)`** to release the backlog lock and mark items done
 
 ## Multi-Story Features
 
@@ -502,7 +502,7 @@ Delete the flow checkpoint file on successful completion.
 When `--fix` is active, the step execution differs from the feature pipeline:
 
 #### Executing /bug (fix mode)
-- Follow `bug.md`: structured intake, severity assessment, backlog addition
+- Follow `bug.md`: structured intake, severity assessment, backlog addition (via `create()` operation)
 - The bug description from `/flow --fix`'s arguments becomes the input
 - Skipped if BUG-NNN ID provided or `--quick` flag passed
 - Write the checkpoint after the report is saved
@@ -514,7 +514,7 @@ When `--fix` is active, the step execution differs from the feature pipeline:
 - The pattern sweep is mandatory — it feeds the inline fix plan
 
 #### Executing /next (fix mode)
-- Follow `next.md`: lock the bug item in the backlog, create worktree/branch
+- Follow `next.md`: use the backlog skill to lock the bug item, create worktree/branch
 - Pass `--here` or `--current` if those flags were given
 - Branch naming: `fix/BUG-NNN-description` (following git-practices skill)
 
@@ -533,7 +533,7 @@ When `--fix` is active, the step execution differs from the feature pipeline:
 
 #### Executing /pr (fix mode)
 - Follow `pr.md`: include bug ID and occurrence count in the PR
-- Release the backlog lock
+- Call **`complete_all_on_branch(branch, pr_number)`** to release the backlog lock and mark items done
 - Update bug status to `fixed` in the bug report frontmatter
 
 ## Error Recovery

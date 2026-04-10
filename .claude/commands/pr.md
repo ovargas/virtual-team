@@ -12,12 +12,16 @@ This command uses `sonnet` because it's a structured, documentation-focused oper
 
 ## Required Reading
 
-**Before doing anything else**, load the git conventions:
+**Before doing anything else**, load the conventions:
 
 1. Read `.claude/skills/git-practices/SKILL.md` — this defines the EXACT format for PR titles and body
 2. Read `stack.md` — understand project context
+3. Load the backlog skill:
+   - Read `.claude/skills/backlog/SKILL.md` — the abstract operations interface
+   - Read `stack.md` → find the `backlog:` field (default: `local` if not specified)
+   - Read `.claude/skills/backlog-{value}/SKILL.md` — the active implementation
 
-The skill defines the PR format. Follow it precisely. Do not improvise.
+The git-practices skill defines the PR format. Follow it precisely. Do not improvise.
 
 ## Invocation
 
@@ -233,32 +237,25 @@ gh pr create --base develop --title "<title>" --body "..."
 
 **All backlog changes happen on the feature branch.** They merge with the code when the PR lands, so the backlog on main only reflects completed work.
 
-1. **Update `docs/backlog.md`** — move ALL items on this branch to Done:
-   - Find every item in Doing (`[>]`) or Implemented (`[=]`) state that references this branch
-   - Change each `- [>]` or `- [=]` to `- [x]`
-   - Add PR reference: `[x] S-003: Story title — PR #[number]`
-   - **Handle multiple stories:** If this branch worked on multiple stories (common with `/next --current` workflows), update ALL of them to Done
+1. Load the backlog skill (read `stack.md` → backlog interface → implementation).
 
-2. **Read `docs/backlog.lock`** — find lock entries for this branch:
-   - Remove ALL lock entries for this branch (there may be multiple if several stories were picked up with `/next --current`)
-   - If no more entries remain, delete the lockfile entirely
+2. Call **`complete_all_on_branch(branch, pr_number)`** — this marks all items on this branch as done with the PR reference and releases all locks. The operation handles:
+   - Finding all items in doing or implemented status for this branch
+   - Marking each as done with PR reference
+   - Removing all lock entries for this branch
+   - Checking feature completion status
+   - Committing all changes
 
-3. **Commit changes on the feature branch:**
-   ```bash
-   git add docs/backlog.md docs/backlog.lock
-   git commit -m "chore(backlog): mark stories done and release locks [TICKET-ID]"
-   ```
-
-4. **Push the new commit** so the PR includes it:
+3. **Push the new commit** so the PR includes it:
    ```bash
    git push
    ```
 
 **Why on the branch, not main:** When the PR merges, the backlog updates and lock releases land on main together with the code. Items stay locked on main until the PR is actually merged — which is the correct definition of done.
 
-**Note on lock merge conflicts (worktree mode):** In default/worktree mode, the lock was committed on main before the branch was created. If main's lockfile has been modified since (other locks added/removed by parallel worktrees), the merge may conflict on `backlog.lock`. Resolve by keeping the other locks and removing only this branch's entries. As a safety net, `/next` Step 2 automatically detects and cleans stale locks from merged PRs.
+**Note on lock merge conflicts (worktree mode):** In worktree mode, the lock was committed on main before the branch was created. If main's lockfile has been modified since, the merge may conflict. Resolve by keeping the other locks and removing only this branch's entries. `/next` Step 2 uses **`clean_stale_locks()`** to automatically detect and clean stale locks from merged PRs.
 
-**Note on stale locks:** If a PR is abandoned or a branch is deleted without merging, the lock becomes stale. `/next` detects stale locks automatically and cleans them up (see `/next` Step 2).
+**Note on stale locks:** If a PR is abandoned or a branch is deleted without merging, the lock becomes stale. `/next` calls **`clean_stale_locks()`** automatically to detect and clean them up.
 
 ### Step 8: Report
 
