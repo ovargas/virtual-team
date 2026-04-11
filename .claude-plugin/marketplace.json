@@ -1,3 +1,20 @@
 {
-  "developer": true
+  "name": "virtual-team",
+  "description": "Development marketplace for virtual-team core commands, skils and agent library",
+  "owner": {
+    "name": "Orlando Vargas",
+    "email": "ovargast@gmail.com"
+  },
+  "plugins": [
+    {
+      "name": "virtual-team",
+      "description": "Core skills library for Claude Code: TDD, debugging, collaboration patterns, and proven techniques",
+      "version": "1.0.0",
+      "source": "./",
+      "author": {
+        "name": "Orlando Vargas",
+        "email": "ovargast@gmail.com"
+      }
+    }
+  ]
 }
