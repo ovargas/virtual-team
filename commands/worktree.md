@@ -66,24 +66,22 @@ Shorthand:
 
    To work in this worktree:
    - Open a new Claude Code session in the worktree directory
-   - Run `/virtual-team:next CTR-12` to load context and start implementation
+   - Run `/virtual-team:implement` to load context and start implementation
    ```
 
 ### Action: Remove
 
 1. **Parse `$ARGUMENTS`** for the branch name
-2. **Check for active locks** — load the backlog skill and call **`check_lock()`** for the branch's items:
-   - If this branch has a lock, warn:
+2. **Check for in-progress work** — load the backlog skill and call **`list(status=doing)`** to check if any items are being worked on this branch:
+   - If items are in Doing status, warn:
      ```
-     Branch feat/CTR-12 has an active backlog lock:
-     - Item: S-003 (from FEAT-007)
-     - Started: 2026-02-12T14:30:00
+     Branch feat/CTR-12 has work in progress:
+     - Item: S-003 (from FEAT-007) — status: Doing
 
      This means work is still in progress. Options:
-     1. Remove the lock and the worktree (work is done or abandoned)
+     1. Remove the worktree (work is done or abandoned)
      2. Cancel — keep the worktree
      ```
-   - If removing, also call **`release_lock(id)`** via the backlog skill to clean up the lock
 
 3. **Check for uncommitted changes** in the worktree:
    ```bash
@@ -178,12 +176,7 @@ Shorthand:
    - Never remove a worktree with uncommitted changes without explicit confirmation
    - Always show what would be lost
 
-4. **Lock hygiene:**
-   - Creating a worktree does NOT create a lock — `/virtual-team:next` does that
-   - Removing a worktree DOES clean up its lock if one exists
-   - The `clean` action removes stale locks for worktrees/branches that no longer exist
-
-5. **Main repo stays clean:**
+4. **Main repo stays clean:**
    - The main repo directory always stays on the default branch
    - Never create worktrees from inside another worktree
    - Worktrees are always at `../{repo}-worktrees/{branch}`

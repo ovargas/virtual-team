@@ -287,7 +287,7 @@ This step runs ONLY when `--fix` was passed.
 
    Validation report updated: status → fix-planned
 
-   **Next step:** Run `/virtual-team:next --current` to start picking up gap stories.
+   **Next step:** Run `/virtual-team:implement FEAT-NNN` to start picking up gap stories.
    ```
 
 ---

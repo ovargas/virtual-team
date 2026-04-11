@@ -91,7 +91,7 @@ Or: "None."
 [Exact instructions for the next session to continue seamlessly:]
 
 ```
-1. Run `/virtual-team:next` or `/virtual-team:implement --phase=N` to continue
+1. Run `/virtual-team:implement FEAT-NNN` or `/virtual-team:implement --phase=N` to continue
 2. [Any setup steps needed — e.g., "start the database first"]
 3. [Specific thing to check — e.g., "verify the migration from last session applied cleanly"]
 ```

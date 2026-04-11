@@ -10,7 +10,7 @@ The hub captures WHAT to build and WHY. Service repos figure out HOW. Work flows
 /virtual-team:idea → /virtual-team:epic --idea=IDEA-NNN (repeat until all MVP items covered) → service repos run /virtual-team:feature --epic=EPIC-NNN → /virtual-team:plan → /virtual-team:implement → /virtual-team:review + /virtual-team:validate  → /pr
 ```
 
-For bug fixes, service repos use `/virtual-team:flow --fix` which runs a compressed pipeline: `/bug` → `/debug` → `/next` → implement fix → `/review` + `/validate` → `/pr`.
+For bug fixes, service repos use `/virtual-team:flow --fix` which runs a compressed pipeline: `/bug` → `/debug` → implement fix → `/review` + `/validate` → `/pr`.
 
 An idea's MVP scope usually requires multiple epics. Run `/virtual-team:epic --idea=IDEA-NNN` repeatedly — each run reads the idea, checks which MVP items already have epics, and proposes the next one. The idea status tracks progress: `draft` → `active` (first epic) → `fulfilled` (all items covered).
 
@@ -64,8 +64,7 @@ Commands are the workflow. Each one has a specific job and a hard boundary: pre-
 
 ### Planning & Implementation (for service repos)
 - `/plan` — Create a technical implementation plan from a feature spec
-- `/implement` — Execute the plan phase by phase with verification, marks backlog `[=]` on completion
-- `/next` — Pick up the next backlog item, lock it, create a worktree
+- `/implement` — Execute the plan phase by phase, accepts FEAT/BUG ID as argument
 
 ### Code Lifecycle
 - `/commit` — Stage and commit following git conventions (auto by default)
@@ -95,7 +94,7 @@ Commands are the workflow. Each one has a specific job and a hard boundary: pre-
 
 Skills are domain-specific standards loaded by implementation commands. In the hub, they're mostly relevant for git operations:
 
-- **git-practices** — Branch naming (`<type>/<ticket-id>`), commit format, PR format, worktree conventions, backlog lock format. Loaded by `/commit`, `/pr`, `/next`, `/worktree`.
+- **git-practices** — Branch naming (`<type>/<ticket-id>`), commit format, PR format, worktree conventions. Loaded by `/commit`, `/pr`, `/worktree`.
 - **knowledge-check** — Protocol for validating developer understanding of AI-generated decisions. Loaded by `/plan` (after approval), `/pr` (before submission), and standalone `/check`. Trigger controlled by `~/.claude/settings.json` `knowledgeCheck` setting (`"on"`, `"strict"`, or `"off"`).
 
 The coding skills (`api-design`, `ui-design`, `data-layer`, `service-layer`) exist for service repos. They're loaded by `/implement` in those repos.

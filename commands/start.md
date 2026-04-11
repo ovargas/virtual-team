@@ -309,7 +309,7 @@ Gather:
 
 If `team`:
 - Recommend `backlog: external` — local file-based backlogs cause merge conflicts when multiple developers work concurrently
-- If they still want `backlog: local`, warn: "Local backlog uses `docs/backlog.md` and `docs/backlog.lock` committed to git. Multiple developers running `/virtual-team:next` concurrently will have merge conflicts on these files. Consider `backlog: external` for team workflows."
+- If they still want `backlog: local`, warn: "Local backlog uses `docs/backlog.md` committed to git. Multiple developers working concurrently may have merge conflicts on this file. Consider `backlog: external` for team workflows."
 
 If `backlog: external`, gather the `backlog_config` section (service, project, state mappings, labels — see `skills/backlog-external/SKILL.md` for the full schema).
 

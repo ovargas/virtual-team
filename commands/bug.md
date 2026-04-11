@@ -162,7 +162,7 @@ Added to backlog with severity: [level]
 
 **Next steps:**
 - Run `/virtual-team:debug BUG-NNN` to investigate and find the root cause
-- Or pick it up during implementation with `/virtual-team:next`
+- Or pick it up during implementation with `/virtual-team:implement BUG-NNN`
 ```
 
 ---

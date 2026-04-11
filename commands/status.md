@@ -198,7 +198,7 @@ Plan: [docs/plans/... | not yet planned]
    - [Items from hub's backlog.md Ready/Next section]
 
    **Suggested:** Continue EPIC-002 by running `/virtual-team:feature --epic=EPIC-002` in [repo],
-   or `/virtual-team:next` in [repo-x] to pick up remaining EPIC-001 stories.
+   or `/virtual-team:implement` in [repo-x] to pick up remaining EPIC-001 stories.
    ```
 
    If ALL epics are fully complete (all stories Done across all repos), note it:
@@ -225,7 +225,7 @@ Plan: [docs/plans/... | not yet planned]
    |-------|-----------|
    | Items in Doing (`[>]`) | `→ Run /virtual-team:implement to continue [story name]` |
    | Items marked Implemented (`[=]`) | `→ Run /virtual-team:pr to ship [story name]` |
-   | Items in Ready, none in Doing | `→ Run /virtual-team:next to pick up [top ready item]` |
+   | Items in Ready, none in Doing | `→ Run /virtual-team:implement FEAT-NNN to pick up [top ready item]` |
    | Features specced but no plan | `→ Run /virtual-team:plan FEAT-NNN to plan [feature name]` |
    | Backlog empty, hub accessible | `→ Run /virtual-team:status in the hub to find available epics` |
    | Backlog empty, no hub | `→ Run /virtual-team:flow <description> to start a new feature` |

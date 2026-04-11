@@ -58,7 +58,7 @@ Shows what's in progress, what's next, and suggests the right command to run. Th
 /virtual-team:flow Add password reset via email
 ```
 
-Runs the full pipeline in one session: `/virtual-team:feature` → `/virtual-team:contracts` → `/virtual-team:plan` → `/virtual-team:next` → `/virtual-team:implement` → `/virtual-team:review` + `/virtual-team:validate` → `/virtual-team:pr`. Interactive gates between each step resolve TBDs and decisions without leaving the session.
+Runs the full pipeline in one session: `/virtual-team:feature` → `/virtual-team:contracts` → `/virtual-team:plan` → `/virtual-team:implement` → `/virtual-team:review` + `/virtual-team:validate` → `/virtual-team:pr`. Interactive gates between each step resolve TBDs and decisions without leaving the session.
 
 ### Fix a bug end-to-end
 
@@ -66,14 +66,14 @@ Runs the full pipeline in one session: `/virtual-team:feature` → `/virtual-tea
 /virtual-team:flow --fix "users can't log in after password reset"
 ```
 
-Runs the bug fix pipeline: `/virtual-team:bug` → `/virtual-team:debug` → `/virtual-team:next` → implement fix → `/virtual-team:review` + `/virtual-team:validate` → `/virtual-team:pr`. Includes mandatory pattern sweep to catch all occurrences.
+Runs the bug fix pipeline: `/virtual-team:bug` → `/virtual-team:debug` → implement fix → `/virtual-team:review` + `/virtual-team:validate` → `/virtual-team:pr`. Includes mandatory pattern sweep to catch all occurrences.
 
 ### Common `/virtual-team:flow` variations
 
 ```bash
 /virtual-team:flow --deep Add search capability          # agent-powered analysis (slower, more thorough)
 /virtual-team:flow --to=plan Add email notifications     # stop after planning, don't implement yet
-/virtual-team:flow --from=next                           # resume mid-pipeline (spec and plan already exist)
+/virtual-team:flow --from=implement                       # resume mid-pipeline (spec and plan already exist)
 /virtual-team:flow --resume                              # pick up where last /virtual-team:flow left off
 /virtual-team:flow --auto Add simple utility             # minimal gates, only stop on hard failures
 /virtual-team:flow --fix BUG-003                         # bug already documented, start at /debug
@@ -88,11 +88,9 @@ Run each pipeline step individually instead of using `/virtual-team:flow`:
 /virtual-team:feature Add password reset via email     # spec + stories
 /virtual-team:contracts extract docs/features/...      # lock down API shapes
 /virtual-team:plan FEAT-001                            # technical plan (architect gates)
-/virtual-team:next                                     # lock + worktree
-  # → new session in worktree
-/virtual-team:implement                                # write code
+/virtual-team:implement FEAT-001                       # pick stories + write code
 /virtual-team:commit                                   # commit
-/virtual-team:pr                                       # ship + unlock
+/virtual-team:pr                                       # ship
 ```
 
 ### Other useful commands
@@ -165,7 +163,7 @@ skills/                      ← 16 skills (domain, behavioral, backlog)
 ├── subagent-driven-development/    ← Orchestrator protocol for --sdd mode (fresh subagent per task)
 ├── skill-awareness/         ← SessionStart hook: maps contexts to behavioral skills
 ├── backlog/                 ← Abstract backlog operations interface (20 operations)
-├── backlog-local/           ← File-based backlog: docs/backlog.md + docs/backlog.lock (solo mode)
+├── backlog-local/           ← File-based backlog: docs/backlog.md (bracket markers)
 └── backlog-external/        ← External service backlog: GitHub Issues, Linear, JIRA (solo or team mode)
 ```
 
@@ -338,36 +336,26 @@ Service repo (my-app-api):
     → ✅ Architect passes, planning continues
 ```
 
-### Phase 5: Implementation (Service Repo, in a Worktree)
+### Phase 5: Implementation (Service Repo)
 
 ```
-Service repo (my-app-api), on main branch:
-  /next
-    → Reads backlog, finds first Ready item (S-001)
-    → Checks backlog.lock — not locked by another worktree
-    → Creates lock in docs/backlog.lock, commits on main
-    → Creates worktree: git wt feat/CTR-12
-    → Moves S-001 from Ready [ ] to Doing [>] in backlog.md on the feature branch
-    → Output: "Open a new session in ../my-app-api-worktrees/feat/CTR-12"
-
-New terminal, in the worktree:
-  cd ../my-app-api-worktrees/feat/CTR-12
-  claude   ← start new Claude Code session
-
-  /implement
+Service repo (my-app-api):
+  /implement FEAT-001
+    → Reads backlog, finds first Ready story (S-001) for FEAT-001
+    → Moves S-001 from Ready [ ] to Doing [>] in backlog.md
     → Reads the plan
     → Phase 1: Data model & migration — writes code, runs verification
     → Phase 2: Business logic & service — writes code, runs verification
     → Phase 3: API endpoint — writes code, runs verification
     → Phase 4: Integration tests — writes code, runs verification
     → Final verification: all tests pass, lint clean, build succeeds
+    → Advances to next story automatically, repeats until all stories done
     → Output: working code, all checks green
 ```
 
-### Phase 6: Ship (Service Repo, in the Worktree)
+### Phase 6: Ship (Service Repo)
 
 ```
-Worktree session (../my-app-api-worktrees/feat/CTR-12):
   /commit
     → Reads git-practices skill
     → Extracts ticket ID from branch: feat/CTR-12 → CTR-12
@@ -382,7 +370,6 @@ Worktree session (../my-app-api-worktrees/feat/CTR-12):
     → Presents draft for review
     → After confirmation: gh pr create
     → Marks all stories on this branch as Done [x] in backlog.md
-    → Removes all locks for this branch from backlog.lock
     → Output: PR URL, cleanup suggestions
 ```
 
@@ -393,7 +380,6 @@ Back in main repo directory:
   /virtual-team:worktree  clean
     → Finds worktrees where PR is merged
     → Removes them after confirmation
-    → Cleans up stale locks
 ```
 
 ## Backlog Lifecycle
@@ -421,20 +407,14 @@ Tags: `feature:FEAT-NNN` (parent feature), `group:N` (execution group), `order:N
 
 ### Workflow Mode
 
-The `mode:` field in `stack.md` controls locking behavior:
+The `mode:` field in `stack.md` affects backlog behavior:
 
-- **`mode: solo`** (default): One developer. Locks use a local `docs/backlog.lock` file committed to git. Works with both `backlog: local` and `backlog: external`.
-- **`mode: team`**: Multiple developers. Locks use the external service's assignment mechanism (no local lock file). Requires `backlog: external`. Eliminates merge conflicts when multiple developers run `/virtual-team:next` concurrently.
+- **`mode: solo`** (default): One developer. Uses `backlog: local` (file-based) or `backlog: external`.
+- **`mode: team`**: Multiple developers. Requires `backlog: external`. The external service's assignment mechanism coordinates work.
 
-### Lock vs Status Separation
+### Backlog Status Tracking
 
-The workflow separates coordination (locks) from reality tracking (status) across branches:
-
-**Locks** prevent two sessions from picking the same item. In solo mode, `docs/backlog.lock` is committed on main so all worktrees see it immediately. In team mode, the external service's assignment serves as the lock. `/virtual-team:next` creates the lock (via `start()`); `/virtual-team:pr` removes it (via `complete()`).
-
-**Backlog status** changes happen on the feature branch. The status lifecycle is committed alongside the code. When the PR merges, main's backlog reflects the completed work. This means the backlog is always accurate — it only shows work as done when the code actually lands.
-
-Exception: when using `--current` mode (sequential stories on the same branch), both lock and status go on the current branch since there's no cross-worktree coordination needed.
+**Backlog status** changes happen on the current branch. The status lifecycle is committed alongside the code. `/implement` moves items to Doing (via `start()`); `/pr` marks them as Done (via `complete()`). When using feature branches, the backlog status merges with the code when the PR lands.
 
 ## Story Groups
 
@@ -456,42 +436,24 @@ Stories in the same group are sequential and go on one branch. Different groups 
 
 ### Working with Groups
 
-Pick up a feature group:
+Implement a feature with multiple stories:
 
 ```
-/virtual-team:next --feature=FEAT-005
-  → Locks all stories in group 1 (lowest group with Ready items)
-  → Creates branch feat/FEAT-005 (feature ID, not story ID)
-  → Marks first story as Doing
-```
-
-Advance through stories in the group:
-
-```
-/virtual-team:next --current
-  → Marks current story as Implemented [=]
-  → Picks next story in the group by order:N
+/implement FEAT-005
+  → Finds first Ready story in the feature (S-010, lowest order)
   → Marks it as Doing [>]
+  → Implements it following the plan
+  → Marks it as Done, advances to next story (S-011)
+  → Repeats until all stories are complete
 ```
 
-Ship the whole group as one PR:
+Ship as one PR:
 
 ```
 /pr
-  → Marks ALL stories on this branch as Done [x]
-  → Removes ALL locks for this branch
-  → Creates a single PR covering the entire group
+  → Marks all implemented stories as Done [x]
+  → Creates a single PR covering the entire feature
 ```
-
-### Branch Naming Rules
-
-Branch names follow a strict priority order:
-
-1. **If `--feature=FEAT-NNN` was passed** (group mode): use the feature ID → `feat/FEAT-005`. This is the only case where the feature ID becomes the branch name.
-2. **If the story has an external ticket ID** (e.g., CTR-12): use that → `feat/CTR-12`
-3. **If no external ticket**: use the story ID → `feat/S-006`
-
-For single-story pickup (no `--feature` flag): never use the feature ID as the branch name. Never create hybrid names like `feat/FEAT-005-S6`.
 
 ## Knowledge Checks
 
@@ -560,25 +522,17 @@ This prevents the common failure mode where a bug is "fixed" in one location whi
 ```
 /virtual-team:feature Add password reset via email     ← spec + stories
 /virtual-team:plan FEAT-001                            ← technical plan (architect gates)
-/virtual-team:next                                     ← lock + worktree
-  ↓ new session in worktree
-/virtual-team:implement                                ← write code
+/virtual-team:implement FEAT-001                       ← pick stories + write code
 /virtual-team:commit                                   ← commit
-/virtual-team:pr                                       ← ship + unlock
+/virtual-team:pr                                       ← ship
 ```
 
-### Multi-story feature (sequential stories, one branch)
+### Multi-story feature (sequential stories)
 
 ```
 /virtual-team:feature Add user management              ← spec + stories with group tags
 /virtual-team:plan FEAT-005                            ← plan covering the feature
-/virtual-team:next --feature=FEAT-005                  ← lock group, create feat/FEAT-005 worktree
-  ↓ new session in worktree
-/virtual-team:implement                                ← implement first story
-/virtual-team:next --current                           ← advance to next story in group
-/virtual-team:implement                                ← implement second story
-/virtual-team:next --current                           ← advance again
-/virtual-team:implement                                ← implement third story
+/virtual-team:implement FEAT-005                       ← implements all stories sequentially
 /virtual-team:pr                                       ← one PR, all stories marked Done
 ```
 
@@ -588,9 +542,8 @@ This prevents the common failure mode where a bug is "fixed" in one location whi
 /virtual-team:status                                   ← what's in progress, what's next, suggests commands
 /virtual-team:status backlog                           ← backlog health only
 /virtual-team:status FEAT-007                          ← status of a specific feature
-/virtual-team:next                                     ← or continue existing work
-  ↓
-/virtual-team:implement --phase=3                      ← resume from where you left off
+/virtual-team:implement FEAT-007                       ← continue existing work
+/virtual-team:implement --phase=3                      ← resume from a specific phase
 ```
 
 ### Ending a session
@@ -626,12 +579,12 @@ Hub:
 API repo:
   /virtual-team:feature --epic=EPIC-001                ← reads epic + ADR-003, ADR-004
   /virtual-team:plan FEAT-001
-  /virtual-team:next → /virtual-team:implement → /virtual-team:commit → /pr
+  /virtual-team:implement FEAT-001 → /virtual-team:commit → /pr
 
 Frontend repo:
   /virtual-team:feature --epic=EPIC-001                ← reads same epic + agreements
   /virtual-team:plan FEAT-001
-  /virtual-team:next → /virtual-team:implement → /virtual-team:commit → /pr
+  /virtual-team:implement FEAT-001 → /virtual-team:commit → /pr
 ```
 
 Both repos work independently but respect the shared agreements from the hub.
@@ -639,20 +592,14 @@ Both repos work independently but respect the shared agreements from the hub.
 ### Parallel work with worktrees
 
 ```
-Terminal 1 (main branch):
-  /virtual-team:next                  ← picks S-001, locks it, creates worktree A
+Terminal 1 (worktree A):
+  /virtual-team:implement FEAT-005    ← working on FEAT-005 stories
 
-Terminal 1 (main branch, again):
-  /virtual-team:next                  ← picks S-002 (S-001 is locked), creates worktree B
-
-Terminal 2 (worktree A):
-  /virtual-team:implement             ← working on S-001
-
-Terminal 3 (worktree B):
-  /virtual-team:implement             ← working on S-002 in parallel
+Terminal 2 (worktree B):
+  /virtual-team:implement FEAT-006    ← working on FEAT-006 in parallel
 ```
 
-The `backlog.lock` file on main prevents both from picking the same item.
+The user manages their own branches and worktrees. Ensure different sessions work on different features to avoid conflicts.
 
 ## Command Reference
 
@@ -662,14 +609,13 @@ The `backlog.lock` file on main prevents both from picking the same item.
 | `/virtual-team:idea` | Any | Capture and shape a product concept | Feature brief | Early-stage thinking — you have a concept but haven't committed to building it yet |
 | `/virtual-team:epic` | Hub | Define cross-team initiative | Epic + decision records | Large initiatives that span multiple features or services |
 | `/virtual-team:feature` | Service | Spec a feature with YAGNI check | Feature spec + stories (with groups) | Ready to commit to building something — this starts the core pipeline |
-| `/virtual-team:flow` | Service | Run full pipeline with interactive gates | All pipeline artifacts + PR | Starting a feature end-to-end — chains feature → contracts → plan → next → implement → review + validate → pr. Use `--fix` for bug fix pipeline (bug → debug → fix → pr) |
+| `/virtual-team:flow` | Service | Run full pipeline with interactive gates | All pipeline artifacts + PR | Starting a feature end-to-end — chains feature → contracts → plan → implement → review + validate → pr. Use `--fix` for bug fix pipeline (bug → debug → fix → pr) |
 | `/virtual-team:research` | Any | Deep-dive research | Research document | Technology evaluation, competitive analysis, or exploring unknowns before speccing |
 | `/virtual-team:contracts` | Service | Extract, define, validate API contracts | Schema files in `contracts/` | After `/virtual-team:feature`, before `/virtual-team:plan` — lock down API shapes so implementation can't drift |
 | `/virtual-team:plan` | Service | Technical implementation plan | Plan with file references | After spec and contracts are stable — produces the step-by-step build plan |
-| `/virtual-team:next` | Service | Pick work, lock, create worktree | Locked item + worktree | Starting a work session — picks the next story, locks it, sets up an isolated branch |
-| `/virtual-team:implement` | Worktree | Execute plan phase by phase | Working code | After `/virtual-team:next` — the only command that writes application code |
-| `/virtual-team:commit` | Worktree | Stage and commit | Git commit | Code is working and you've verified it manually |
-| `/virtual-team:pr` | Worktree | Create PR, release lock | Pull request | Implementation is complete, tests pass, ready for review |
+| `/virtual-team:implement` | Service | Pick stories and execute plan | Working code | After plan is approved — accepts FEAT/BUG ID, implements all stories sequentially |
+| `/virtual-team:commit` | Any | Stage and commit | Git commit | Code is working and you've verified it manually |
+| `/virtual-team:pr` | Any | Create PR | Pull request | Implementation is complete, tests pass, ready for review |
 | `/virtual-team:worktree` | Service | Manage worktrees | Create/remove/list/clean | Housekeeping — list active branches, clean up stale worktrees |
 | `/virtual-team:review` | Any | Code review | Review feedback | Before merging — get a second-opinion review on code changes |
 | `/virtual-team:tech-review` | Any | Architecture review | Review document | Before or after implementation — assess architectural decisions and patterns |
@@ -694,7 +640,7 @@ Many commands support flags to customize behavior.
 #### `--auto` — Autonomous Mode
 Skip confirmations and manual pause points. Use for automated workflows or repeated execution patterns.
 
-Available in: `/virtual-team:plan`, `/virtual-team:implement`, `/virtual-team:next`, `/virtual-team:feature`, `/virtual-team:epic`, `/virtual-team:flow`
+Available in: `/virtual-team:plan`, `/virtual-team:implement`, `/virtual-team:feature`, `/virtual-team:epic`, `/virtual-team:flow`
 
 Flags can be combined: `/virtual-team:plan --auto --deep FEAT-007`
 
@@ -724,14 +670,12 @@ Available in: `/virtual-team:feature`, `/virtual-team:plan`, `/virtual-team:impl
 - `--deep` — spawn agents for research (default: direct tools)
 
 #### `/virtual-team:flow`
-- `--fix` — run the bug fix pipeline: `/virtual-team:bug` → `/virtual-team:debug` → `/virtual-team:next` → implement fix → `/virtual-team:review` + `/virtual-team:validate` → `/virtual-team:pr`
+- `--fix` — run the bug fix pipeline: `/virtual-team:bug` → `/virtual-team:debug` → implement fix → `/virtual-team:review` + `/virtual-team:validate` → `/virtual-team:pr`
 - `--fix --quick` — skip `/virtual-team:bug` documentation, start directly at `/virtual-team:debug`
 - `--to=STEP` — stop after this step. Feature: `feature`, `contracts`, `plan`, `next`, `implement`, `review`, `pr`. Fix: `bug`, `debug`, `next`, `implement`, `review`, `pr`
-- `--from=STEP` — start from this step, assumes prior steps are done. Feature: `contracts`, `plan`, `next`, `implement`, `review`, `pr`. Fix: `debug`, `next`, `implement`, `review`, `pr`
+- `--from=STEP` — start from this step, assumes prior steps are done. Feature: `contracts`, `plan`, `implement`, `review`, `pr`. Fix: `debug`, `implement`, `review`, `pr`
 - `--resume` — pick up where the last `/virtual-team:flow` left off (reads the flow checkpoint)
 - `--sdd` — use subagent-driven development for `/virtual-team:implement` (fresh subagent per task, two-stage review). Best for plans with 5+ tasks
-- `--here` — pass `--here` to `/virtual-team:next` (skip worktree, work on current branch)
-- `--current` — pass `--current` to `/virtual-team:next` (use current branch as-is)
 - `--fresh` — delete any existing flow checkpoint and start from scratch
 
 #### `/virtual-team:epic`
@@ -759,14 +703,7 @@ Available in: `/virtual-team:feature`, `/virtual-team:plan`, `/virtual-team:impl
 - `--deep` — allow agent spawning when plan doesn't provide enough context
 - `--sdd` — subagent-driven development: orchestrator dispatches fresh subagent per task with two-stage review. Best for plans with 5+ tasks
 - `--phase=N` — resume from a specific phase after a session break
-- `--story=S-005` — implement a specific story
-
-#### `/virtual-team:next`
-- `--auto` — automatically pick highest-priority item, skip all prompts
-- `--feature=FEAT-NNN` — pick up an entire story group (see Story Groups)
-- `--current` — advance to next story on the current branch (for sequential group work)
-- `--group=N` — pick a specific group number when using `--feature`
-- Can also specify: story ID (`/virtual-team:next S-005`), service (`/virtual-team:next backend`), or feature (`/virtual-team:next FEAT-003`)
+- Can specify: FEAT ID (`/virtual-team:implement FEAT-003`) or BUG ID (`/virtual-team:implement BUG-005`)
 
 #### `/virtual-team:pr`
 - `--draft` — create a draft PR
@@ -800,16 +737,10 @@ Available in: `/virtual-team:feature`, `/virtual-team:plan`, `/virtual-team:impl
 # Autonomous feature workflow
 /virtual-team:feature --auto --deep Add user authentication
 /virtual-team:plan --auto --deep FEAT-001
-/virtual-team:next --auto
-# In worktree:
-/virtual-team:implement --auto --deep
+/virtual-team:implement --auto --deep FEAT-001
 
 # Multi-story sequential workflow
-/virtual-team:next --feature=FEAT-005              # lock group, create branch
-# In worktree:
-/virtual-team:implement                            # first story
-/virtual-team:next --current                       # advance to second story
-/virtual-team:implement                            # second story
+/virtual-team:implement FEAT-005                   # implements all stories sequentially
 /virtual-team:pr                                   # ship all stories
 
 # Epic-driven feature with lightweight research
@@ -870,7 +801,7 @@ The `/virtual-team:implement` command reads `stack.md` to identify your framewor
 
 | Skill | Purpose | When Loaded |
 |-------|---------|-------------|
-| `virtual-team:git-practices` | Branch naming, commit format, PR format, worktree conventions, backlog lock protocol | `/virtual-team:commit`, `/virtual-team:pr`, `/virtual-team:next`, `/virtual-team:worktree` |
+| `virtual-team:git-practices` | Branch naming, commit format, PR format, worktree conventions | `/virtual-team:commit`, `/virtual-team:pr`, `/virtual-team:worktree` |
 | `virtual-team:api-design` | API endpoint structure, validation, status codes, response format, auth/authz | Implementing routes, controllers, API code |
 | `virtual-team:ui-design` | Component structure, hooks, styling, state management, accessibility | Implementing frontend components |
 | `virtual-team:data-layer` | Schema design, migrations, models, queries, ORM patterns, indexes | Implementing database code |
@@ -895,9 +826,9 @@ These skills enforce coding discipline automatically. They are loaded by the `Se
 
 | Skill | Purpose | When Loaded |
 |-------|---------|-------------|
-| `virtual-team:backlog` | Abstract interface defining 20 operations all commands use (`list`, `start`, `complete`, `lock`, etc.) | First — loaded before any backlog operation, delegates to implementation |
-| `virtual-team:backlog-local` | File-based implementation using `docs/backlog.md` (bracket markers) and `docs/backlog.lock` (YAML). Solo mode only. | Default when `stack.md` has `backlog: local` or no `backlog:` field |
-| `virtual-team:backlog-external` | External service implementation (GitHub Issues, Linear, JIRA). In team mode (`mode: team`), uses service-native assignment for locking instead of local files. | When `stack.md` has `backlog: external` with a `backlog_config` section |
+| `virtual-team:backlog` | Abstract interface defining operations all commands use (`list`, `start`, `complete`, etc.) | First — loaded before any backlog operation, delegates to implementation |
+| `virtual-team:backlog-local` | File-based implementation using `docs/backlog.md` (bracket markers) | Default when `stack.md` has `backlog: local` or no `backlog:` field |
+| `virtual-team:backlog-external` | External service implementation (GitHub Issues, Linear, JIRA) | When `stack.md` has `backlog: external` with a `backlog_config` section |
 
 ### Where to Put Architectural Conventions
 
@@ -968,4 +899,4 @@ Each command produces artifacts stored in the project's `docs/` directory:
 
 **Hub repos:** `/virtual-team:idea` → `docs/features/`, `/virtual-team:epic` → `docs/epics/` + `docs/decisions/`, `/virtual-team:research` → `docs/research/`, `/virtual-team:start  ` → `stack.md` + `docs/backlog.md`
 
-**Service repos:** `/virtual-team:feature` → `docs/features/` + `docs/backlog.md`, `/virtual-team:plan` → `docs/plans/`, `/virtual-team:implement` → code + `docs/backlog.md`, `/virtual-team:pr` → `docs/backlog.md`, `/virtual-team:bug` → `docs/bugs/`, `/virtual-team:debug` → `docs/bugs/` (updated), `/virtual-team:check` → `docs/knowledge-checks/`, `/virtual-team:next` → `docs/backlog.lock` + `docs/backlog.md`
+**Service repos:** `/virtual-team:feature` → `docs/features/` + `docs/backlog.md`, `/virtual-team:plan` → `docs/plans/`, `/virtual-team:implement` → code + `docs/backlog.md`, `/virtual-team:pr` → `docs/backlog.md`, `/virtual-team:bug` → `docs/bugs/`, `/virtual-team:debug` → `docs/bugs/` (updated), `/virtual-team:check` → `docs/knowledge-checks/`

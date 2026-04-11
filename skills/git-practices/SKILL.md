@@ -245,40 +245,6 @@ git worktree list
 - Remove worktrees after the PR is merged to keep the directory clean
 - The main repo directory always stays on the default branch (main/master) — never switch branches there
 
-## Backlog Lock
-
-When working with worktrees, multiple sessions may access the backlog simultaneously. A lock mechanism prevents two sessions from picking up the same item.
-
-**How locking works depends on the workflow mode** (read `stack.md` → `mode:` field):
-
-**Solo mode** (`mode: solo`, default): Locks use a local file `docs/backlog.lock` (YAML format). This file is committed to git so all worktrees see it.
-
-**Team mode** (`mode: team`, requires `backlog: external`): Locks use the external service's assignment mechanism (e.g., GitHub issue assignee, Linear assignee). No local lock file is created. See the `backlog-external` skill for details.
-
-**Solo mode lock format:**
-```yaml
-# Managed by /virtual-team:next and /virtual-team:pr commands — do not edit manually
-locks:
-  - item: "S-003"
-    feature: "FEAT-007"
-    branch: "feat/CTR-12"
-    worktree: "../my-repo-worktrees/feat/CTR-12"
-    started: "2026-02-12T14:30:00"
-```
-
-**Rules (both modes):**
-- `/virtual-team:next` creates a lock when picking up a backlog item (via the backlog skill's **`start()`** operation)
-- `/virtual-team:pr` releases the lock when shipping (via the backlog skill's **`complete()`** or **`complete_all_on_branch()`** operations)
-- `/virtual-team:worktree --remove` checks for stale locks and warns (via the backlog skill's **`check_lock()`** operation)
-- Before picking an item, `/virtual-team:next` checks the lock — if the item is locked, it skips to the next
-- If a lock is stale (branch no longer exists, PR merged, worktree removed), `/virtual-team:next` cleans it up automatically (via **`clean_stale_locks()`**)
-
-**Lock vs. backlog status — where each is committed (solo mode):**
-- **Lock file (`backlog.lock`):** Committed on main for default/here modes (cross-worktree coordination). Committed on the current branch for `--current` mode (solo work, no main switching).
-- **Backlog status:** Always committed on the feature branch. The status lifecycle happens entirely on the branch and merges with the PR. Main's backlog only reflects completed work after PRs merge.
-
-**Multi-story branches:** When using `/virtual-team:next --current` to pick up multiple stories on a single branch, each story gets its own lock and status marker on the feature branch. `/virtual-team:pr` marks ALL stories as Done and removes ALL locks for that branch in a single operation.
-
 ## Story Groups
 
 Stories within a feature can be grouped into execution tracks using backlog tags.
@@ -299,10 +265,9 @@ Stories within a feature can be grouped into execution tracks using backlog tags
 - `service:xx` — which service/repo
 
 **Branch naming for groups:**
-- `/virtual-team:next --feature=FEAT-005` → branch: `feat/FEAT-005` (feature ID, not story ID)
-- `/virtual-team:next S-010` → branch: `feat/S-010` (story ID for single-story pickup)
+- Feature with multiple stories → branch: `feat/FEAT-005` (feature ID, not story ID)
+- Single-story work → branch: `feat/S-010` (story ID)
 
 **Group flow:**
-1. `/virtual-team:next --feature=FEAT-005` locks all stories in the group, creates `feat/FEAT-005`
-2. `/virtual-team:next --current` advances through stories in `order:N` sequence
-3. `/virtual-team:pr` marks all stories as Done in one commit
+1. `/virtual-team:implement FEAT-005` picks the first ready story, implements all stories sequentially
+2. `/virtual-team:pr` marks all stories as Done in one commit

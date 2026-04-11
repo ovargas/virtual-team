@@ -677,7 +677,7 @@ After the spec is approved:
    - After Group 1: [Feature state — "core user management is complete"]
 
    Execution strategy:
-   - Group 1 → `/virtual-team:next --feature=FEAT-NNN` creates one branch, work through with `/virtual-team:next --current`, one PR
+   - Group 1 → `/virtual-team:implement FEAT-NNN` implements all stories sequentially, one PR
    - Group 2 → same pattern, after Group 1 is merged
    - Group 3 → independent, separate branch anytime
 
@@ -692,9 +692,9 @@ After the spec is approved:
    - **Tags explained (passed to `create()`):**
      - `feature:FEAT-NNN` — parent feature
      - `group:N` — execution group number within the feature. Stories in the same group are sequential and go on one branch.
-     - `order:N` — execution order within the group. `/virtual-team:next --current` picks the lowest order number that's still ready.
+     - `order:N` — execution order within the group. `/virtual-team:implement` picks the lowest order number that's still ready.
      - `service:xx` — which service/repo
-   - **IMPORTANT:** Stories are created in ready status — they have a spec, acceptance criteria, and story breakdown. They are ready for `/virtual-team:next` to pick up.
+   - **IMPORTANT:** Stories are created in ready status — they have a spec, acceptance criteria, and story breakdown. They are ready for `/virtual-team:implement` to pick up.
    - Call **`push_stories(feature_id, items)`** — the implementation skill creates external entries if applicable (no-op for local backend).
 
 ---

@@ -7,7 +7,7 @@ This is a **service repository** — an implementation repo. It has its own code
 Work flows through a deliberate pipeline. Each step produces a specific artifact. No step is skipped.
 
 ```
-/virtual-team:feature → /virtual-team:contracts → /virtual-team:plan → /virtual-team:next → /virtual-team:implement → /virtual-team:review + /virtual-team:validate  → /pr
+/virtual-team:feature → /virtual-team:contracts → /virtual-team:plan → /virtual-team:implement → /virtual-team:review + /virtual-team:validate  → /pr
 ```
 
 Or run the full pipeline in one command with `/flow`, which chains all steps and resolves gaps interactively at gates between each step.
@@ -15,9 +15,8 @@ Or run the full pipeline in one command with `/flow`, which chains all steps and
 - `/feature` captures WHAT to build (with YAGNI challenge and API contract definition)
 - `/contracts` extracts and validates API contracts as concrete schema files
 - `/plan` creates HOW to build it (with architectural gate and payload completeness check)
-- `/next` picks up the work, locks it, creates a worktree — backlog: `[ ]` → `[>]`
-- `/implement` executes the plan phase by phase with verification — backlog: `[>]` → `[=]` (branch) or `[>]` → `[x]` (main)
-- `/pr` auto-commits, creates the PR, and releases the lock — backlog: `[=]` → `[x]`
+- `/implement` accepts a FEAT/BUG ID, picks the next story, and executes the plan phase by phase — backlog: `[ ]` → `[>]` → `[=]` (branch) or `[x]` (main)
+- `/pr` auto-commits and creates the PR — backlog: `[=]` → `[x]`
 - `/flow` orchestrates the entire pipeline with interactive gates — patch TBDs, resolve decisions, and continue without leaving the session
 
 If this service is part of a multi-repo product, features can be driven by hub epics (`/virtual-team:feature --epic=EPIC-NNN`), which brings in cross-team decisions as constraints.
@@ -30,7 +29,6 @@ If this service is part of a multi-repo product, features can be driven by hub e
 - **`docs/decisions/`** — Local architectural decision records. Non-obvious technical choices made for this repo.
 - **`contracts/`** — API contract files (endpoints, models, events) as JSON Schema. Authoritative source of truth for payload shapes. `/plan` and `/implement` hard-stop if contracts are missing for endpoints they touch.
 - **`docs/backlog.md`** — Service backlog with four states: `[ ]` Ready, `[>]` Doing, `[=]` Implemented, `[x]` Done. Only exists when `backlog: local` (default for solo mode). Managed by the `backlog-local` skill — commands use abstract operations from the `backlog` interface, not direct file manipulation. When `backlog: external`, the external service (GitHub Issues, Linear, JIRA) is the backlog and this file does not exist.
-- **`docs/backlog.lock`** — Lockfile preventing two worktrees from picking the same item. Only exists in solo mode (`mode: solo`). In team mode (`mode: team`), the external service's assignment mechanism serves as the lock. Managed by the backlog skill operations (`start()`, `release_lock()`, `clean_stale_locks()`).
 - **`docs/proposals/`** — Business proposals generated from ideas or features.
 - **`docs/research/`** — Research outputs.
 - **`docs/checkpoints/`** — Progress checkpoints for long-running commands. Auto-created during execution, auto-deleted on completion. If a file exists here, the command was interrupted mid-work.
@@ -84,9 +82,8 @@ Commands are the workflow. Pre-implementation commands produce documents, never 
 - `/proposal` — Business proposal from an idea or feature — scope, timeline, infrastructure, costs
 
 ### Implementation Cycle
-- `/next` — Pick the next backlog item, lock it, create a worktree, load context
-- `/implement` — Execute the plan phase by phase with verification, marks backlog `[=]` on completion
-- `/pr` — Auto-commits pending changes, creates PR, releases lock, marks backlog `[x]`. Use `--manual` to review first.
+- `/implement` — Execute the plan phase by phase with verification, accepts FEAT/BUG ID as argument
+- `/pr` — Auto-commits pending changes, creates PR, marks backlog `[x]`. Use `--manual` to review first.
 - `/commit` — Stage and commit following git conventions (auto by default, `--manual` to review)
 
 ### Git Workflow
@@ -119,7 +116,7 @@ Skills are domain-specific coding standards. `/implement` loads the relevant ski
 
 | Skill | Domain | Loaded When |
 |---|---|---|
-| **git-practices** | Branch naming, commits, PRs, worktrees, backlog lock | `/commit`, `/pr`, `/next`, `/worktree` |
+| **git-practices** | Branch naming, commits, PRs, worktrees | `/commit`, `/pr`, `/worktree` |
 | **api-design** | API principles: validation, status codes, response format, middleware | Working on routes, controllers, API code |
 | **ui-design** | UI principles: accessibility, state management, error UX, performance | Working on `.tsx`, `.jsx`, `.css`, frontend dirs |
 | **data-layer** | Data principles: schema design, migration safety, query performance | Working on models, migrations, DB code |
@@ -127,8 +124,8 @@ Skills are domain-specific coding standards. `/implement` loads the relevant ski
 | **checkpoints** | Progress checkpointing for long-running commands | `/implement`, `/debug`, `/feature`, `/plan`, `/epic` |
 | **knowledge-check** | Developer understanding validation — questions, evaluation, tutoring, logging | `/plan` (after approval), `/pr` (before submission), `/check` (standalone) |
 | **backlog** | Abstract backlog operations interface — defines the 20 operations all commands use | Any command that reads or writes the backlog (loaded first, delegates to implementation) |
-| **backlog-local** | File-based backlog implementation using `docs/backlog.md` and `docs/backlog.lock` (solo mode only) | Default when `stack.md` has `backlog: local` or no `backlog:` field |
-| **backlog-external** | External service backlog implementation (GitHub Issues, Linear, JIRA). In team mode, uses service-native assignment for locking instead of local files | When `stack.md` has `backlog: external` with a `backlog_config` section |
+| **backlog-local** | File-based backlog implementation using `docs/backlog.md` (bracket markers) | Default when `stack.md` has `backlog: local` or no `backlog:` field |
+| **backlog-external** | External service backlog implementation (GitHub Issues, Linear, JIRA) | When `stack.md` has `backlog: external` with a `backlog_config` section |
 
 ### Project Skills
 
@@ -172,7 +169,7 @@ These are defined in the `git-practices` skill. Summary:
 - **Commits:** `<type>(<scope>): <short message> [<ticket-id>]` with a mandatory description body
 - **PRs:** Same title format as commits. Body has Summary, Changes, Testing, Ticket sections. Testing is mandatory.
 - **Worktrees:** Sibling `{repo}-worktrees/` directory. Create with `git wt <branch>`, remove with `git wtr <branch>`. One worktree per ticket.
-- **Backlog lock:** In solo mode, `docs/backlog.lock` prevents two worktrees from picking the same item. In team mode, the external service's assignment mechanism serves as the lock. Created by `/next` (via `start()`), released by `/pr` (via `complete()`). Stays active through the Implemented state until the PR ships.
+- **Backlog status:** Items progress through `[ ]` Ready → `[>]` Doing → `[=]` Implemented → `[x]` Done. `/implement` starts work (via `start()`), `/pr` completes it (via `complete()`).
 
 ## Behavioral Expectations
 
@@ -183,7 +180,7 @@ These are defined in the `git-practices` skill. Summary:
 5. **TBD items are the architect's trigger.** If `stack.md` has TBD items that a feature needs, the architect halts. Resolve them, update `stack.md`, create decision records, then re-run.
 6. **Founder decides.** Agents recommend, the founder chooses. Present reasoning and options.
 7. **One question at a time.** Don't overwhelm with question barrages.
-8. **Respect the backlog states.** `[ ]` Ready → `[>]` Doing → `[=]` Implemented → `[x]` Done. Never re-implement a `[=]` or `[x]` item. Never pick a locked item.
+8. **Respect the backlog states.** `[ ]` Ready → `[>]` Doing → `[=]` Implemented → `[x]` Done. Never re-implement a `[=]` or `[x]` item.
 9. **Skills before code.** Load the relevant domain skill before writing code in `/implement`. The skill has the coding standards for that layer.
 10. **Lightweight by default.** All commands run with zero agents unless `--deep` is passed. `/commit` and `/pr` auto-proceed without prompts unless `--manual` is passed.
 

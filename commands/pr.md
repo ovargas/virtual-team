@@ -50,7 +50,7 @@ Flags combine freely: `/virtual-team:pr --rebase --draft` rebases and creates a 
      If you're working directly on main, there's no PR needed — `/virtual-team:implement` already
      marked your stories as done ([x]) and updated the feature status.
 
-     If you intended to work on a branch, run `/virtual-team:next` to pick up work on a new branch.
+     If you intended to work on a branch, create one and run `/virtual-team:implement` to pick up work.
      ```
    - If the branch doesn't follow `<type>/<ticket-id>` format, ask for the ticket ID
 3. **Determine the base branch:**
@@ -233,16 +233,14 @@ If targeting a non-default base:
 gh pr create --base develop --title "<title>" --body "..."
 ```
 
-### Step 7: Update Backlog and Release Lock (on the PR branch)
+### Step 7: Update Backlog (on the PR branch)
 
 **All backlog changes happen on the feature branch.** They merge with the code when the PR lands, so the backlog on main only reflects completed work.
 
 1. Load the backlog skill (read `stack.md` → backlog interface → implementation).
 
-2. Call **`complete_all_on_branch(branch, pr_number)`** — this marks all items on this branch as done with the PR reference and releases all locks. The operation handles:
-   - Finding all items in doing or implemented status for this branch
-   - Marking each as done with PR reference
-   - Removing all lock entries for this branch
+2. Call **`complete(id, pr_number)`** for each implemented story on this branch — this marks items as done with the PR reference. The operation handles:
+   - Marking the item as done with PR reference
    - Checking feature completion status
    - Committing all changes
 
@@ -251,11 +249,8 @@ gh pr create --base develop --title "<title>" --body "..."
    git push
    ```
 
-**Why on the branch, not main:** When the PR merges, the backlog updates and lock releases land on main together with the code. Items stay locked on main until the PR is actually merged — which is the correct definition of done.
+**Why on the branch, not main:** When the PR merges, the backlog updates land on main together with the code. Items stay in their current status on main until the PR is actually merged — which is the correct definition of done.
 
-**Note on lock merge conflicts (worktree mode):** In worktree mode, the lock was committed on main before the branch was created. If main's lockfile has been modified since, the merge may conflict. Resolve by keeping the other locks and removing only this branch's entries. `/virtual-team:next` Step 2 uses **`clean_stale_locks()`** to automatically detect and clean stale locks from merged PRs.
-
-**Note on stale locks:** If a PR is abandoned or a branch is deleted without merging, the lock becomes stale. `/virtual-team:next` calls **`clean_stale_locks()`** automatically to detect and clean them up.
 
 ### Step 7.5: Knowledge Capture (optional)
 
