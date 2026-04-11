@@ -3,7 +3,6 @@ import { readdirSync, readFileSync, existsSync, statSync } from 'fs';
 import { join } from 'path';
 
 const ROOT = join(import.meta.dirname, '..');
-const CLAUDE_DIR = join(ROOT, '.claude');
 
 function collectMdFiles(dir: string): string[] {
   const files: string[] = [];
@@ -21,8 +20,8 @@ function collectMdFiles(dir: string): string[] {
 /**
  * Extract file path references from markdown content.
  * Matches patterns like:
- *   .claude/agents/implementer.md
- *   .claude/skills/tdd-iron-law/SKILL.md
+ *   commands/implement.md
+ *   skills/tdd/SKILL.md
  *   docs/backlog.md
  *
  * Excludes:
@@ -37,8 +36,8 @@ function extractFileRefs(content: string): string[] {
   const withoutCodeBlocks = content.replace(/```[\s\S]*?```/g, '');
 
   const refs: string[] = [];
-  // Match .claude/ and docs/ paths that end with .md, .json, .yaml, .yml
-  const pattern = /(?:\.claude|docs)\/[\w./-]+\.(?:md|json|yaml|yml)/g;
+  // Match commands/, skills/, agents/, docs/, examples/ paths that end with .md, .json, .yaml, .yml
+  const pattern = /(?:commands|skills|agents|docs|examples)\/[\w./-]+\.(?:md|json|yaml|yml)/g;
   let match;
 
   while ((match = pattern.exec(withoutCodeBlocks)) !== null) {
@@ -71,8 +70,9 @@ function extractFileRefs(content: string): string[] {
   return [...new Set(refs)];
 }
 
-describe('file path references in .claude/', () => {
-  const allFiles = collectMdFiles(CLAUDE_DIR);
+describe('file path references', () => {
+  const contentDirs = ['commands', 'skills', 'agents', 'examples'].map(d => join(ROOT, d));
+  const allFiles = contentDirs.filter(d => existsSync(d)).flatMap(d => collectMdFiles(d));
 
   for (const file of allFiles) {
     const relativePath = file.replace(ROOT + '/', '');

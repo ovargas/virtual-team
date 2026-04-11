@@ -1,6 +1,6 @@
 # Claude Code Virtual Team
 
-A `.claude/` configuration library that turns Claude Code into a virtual development team for solo founders. It provides agents (specialized sub-agents), commands (workflow steps), and skills (coding standards) that enforce a deliberate pipeline from idea to shipped code.
+A Claude Code plugin that turns Claude Code into a virtual development team for solo founders. It provides agents (specialized sub-agents), commands (workflow steps), and skills (coding standards) that enforce a deliberate pipeline from idea to shipped code.
 
 This library is designed to be copied into your repositories. It supports two repo types: a **hub** (product brain) and **service** repos (implementation hands).
 
@@ -109,63 +109,64 @@ Run each pipeline step individually instead of using `/flow`:
 ## File Structure
 
 ```
-.claude/
+examples/
 ├── CLAUDE-hub.md            ← CLAUDE.md template for hub repos
-├── CLAUDE-service.md        ← CLAUDE.md template for service repos
-├── agents/                  ← 8 specialized sub-agents
-│   ├── product-owner.md     ← Market, users, risk, value analysis
-│   ├── software-architect.md ← Architecture + dependency gatekeeper
-│   ├── web-researcher.md    ← External research (market, tech, users)
-│   ├── codebase-locator.md  ← Finds files by area or concern
-│   ├── codebase-analyzer.md ← Traces data flow and system behavior
-│   ├── pattern-finder.md    ← Finds existing implementation patterns
-│   ├── docs-locator.md      ← Finds relevant docs, plans, decisions
-│   └── security-reviewer.md ← Security review of code changes
-├── commands/                ← 26 workflow commands
-│   ├── idea.md              ← Capture a new product concept
-│   ├── epic.md              ← Hub-level initiative with cross-team agreements
-│   ├── feature.md           ← Spec a feature with YAGNI challenge + story groups
-│   ├── flow.md              ← Pipeline orchestrator: feature → contracts → plan → next → implement → pr
-│   ├── research.md          ← Deep-dive research
-│   ├── contracts.md         ← Extract, define, validate API contracts as schema files
-│   ├── plan.md              ← Technical implementation plan + knowledge check
-│   ├── next.md              ← Pick up work, lock it, create worktree (supports story groups)
-│   ├── implement.md         ← Execute plan phase by phase
-│   ├── commit.md            ← Git commit following conventions
-│   ├── pr.md                ← Pull request + release lock + knowledge check
-│   ├── init.md              ← Initialize repo (hub or service)
-│   ├── worktree.md          ← Manage git worktrees
-│   ├── review.md            ← Code review
-│   ├── tech-review.md       ← Architecture review
-│   ├── validate.md          ← Compare spec vs implementation, find gaps
-│   ├── refine.md            ← Iterate on existing documents
-│   ├── bug.md               ← Document a bug report
-│   ├── debug.md             ← Investigate issues with mandatory pattern sweep
-│   ├── check.md             ← Knowledge check: quiz on technical decisions
-│   ├── proposal.md          ← Business proposal (scope, timeline, costs)
-│   ├── decisions.md         ← Query project conventions and design patterns
-│   ├── docs.md              ← Generate project documentation
-│   ├── status.md            ← Project status briefing
-│   ├── handoff.md           ← Session continuity notes
-│   └── update-workflow.md   ← Sync workflow files from template repo
-├── settings.json            ← Hooks: SessionStart (skill-awareness), PreToolUse (TDD + verification)
-└── skills/                  ← 16 skills (domain, behavioral, backlog)
-    ├── git-practices/       ← Branch, commit, PR, worktree, backlog lock conventions
-    ├── api-design/          ← API endpoint and route handler standards
-    ├── ui-design/           ← Frontend component and styling standards
-    ├── data-layer/          ← Database, migration, query standards
-    ├── service-layer/       ← Business logic, interfaces, dependency injection standards
-    ├── go-practices/        ← Go-specific: DI pattern, mockery, project structure (stack: go)
-    ├── checkpoints/         ← Checkpoint protocol for resuming multi-phase commands
-    ├── knowledge-check/     ← Developer understanding validation protocol
-    ├── test-driven-development/        ← Iron law: no production code without a failing test first
-    ├── verification-before-completion/ ← No completion claims without fresh verification evidence
-    ├── receiving-code-review/          ← Verify before implementing review feedback, no performative agreement
-    ├── subagent-driven-development/    ← Orchestrator protocol for --sdd mode (fresh subagent per task)
-    ├── skill-awareness/     ← SessionStart hook: maps contexts to behavioral skills
-    ├── backlog/             ← Abstract backlog operations interface (20 operations)
-    ├── backlog-local/       ← File-based backlog: docs/backlog.md + docs/backlog.lock
-    └── backlog-external/    ← External service backlog: GitHub Issues, Linear, JIRA
+└── CLAUDE-service.md        ← CLAUDE.md template for service repos
+agents/                      ← 8 specialized sub-agents
+├── product-owner.md         ← Market, users, risk, value analysis
+├── software-architect.md    ← Architecture + dependency gatekeeper
+├── web-researcher.md        ← External research (market, tech, users)
+├── codebase-locator.md      ← Finds files by area or concern
+├── codebase-analyzer.md     ← Traces data flow and system behavior
+├── pattern-finder.md        ← Finds existing implementation patterns
+├── docs-locator.md          ← Finds relevant docs, plans, decisions
+└── security-reviewer.md     ← Security review of code changes
+commands/                    ← 26 workflow commands
+├── idea.md                  ← Capture a new product concept
+├── epic.md                  ← Hub-level initiative with cross-team agreements
+├── feature.md               ← Spec a feature with YAGNI challenge + story groups
+├── flow.md                  ← Pipeline orchestrator: feature → contracts → plan → next → implement → pr
+├── research.md              ← Deep-dive research
+├── contracts.md             ← Extract, define, validate API contracts as schema files
+├── plan.md                  ← Technical implementation plan + knowledge check
+├── next.md                  ← Pick up work, lock it, create worktree (supports story groups)
+├── implement.md             ← Execute plan phase by phase
+├── commit.md                ← Git commit following conventions
+├── pr.md                    ← Pull request + release lock + knowledge check
+├── init.md                  ← Initialize repo (hub or service)
+├── worktree.md              ← Manage git worktrees
+├── review.md                ← Code review
+├── tech-review.md           ← Architecture review
+├── validate.md              ← Compare spec vs implementation, find gaps
+├── refine.md                ← Iterate on existing documents
+├── bug.md                   ← Document a bug report
+├── debug.md                 ← Investigate issues with mandatory pattern sweep
+├── check.md                 ← Knowledge check: quiz on technical decisions
+├── proposal.md              ← Business proposal (scope, timeline, costs)
+├── decisions.md             ← Query project conventions and design patterns
+├── docs.md                  ← Generate project documentation
+├── status.md                ← Project status briefing
+├── handoff.md               ← Session continuity notes
+└── update-workflow.md       ← Sync workflow files from template repo
+hooks/
+└── hooks.json               ← Hooks: SessionStart (skill-awareness), PreToolUse (TDD + verification)
+skills/                      ← 16 skills (domain, behavioral, backlog)
+├── git-practices/           ← Branch, commit, PR, worktree, backlog lock conventions
+├── api-design/              ← API endpoint and route handler standards
+├── ui-design/               ← Frontend component and styling standards
+├── data-layer/              ← Database, migration, query standards
+├── service-layer/           ← Business logic, interfaces, dependency injection standards
+├── go-practices/            ← Go-specific: DI pattern, mockery, project structure (stack: go)
+├── checkpoints/             ← Checkpoint protocol for resuming multi-phase commands
+├── knowledge-check/         ← Developer understanding validation protocol
+├── test-driven-development/        ← Iron law: no production code without a failing test first
+├── verification-before-completion/ ← No completion claims without fresh verification evidence
+├── receiving-code-review/          ← Verify before implementing review feedback, no performative agreement
+├── subagent-driven-development/    ← Orchestrator protocol for --sdd mode (fresh subagent per task)
+├── skill-awareness/         ← SessionStart hook: maps contexts to behavioral skills
+├── backlog/                 ← Abstract backlog operations interface (20 operations)
+├── backlog-local/           ← File-based backlog: docs/backlog.md + docs/backlog.lock
+└── backlog-external/        ← External service backlog: GitHub Issues, Linear, JIRA
 ```
 
 ## Setting Up a Hub Repo
@@ -178,11 +179,11 @@ The hub is the product brain. It holds epics, cross-team decisions, and coordina
 mkdir my-app-hub && cd my-app-hub
 git init
 
-# Copy the .claude directory from this library
-cp -r /path/to/this-library/.claude .
+# Copy the library directories from this repo
+cp -r /path/to/this-library/{commands,skills,agents,hooks,examples} .
 
 # Use the hub CLAUDE.md template
-cp .claude/CLAUDE-hub.md CLAUDE.md
+cp examples/CLAUDE-hub.md CLAUDE.md
 ```
 
 ### Step 2: Initialize
@@ -214,14 +215,14 @@ A service repo is an implementation repo — API, frontend, mobile, etc. It has 
 mkdir my-app-api && cd my-app-api
 git init
 
-# Copy the .claude directory from this library
-cp -r /path/to/this-library/.claude .
+# Copy the library directories from this repo
+cp -r /path/to/this-library/{commands,skills,agents,hooks,examples} .
 
 # Use the service CLAUDE.md template
-cp .claude/CLAUDE-service.md CLAUDE.md
+cp examples/CLAUDE-service.md CLAUDE.md
 
 # Remove hub-only template (optional, keeps things clean)
-rm .claude/CLAUDE-hub.md
+rm examples/CLAUDE-hub.md
 ```
 
 ### Step 2: Initialize
@@ -247,14 +248,14 @@ git commit -m "chore(init): initialize service repository"
 
 ## Keeping the Library in Sync
 
-If you have multiple service repos, the `.claude/` directory is the same across all of them. You can share it via:
+If you have multiple service repos, the library directories (`commands/`, `skills/`, `agents/`, `hooks/`) are the same across all of them. You can share them via:
 
-- **Git submodule**: Point `.claude/` to this library repo. Update all repos by pulling the submodule.
-- **Manual copy**: Copy `.claude/` when creating new repos. Sync manually when commands or agents change.
+- **Git submodule**: Point the library dirs to this repo. Update all repos by pulling the submodule.
+- **Manual copy**: Copy the library dirs when creating new repos. Sync manually when commands or agents change.
 - **Template repo**: Use this library as a GitHub template repository.
 - **Update command**: Run `/update-workflow` in a service repo to pull latest generic files from a template path.
 
-The only repo-specific file is `CLAUDE.md` at the root (copied from the appropriate template). Everything else in `.claude/` is generic.
+The only repo-specific file is `CLAUDE.md` at the root (copied from the appropriate template in `examples/`). Everything else is generic.
 
 ## The Full Workflow
 
@@ -671,7 +672,7 @@ The `backlog.lock` file on main prevents both from picking the same item.
 | `/docs` | Any | Generate project documentation | Guides, references, runbooks | Project needs user guides, API docs, setup instructions, or runbooks |
 | `/status` | Any | Project status briefing | Status report | Morning startup or check-in — see what's done, in progress, and blocked |
 | `/handoff` | Any | Session continuity note | Handoff document | Ending a session mid-work — capture context so the next session picks up cleanly |
-| `/update-workflow` | Service | Sync workflow files from template | Updated `.claude/` files | Template has been updated and you want to pull in the latest commands and skills |
+| `/update-workflow` | Service | Sync workflow files from template | Updated `commands/`, `skills/`, `agents/` files | Template has been updated and you want to pull in the latest commands and skills |
 
 ## Command Options
 
@@ -850,7 +851,7 @@ Skills work in two layers:
 
 **Layer 2 — Stack-specific skills** (you create these): Skills matched via `stack:` frontmatter against your `stack.md`. For example, a `go-gin` skill with `stack: go, gin` would be auto-loaded alongside `api-design` when implementing API endpoints in a Go/Gin project.
 
-The `/implement` command reads `stack.md` to identify your frameworks, then loads matching skills from `.claude/skills/`. Generic skills provide the baseline; stack-specific skills add concrete patterns for your exact stack.
+The `/implement` command reads `stack.md` to identify your frameworks, then loads matching skills from `skills/`. Generic skills provide the baseline; stack-specific skills add concrete patterns for your exact stack.
 
 ### Skill Reference
 
@@ -910,11 +911,11 @@ Two approaches:
 
 ## Hooks
 
-The `.claude/settings.json` file configures two hooks that enforce behavioral skills automatically:
+The `hooks/hooks.json` file configures two hooks that enforce behavioral skills automatically:
 
 ### `SessionStart` Hook
 
-Runs `cat .claude/skills/skill-awareness/SKILL.md` at the start of every session. This loads the context-to-skill mapping so behavioral skills activate based on what you're doing, even without explicit slash commands.
+Runs `cat skills/skill-awareness/SKILL.md` at the start of every session. This loads the context-to-skill mapping so behavioral skills activate based on what you're doing, even without explicit slash commands.
 
 ### `PreToolUse` Hook (on `Edit|Write`)
 

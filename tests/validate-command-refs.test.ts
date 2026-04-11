@@ -3,8 +3,7 @@ import { readdirSync, readFileSync, statSync } from 'fs';
 import { join } from 'path';
 
 const ROOT = join(import.meta.dirname, '..');
-const CLAUDE_DIR = join(ROOT, '.claude');
-const COMMANDS_DIR = join(CLAUDE_DIR, 'commands');
+const COMMANDS_DIR = join(ROOT, 'commands');
 
 function collectMdFiles(dir: string): string[] {
   const files: string[] = [];
@@ -19,7 +18,7 @@ function collectMdFiles(dir: string): string[] {
   return files;
 }
 
-/** Get all known command names from .claude/commands/ */
+/** Get all known command names from commands/ */
 function getCommandNames(): Set<string> {
   return new Set(
     readdirSync(COMMANDS_DIR)
@@ -62,7 +61,8 @@ function extractCommandRefs(content: string): string[] {
 
 describe('command cross-references', () => {
   const commandNames = getCommandNames();
-  const allFiles = collectMdFiles(CLAUDE_DIR);
+  const contentDirs = ['commands', 'skills', 'agents'].map(d => join(ROOT, d));
+  const allFiles = contentDirs.flatMap(d => collectMdFiles(d));
 
   // Collect all command refs across all files and verify each resolves
   const allRefs: Array<{ file: string; ref: string }> = [];
@@ -85,7 +85,7 @@ describe('command cross-references', () => {
       (_, { ref }) => {
         expect(
           commandNames.has(ref) || isKnownNonCommand(ref),
-          `/${ref} does not match any command in .claude/commands/`
+          `/${ref} does not match any command in commands/`
         ).toBe(true);
       }
     );
@@ -115,7 +115,7 @@ describe('command name consistency', () => {
 });
 
 describe('skill directory consistency', () => {
-  const skillsDir = join(CLAUDE_DIR, 'skills');
+  const skillsDir = join(ROOT, 'skills');
   const skillDirs = readdirSync(skillsDir).filter(
     d => statSync(join(skillsDir, d)).isDirectory()
   );

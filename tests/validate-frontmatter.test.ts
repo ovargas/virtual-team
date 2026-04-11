@@ -3,7 +3,6 @@ import { readdirSync, readFileSync, statSync } from 'fs';
 import { join } from 'path';
 
 const ROOT = join(import.meta.dirname, '..');
-const CLAUDE_DIR = join(ROOT, '.claude');
 
 function parseFrontmatter(content: string): Record<string, string> | null {
   const match = content.match(/^---\n([\s\S]*?)\n---/);
@@ -35,7 +34,7 @@ function collectMdFiles(dir: string): string[] {
 }
 
 describe('command frontmatter', () => {
-  const commandDir = join(CLAUDE_DIR, 'commands');
+  const commandDir = join(ROOT, 'commands');
   const files = readdirSync(commandDir).filter(f => f.endsWith('.md'));
 
   it.each(files)('%s has valid frontmatter with name and description', (file) => {
@@ -67,7 +66,7 @@ describe('command frontmatter', () => {
 });
 
 describe('skill frontmatter', () => {
-  const skillsDir = join(CLAUDE_DIR, 'skills');
+  const skillsDir = join(ROOT, 'skills');
   const skillFiles = collectMdFiles(skillsDir).filter(f => f.endsWith('SKILL.md'));
 
   it.each(skillFiles.map(f => [f.replace(skillsDir + '/', ''), f]))(
@@ -84,7 +83,7 @@ describe('skill frontmatter', () => {
 });
 
 describe('agent frontmatter', () => {
-  const agentsDir = join(CLAUDE_DIR, 'agents');
+  const agentsDir = join(ROOT, 'agents');
   const files = readdirSync(agentsDir).filter(f => f.endsWith('.md'));
 
   it.each(files)('%s has valid frontmatter with name and description', (file) => {
