@@ -37,7 +37,7 @@ This command uses `sonnet` because it's a read-evaluate-respond operation.
 
 1. **Parse `$ARGUMENTS`** for plan path, feature ID, or flags
 2. **If bare `/virtual-team:check`**, auto-detect:
-   - Read `docs/backlog.md` for items in Doing (`[>]`) or Implemented (`[=]`)
+   - Load the backlog skill and call **`list(status=doing)`** and **`list(status=implemented)`** to find items in progress
    - Find the associated plan in `docs/plans/`
    - Check the current branch and diff
    - Determine the stage:

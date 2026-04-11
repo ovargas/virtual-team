@@ -77,15 +77,14 @@ docs/
 ├── decisions/      # Local architectural decision records (ADRs)
 ├── handoffs/       # Session handoff notes from /handoff
 ├── bugs/           # Bug reports from /bug
-├── reviews/        # Tech review outputs from /tech-review
-└── backlog.md      # Service backlog (stories)
+└── reviews/        # Tech review outputs from /tech-review
 ```
 
 Create each directory with a `.gitkeep` file so they're tracked by git.
 
-Create the initial `docs/backlog.md`:
+**Create backlog files based on the configured backend:**
 
-**For Hub repos:**
+**For Hub repos** — always create `docs/backlog.md` (hubs always use local backlog for epic-level tracking):
 ```markdown
 # Product Backlog
 
@@ -99,7 +98,7 @@ Create the initial `docs/backlog.md`:
 <!-- New initiatives, not yet analyzed -->
 ```
 
-**For Service repos:**
+**For Service repos with `backlog: local`** (default) — create `docs/backlog.md`:
 ```markdown
 # Backlog
 
@@ -112,6 +111,18 @@ Create the initial `docs/backlog.md`:
 ## Inbox
 <!-- New items, not yet refined -->
 ```
+
+**For Service repos with `backlog: external`** — do NOT create `docs/backlog.md`. Instead, create `docs/backlog-index.md`:
+```markdown
+# Backlog Index
+
+Maps local story IDs to external service issues. Managed by the `backlog-external` skill.
+
+| Story | External | Feature | Status |
+|---|---|---|---|
+```
+
+The external service is the backlog — no local `docs/backlog.md` is needed.
 
 ### Step 3: Interview
 
@@ -286,6 +297,22 @@ Gather:
 - **Build command** — `go build`, `npm run build`, etc.
 - **Run command** — how to start the service locally
 
+#### Round 9: Workflow Mode
+
+```
+How will this repo be developed?
+```
+
+Gather:
+- **Mode** — `solo` (one developer, default) or `team` (multiple developers working concurrently)
+- **Backlog** — `local` (file-based `docs/backlog.md`, default) or `external` (GitHub Issues, Linear, JIRA)
+
+If `team`:
+- Recommend `backlog: external` — local file-based backlogs cause merge conflicts when multiple developers work concurrently
+- If they still want `backlog: local`, warn: "Local backlog uses `docs/backlog.md` and `docs/backlog.lock` committed to git. Multiple developers running `/virtual-team:next` concurrently will have merge conflicts on these files. Consider `backlog: external` for team workflows."
+
+If `backlog: external`, gather the `backlog_config` section (service, project, state mappings, labels — see `skills/backlog-external/SKILL.md` for the full schema).
+
 ### Step 4: Generate stack.md
 
 Write `stack.md` at the repository root. The template depends on the repo type.
@@ -383,6 +410,10 @@ Write `stack.md` at the repository root. The template depends on the repo type.
 - **Deploy target:** [target or TBD]
 - **Container:** [yes/no/TBD]
 
+## Workflow
+- **Mode:** [solo | team]
+- **Backlog:** [local | external]
+
 ## Decisions Made
 <!-- Links to local ADRs in docs/decisions/ — starts empty -->
 <!-- Hub decisions that affect this repo are in the hub's docs/decisions/ -->
@@ -463,7 +494,8 @@ Add new teams to the registry anytime with `/virtual-team:start   --update`.
 Created:
 - `stack.md` — tech stack definition ([N] items decided, [N] TBD)
 - `docs/` — project documentation structure ([N] directories)
-- `docs/backlog.md` — empty backlog ready for features
+- [If backlog: local] `docs/backlog.md` — empty backlog ready for features
+- [If backlog: external] `docs/backlog-index.md` — backlog index (stories tracked in [service])
 - `docs/decisions/` — [N] initial decision records
 [If hub reference exists:]
 - Hub reference: [hub path] — this repo reads epics and cross-team decisions from there

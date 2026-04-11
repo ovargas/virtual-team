@@ -72,8 +72,8 @@ Shorthand:
 ### Action: Remove
 
 1. **Parse `$ARGUMENTS`** for the branch name
-2. **Check for active locks** — read `docs/backlog.lock`:
-   - If this branch has a lock entry, warn:
+2. **Check for active locks** — load the backlog skill and call **`check_lock()`** for the branch's items:
+   - If this branch has a lock, warn:
      ```
      Branch feat/CTR-12 has an active backlog lock:
      - Item: S-003 (from FEAT-007)
@@ -83,7 +83,7 @@ Shorthand:
      1. Remove the lock and the worktree (work is done or abandoned)
      2. Cancel — keep the worktree
      ```
-   - If removing, also clean up the lock entry from `docs/backlog.lock`
+   - If removing, also call **`release_lock(id)`** via the backlog skill to clean up the lock
 
 3. **Check for uncommitted changes** in the worktree:
    ```bash
@@ -121,7 +121,7 @@ Shorthand:
 ### Action: List
 
 1. **Run `git worktree list`** and parse the output
-2. **Read `docs/backlog.lock`** to correlate locks with worktrees
+2. **Load the backlog skill** and retrieve lock information to correlate locks with worktrees
 3. **For each worktree, check:**
    - Does it have uncommitted changes?
    - Does it have a backlog lock?

@@ -41,7 +41,7 @@ If `--fix` was NOT passed, proceed with normal validation (Steps 1-5).
 
 1. **Find and read the feature spec:**
    - If FEAT-NNN: search `docs/features/` for the matching file
-   - If S-NNN: find the story in `docs/backlog.md`, then its parent feature spec
+   - If S-NNN: call **`get(id)`** via the backlog skill to find the story, then read its parent feature spec
    - If a file path: read it directly
    - If bare `/virtual-team:validate`: list features with status `draft`, `active`, or stories marked `[=]` or `[x]` in the backlog
 
@@ -250,15 +250,13 @@ This step runs ONLY when `--fix` was passed.
    **Acceptance criteria** come directly from the gap's `story_hint` and the original spec requirement.
 
 5. **Add stories to the backlog:**
-   - Find the `## Ready` section in `docs/backlog.md`
-   - Append gap stories under a sub-heading or tagged clearly:
-     ```markdown
-     ## Ready
-
-     ### FEAT-NNN Validation Gaps
-     - [ ] Complete edge case handling for user notifications | feature:FEAT-007 | validation:GAP-001 | service:be | spec:docs/features/2026-02-12-notifications.md
-     - [ ] Add missing email template for assignment notifications | feature:FEAT-007 | validation:GAP-002 | service:be | spec:docs/features/2026-02-12-notifications.md
-     - [ ] Add test coverage for notification service | feature:FEAT-007 | validation:GAP-003 | service:be | spec:docs/features/2026-02-12-notifications.md
+   - Load the backlog skill and call **`create(items)`** to add gap stories in ready status
+   - Each story should include: id, title, feature ID, validation reference, service tag, spec path
+   - Example items to create:
+     ```
+     - Complete edge case handling for user notifications | feature:FEAT-007 | validation:GAP-001 | service:be | spec:docs/features/2026-02-12-notifications.md
+     - Add missing email template for assignment notifications | feature:FEAT-007 | validation:GAP-002 | service:be | spec:docs/features/2026-02-12-notifications.md
+     - Add test coverage for notification service | feature:FEAT-007 | validation:GAP-003 | service:be | spec:docs/features/2026-02-12-notifications.md
      ```
 
 6. **Update the validation report frontmatter:**
@@ -267,9 +265,10 @@ This step runs ONLY when `--fix` was passed.
 
 7. **Commit the changes:**
    ```bash
-   git add docs/backlog.md docs/validations/FEAT-NNN-validation.md
+   git add docs/validations/FEAT-NNN-validation.md
    git commit -m "chore(backlog): add gap stories from FEAT-NNN validation"
    ```
+   Note: The backlog skill handles staging its own files as part of the `create()` operation.
 
 8. **Present the result:**
 

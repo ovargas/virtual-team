@@ -222,7 +222,7 @@ Formulate and verify the root cause.
 2. **Update the bug report status** in frontmatter: `status: investigated`
 
 3. **Update the backlog (if the bug is tracked there):**
-   - Read `docs/backlog.md` and check if this bug has an entry (search for the BUG-NNN ID or ticket ID)
+   - Load the backlog skill and call **`list(status=all)`** to check if this bug has an entry (search for the BUG-NNN ID or ticket ID)
    - **If found in Doing (`[>]`):** Update to `[=]` (investigated, pending fix):
      ```
      - [=] BUG-003: Bug title — `fix/CTR-45` — investigated, root cause found
@@ -230,9 +230,10 @@ Formulate and verify the root cause.
    - **If found in Ready or not in the backlog:** Leave it, just note it in the findings
    - Commit backlog updates if any:
      ```bash
-     git add docs/backlog.md docs/bugs/[bug-report]
+     git add docs/bugs/[bug-report]
      git commit -m "chore(backlog): mark BUG-003 investigated [TICKET-ID]"
      ```
+     Note: The backlog skill handles staging its own files as part of the status update operation.
 
 4. **Present findings:**
 

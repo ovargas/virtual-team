@@ -74,7 +74,7 @@ Does that match your sense of urgency?
 
 Without deep investigation (that's `/virtual-team:debug`'s job), do a fast check:
 
-1. **Search the backlog** (`docs/backlog.md`) — is this already reported?
+1. **Search the backlog** — load the backlog skill and call **`list(status=all)`** to check if this is already reported
 2. **Search existing bug reports** (`docs/bugs/`) — has this been seen before?
 3. **Search feature specs** — is the "broken" behavior actually the intended behavior?
 
@@ -146,16 +146,13 @@ reported_by: [founder|user|automated]
 
 ### Step 5: Add to Backlog
 
-1. **Add to `docs/backlog.md`** in the appropriate priority position based on severity:
-   - Critical/High: near the top of Ready
-   - Medium: middle of Ready
-   - Low: bottom of Ready
+1. **Add to the backlog** — load the backlog skill and call **`create(items)`** to add the bug in ready status with the appropriate severity tag:
+   - Critical/High: highest priority
+   - Medium: normal priority
+   - Low: lowest priority
+   - Item format: `BUG: [Short title] | severity:[level] | bug:docs/bugs/YYYY-MM-DD-description.md`
 
-   ```markdown
-   - [ ] BUG: [Short title] | severity:[level] | bug:docs/bugs/YYYY-MM-DD-description.md
-   ```
-
-2. **If an external tracker is configured**, create or update the ticket.
+2. **If an external tracker is configured** (`backlog: external`), the backlog skill handles creating the external issue automatically.
 
 3. **Present the report:**
 

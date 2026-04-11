@@ -247,11 +247,15 @@ git worktree list
 
 ## Backlog Lock
 
-When working with worktrees, multiple sessions may access the backlog simultaneously. A lockfile prevents two worktrees from picking up the same item.
+When working with worktrees, multiple sessions may access the backlog simultaneously. A lock mechanism prevents two sessions from picking up the same item.
 
-**File:** `docs/backlog.lock`
+**How locking works depends on the workflow mode** (read `stack.md` → `mode:` field):
 
-**Format:**
+**Solo mode** (`mode: solo`, default): Locks use a local file `docs/backlog.lock` (YAML format). This file is committed to git so all worktrees see it.
+
+**Team mode** (`mode: team`, requires `backlog: external`): Locks use the external service's assignment mechanism (e.g., GitHub issue assignee, Linear assignee). No local lock file is created. See the `backlog-external` skill for details.
+
+**Solo mode lock format:**
 ```yaml
 # Managed by /virtual-team:next and /virtual-team:pr commands — do not edit manually
 locks:
@@ -262,18 +266,18 @@ locks:
     started: "2026-02-12T14:30:00"
 ```
 
-**Rules:**
-- `/virtual-team:next` creates a lock entry when picking up a backlog item
-- `/virtual-team:pr` removes the lock entry on the feature branch — the removal lands on main when the PR merges
-- `/virtual-team:worktree --remove` checks for stale locks and warns
-- Before picking an item, `/virtual-team:next` checks the lockfile — if the item is locked, it skips to the next
-- If a lock is stale (branch no longer exists, PR merged, worktree removed), `/virtual-team:next` cleans it up automatically
+**Rules (both modes):**
+- `/virtual-team:next` creates a lock when picking up a backlog item (via the backlog skill's **`start()`** operation)
+- `/virtual-team:pr` releases the lock when shipping (via the backlog skill's **`complete()`** or **`complete_all_on_branch()`** operations)
+- `/virtual-team:worktree --remove` checks for stale locks and warns (via the backlog skill's **`check_lock()`** operation)
+- Before picking an item, `/virtual-team:next` checks the lock — if the item is locked, it skips to the next
+- If a lock is stale (branch no longer exists, PR merged, worktree removed), `/virtual-team:next` cleans it up automatically (via **`clean_stale_locks()`**)
 
-**Lock vs. backlog status — where each is committed:**
+**Lock vs. backlog status — where each is committed (solo mode):**
 - **Lock file (`backlog.lock`):** Committed on main for default/here modes (cross-worktree coordination). Committed on the current branch for `--current` mode (solo work, no main switching).
-- **Backlog status (`backlog.md`):** Always committed on the feature branch. The `[ ]` → `[>]` → `[=]` → `[x]` lifecycle happens entirely on the branch and merges with the PR. Main's backlog only reflects completed work after PRs merge.
+- **Backlog status:** Always committed on the feature branch. The status lifecycle happens entirely on the branch and merges with the PR. Main's backlog only reflects completed work after PRs merge.
 
-**Multi-story branches:** When using `/virtual-team:next --current` to pick up multiple stories on a single branch, each story gets its own lock entry and `[>]` marker on the feature branch. `/virtual-team:pr` marks ALL stories as Done and removes ALL locks for that branch in a single commit.
+**Multi-story branches:** When using `/virtual-team:next --current` to pick up multiple stories on a single branch, each story gets its own lock and status marker on the feature branch. `/virtual-team:pr` marks ALL stories as Done and removes ALL locks for that branch in a single operation.
 
 ## Story Groups
 

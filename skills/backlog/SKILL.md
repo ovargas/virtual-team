@@ -17,6 +17,18 @@ This skill defines the backlog operations that commands use. It does NOT define 
 
 If the `backlog:` field is missing from `stack.md`, assume `local`.
 
+## Mode Detection
+
+The `mode:` field in `stack.md` determines the locking strategy:
+
+1. Read `stack.md` and find the `mode:` field (default: `solo` if not specified)
+2. Pass the mode to the implementation skill — it affects locking behavior:
+   - **`solo`**: All locking is local (`docs/backlog.lock`). One developer, worktree-based coordination.
+   - **`team`**: Locking uses the external service's assignment mechanism (no local lock file). Multiple developers, concurrent work with service-native coordination.
+3. `mode: team` requires `backlog: external` — local backlogs do not support team mode (there is no external service to coordinate through)
+
+If the `mode:` field is missing from `stack.md`, assume `solo`.
+
 ---
 
 ## Status Values

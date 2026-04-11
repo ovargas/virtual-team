@@ -165,8 +165,8 @@ skills/                      ← 16 skills (domain, behavioral, backlog)
 ├── subagent-driven-development/    ← Orchestrator protocol for --sdd mode (fresh subagent per task)
 ├── skill-awareness/         ← SessionStart hook: maps contexts to behavioral skills
 ├── backlog/                 ← Abstract backlog operations interface (20 operations)
-├── backlog-local/           ← File-based backlog: docs/backlog.md + docs/backlog.lock
-└── backlog-external/        ← External service backlog: GitHub Issues, Linear, JIRA
+├── backlog-local/           ← File-based backlog: docs/backlog.md + docs/backlog.lock (solo mode)
+└── backlog-external/        ← External service backlog: GitHub Issues, Linear, JIRA (solo or team mode)
 ```
 
 ## Setting Up a Hub Repo
@@ -398,7 +398,9 @@ Back in main repo directory:
 
 ## Backlog Lifecycle
 
-Stories move through four states tracked in `docs/backlog.md`:
+Stories move through four states. The backlog is managed by the abstract backlog interface — commands use operations like `list()`, `get()`, `start()`, `complete()` rather than reading files directly.
+
+**With `backlog: local` (default):** States are tracked in `docs/backlog.md` using bracket markers:
 
 ```
 [ ] Ready     → story is specced and available for pickup
@@ -415,13 +417,22 @@ Each backlog entry includes metadata tags:
 
 Tags: `feature:FEAT-NNN` (parent feature), `group:N` (execution group), `order:N` (sequence within group), `service:xx` (target repo).
 
+**With `backlog: external`:** States are tracked in the external service (GitHub Issues, Linear, JIRA). A lightweight `docs/backlog-index.md` maps local story IDs to external issue IDs. No `docs/backlog.md` file is used.
+
+### Workflow Mode
+
+The `mode:` field in `stack.md` controls locking behavior:
+
+- **`mode: solo`** (default): One developer. Locks use a local `docs/backlog.lock` file committed to git. Works with both `backlog: local` and `backlog: external`.
+- **`mode: team`**: Multiple developers. Locks use the external service's assignment mechanism (no local lock file). Requires `backlog: external`. Eliminates merge conflicts when multiple developers run `/virtual-team:next` concurrently.
+
 ### Lock vs Status Separation
 
 The workflow separates coordination (locks) from reality tracking (status) across branches:
 
-**Lock file (`docs/backlog.lock`)** is committed on main so all worktrees see it immediately. This prevents two worktrees from picking the same item. `/virtual-team:next` creates the lock; `/virtual-team:pr` removes it.
+**Locks** prevent two sessions from picking the same item. In solo mode, `docs/backlog.lock` is committed on main so all worktrees see it immediately. In team mode, the external service's assignment serves as the lock. `/virtual-team:next` creates the lock (via `start()`); `/virtual-team:pr` removes it (via `complete()`).
 
-**Backlog status (`docs/backlog.md`)** changes happen on the feature branch. Moving `[ ]` to `[>]` to `[=]` to `[x]` is committed alongside the code. When the PR merges, main's backlog reflects the completed work. This means main's backlog is always accurate — it only shows work as done when the code actually lands.
+**Backlog status** changes happen on the feature branch. The status lifecycle is committed alongside the code. When the PR merges, main's backlog reflects the completed work. This means the backlog is always accurate — it only shows work as done when the code actually lands.
 
 Exception: when using `--current` mode (sequential stories on the same branch), both lock and status go on the current branch since there's no cross-worktree coordination needed.
 
@@ -885,8 +896,8 @@ These skills enforce coding discipline automatically. They are loaded by the `Se
 | Skill | Purpose | When Loaded |
 |-------|---------|-------------|
 | `virtual-team:backlog` | Abstract interface defining 20 operations all commands use (`list`, `start`, `complete`, `lock`, etc.) | First — loaded before any backlog operation, delegates to implementation |
-| `virtual-team:backlog-local` | File-based implementation using `docs/backlog.md` (bracket markers) and `docs/backlog.lock` (YAML) | Default when `stack.md` has `backlog: local` or no `backlog:` field |
-| `virtual-team:backlog-external` | External service implementation (GitHub Issues, Linear, JIRA) | When `stack.md` has `backlog: external` with a `backlog_config` section |
+| `virtual-team:backlog-local` | File-based implementation using `docs/backlog.md` (bracket markers) and `docs/backlog.lock` (YAML). Solo mode only. | Default when `stack.md` has `backlog: local` or no `backlog:` field |
+| `virtual-team:backlog-external` | External service implementation (GitHub Issues, Linear, JIRA). In team mode (`mode: team`), uses service-native assignment for locking instead of local files. | When `stack.md` has `backlog: external` with a `backlog_config` section |
 
 ### Where to Put Architectural Conventions
 

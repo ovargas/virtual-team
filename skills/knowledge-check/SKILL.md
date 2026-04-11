@@ -69,7 +69,7 @@ Read the branch diff and the implementation plan, then generate questions target
 ### Standalone /virtual-team:check Questions
 
 Determine what the developer is currently working on:
-1. Read `docs/backlog.md` for items in Doing (`[>]`) or Implemented (`[=]`)
+1. Load the backlog skill and call **`list(status=doing)`** and **`list(status=implemented)`** to find items in progress
 2. Find the associated plan and feature spec
 3. Check the current branch diff
 4. Generate questions appropriate to the current stage:

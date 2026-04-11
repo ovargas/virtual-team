@@ -29,8 +29,8 @@ If this service is part of a multi-repo product, features can be driven by hub e
 - **`docs/plans/`** — Implementation plans. Step-by-step technical instructions with file references, patterns to follow, and verification commands.
 - **`docs/decisions/`** — Local architectural decision records. Non-obvious technical choices made for this repo.
 - **`contracts/`** — API contract files (endpoints, models, events) as JSON Schema. Authoritative source of truth for payload shapes. `/plan` and `/implement` hard-stop if contracts are missing for endpoints they touch.
-- **`docs/backlog.md`** — Service backlog with four states: `[ ]` Ready, `[>]` Doing, `[=]` Implemented, `[x]` Done. Managed by the `backlog-local` skill — commands use abstract operations from the `backlog` interface, not direct file manipulation.
-- **`docs/backlog.lock`** — Lockfile preventing two worktrees from picking the same item. Managed by the backlog skill operations (`start()`, `release_lock()`, `clean_stale_locks()`).
+- **`docs/backlog.md`** — Service backlog with four states: `[ ]` Ready, `[>]` Doing, `[=]` Implemented, `[x]` Done. Only exists when `backlog: local` (default for solo mode). Managed by the `backlog-local` skill — commands use abstract operations from the `backlog` interface, not direct file manipulation. When `backlog: external`, the external service (GitHub Issues, Linear, JIRA) is the backlog and this file does not exist.
+- **`docs/backlog.lock`** — Lockfile preventing two worktrees from picking the same item. Only exists in solo mode (`mode: solo`). In team mode (`mode: team`), the external service's assignment mechanism serves as the lock. Managed by the backlog skill operations (`start()`, `release_lock()`, `clean_stale_locks()`).
 - **`docs/proposals/`** — Business proposals generated from ideas or features.
 - **`docs/research/`** — Research outputs.
 - **`docs/checkpoints/`** — Progress checkpoints for long-running commands. Auto-created during execution, auto-deleted on completion. If a file exists here, the command was interrupted mid-work.
@@ -127,8 +127,8 @@ Skills are domain-specific coding standards. `/implement` loads the relevant ski
 | **checkpoints** | Progress checkpointing for long-running commands | `/implement`, `/debug`, `/feature`, `/plan`, `/epic` |
 | **knowledge-check** | Developer understanding validation — questions, evaluation, tutoring, logging | `/plan` (after approval), `/pr` (before submission), `/check` (standalone) |
 | **backlog** | Abstract backlog operations interface — defines the 20 operations all commands use | Any command that reads or writes the backlog (loaded first, delegates to implementation) |
-| **backlog-local** | File-based backlog implementation using `docs/backlog.md` and `docs/backlog.lock` | Default when `stack.md` has `backlog: local` or no `backlog:` field |
-| **backlog-external** | External service backlog implementation (GitHub Issues, Linear, JIRA) | When `stack.md` has `backlog: external` with a `backlog_config` section |
+| **backlog-local** | File-based backlog implementation using `docs/backlog.md` and `docs/backlog.lock` (solo mode only) | Default when `stack.md` has `backlog: local` or no `backlog:` field |
+| **backlog-external** | External service backlog implementation (GitHub Issues, Linear, JIRA). In team mode, uses service-native assignment for locking instead of local files | When `stack.md` has `backlog: external` with a `backlog_config` section |
 
 ### Project Skills
 
@@ -172,7 +172,7 @@ These are defined in the `git-practices` skill. Summary:
 - **Commits:** `<type>(<scope>): <short message> [<ticket-id>]` with a mandatory description body
 - **PRs:** Same title format as commits. Body has Summary, Changes, Testing, Ticket sections. Testing is mandatory.
 - **Worktrees:** Sibling `{repo}-worktrees/` directory. Create with `git wt <branch>`, remove with `git wtr <branch>`. One worktree per ticket.
-- **Backlog lock:** `docs/backlog.lock` prevents two worktrees from picking the same item. Created by `/next`, released by `/pr`. Stays active through the `[=]` Implemented state until the PR ships.
+- **Backlog lock:** In solo mode, `docs/backlog.lock` prevents two worktrees from picking the same item. In team mode, the external service's assignment mechanism serves as the lock. Created by `/next` (via `start()`), released by `/pr` (via `complete()`). Stays active through the Implemented state until the PR ships.
 
 ## Behavioral Expectations
 

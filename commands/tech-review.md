@@ -37,7 +37,7 @@ When this command is invoked:
 2. **Read context:**
    - `stack.md` — understand the stack and conventions
    - Existing decision records in `docs/decisions/` — understand past choices
-   - `docs/backlog.md` — understand what's planned (to avoid flagging things already on the roadmap)
+   - Load the backlog skill and call **`list(status=ready)`** — understand what's planned (to avoid flagging things already on the roadmap)
    - Recent git history — understand the pace and pattern of changes
 
 3. **Announce the review:**

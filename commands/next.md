@@ -386,7 +386,7 @@ After the initial `--feature` setup, the developer uses `/virtual-team:next --cu
    - If **`list(status=ready)`** returns empty: "Nothing in the Ready column. Run `/virtual-team:status` to see the full picture, or `/virtual-team:feature` to spec something new."
    - If no items match the service filter: "No ready items for [service]. There are [N] items for other services."
    - If all ready items are locked (per **`check_lock()`**): "All ready items are currently locked by other worktrees. Run `/virtual-team:worktree list` to see active work."
-   - If **`list()`** fails or the backlog store doesn't exist: "No backlog found. Create one with `/virtual-team:feature` (which adds stories automatically) or create `docs/backlog.md` manually."
+   - If **`list()`** fails or the backlog store doesn't exist: "No backlog found. Run `/virtual-team:feature` to spec a feature (which adds stories automatically) or run `/virtual-team:start` to set up the project structure."
    - If `git wt` alias isn't available: "Git worktree alias `git wt` not found. Create the worktree manually: `git worktree add ../{repo}-worktrees/<branch> -b <branch>`"
 
 6. **Lock and status commit placement:**

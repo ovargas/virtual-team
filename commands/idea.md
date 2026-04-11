@@ -377,7 +377,7 @@ Key things to check:
 
 After the feature brief is finalized:
 
-1. **Check if `docs/backlog.md` exists.** If it does, append the new idea to the Inbox section. If it doesn't, inform the user that the feature brief is ready and can be added to their tracking system when one is set up.
+1. **Add to the backlog if configured.** Load the backlog skill — if a backlog is configured (local or external), add the idea to the Inbox via the skill. If no backlog is configured, inform the user that the feature brief is ready and can be added to their tracking system when one is set up.
 
 2. **Backlog entry format:**
 ```markdown

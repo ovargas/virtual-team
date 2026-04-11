@@ -30,7 +30,7 @@ When this command is invoked:
 2. **Read the document fully.** Understand what it says, what state it's in, and what type it is (product brief vs. feature spec).
 
 3. **Read supporting context:**
-   - Check `docs/backlog.md` for the document's current status
+   - Load the backlog skill and call **`get(id)`** or **`list(feature=FEAT-NNN)`** to check the document's backlog status
    - Read `stack.md` if it exists (for feature specs)
    - Check `docs/research/` for any associated research documents
    - Check `docs/decisions/` for related decision records
@@ -116,7 +116,7 @@ After approval:
    - Update `status` if it's changing (e.g., `draft` → `refined`)
    - Add or update `last_refined: YYYY-MM-DD`
    - Add `refinement_note: "[Brief description of what changed]"`
-3. **Update the backlog** if story changes affect `docs/backlog.md`
+3. **Update the backlog** via the backlog skill if story changes require it
 4. **Present the result:**
 
 ```

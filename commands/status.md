@@ -176,7 +176,7 @@ Plan: [docs/plans/... | not yet planned]
 
    **In the hub** — always run this check:
    - Read **all** files in `docs/epics/` — every epic regardless of status (`draft`, `active`, `done`)
-   - Also read `docs/backlog.md` in the hub — check for epics listed in Ready/Next sections
+   - Also load the hub's backlog skill and call **`list(status=ready)`** — check for epics in the Ready/Next pipeline
    - An epic is **incomplete** if ANY of these are true:
      - `status: draft` — epic exists but features haven't been created yet
      - An `affected_repos` entry hasn't had `/virtual-team:feature` run for it (no matching feature in `docs/features/` referencing this epic)
@@ -209,7 +209,7 @@ Plan: [docs/plans/... | not yet planned]
    **In a service repo** — only when Ready and Doing are both empty:
    - Do NOT try to read `docs/epics/` (epics live in the hub, not here)
    - Instead, read the hub path from `stack.md` and check if the hub is accessible
-   - If accessible: read the hub's `docs/backlog.md` for epics in Ready/Next, and suggest the relevant ones for this repo
+   - If accessible: load the hub's backlog skill and call **`list(status=ready)`** for epics in Ready/Next, and suggest the relevant ones for this repo
    - If not accessible: suggest checking the hub manually
    ```
    Backlog is empty. Check the hub for available epics:
@@ -299,6 +299,6 @@ Report these under "Attention Needed" — don't just flag them, suggest what to 
    - Suggest commands to run, but don't run them
 
 5. **Handle missing structure gracefully:**
-   - If `docs/backlog.md` doesn't exist yet, say so and suggest creating one
+   - If the backlog skill's `list()` returns empty or no backlog is configured, say so and suggest running `/virtual-team:start` or `/virtual-team:feature`
    - If `docs/features/` is empty, note the project is in early stages
    - Don't error out — report what exists and what's missing

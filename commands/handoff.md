@@ -22,7 +22,7 @@ This command uses `sonnet` because it's a read-and-summarize operation.
 
 Read all relevant context WITHOUT asking the user — this should be fast and automatic:
 
-1. **Check `docs/backlog.md`** — what's in Doing?
+1. **Check the backlog** — load the backlog skill and call **`list(status=doing)`** to find what's in progress
 2. **Check `git status` and `git log --oneline -5`** — what was committed? What's uncommitted?
 3. **Check `git diff --stat`** — how many files have been modified?
 4. **Check the current implementation plan** (if one was being executed) — which phase/step was in progress?
@@ -107,7 +107,7 @@ Or: "None."
 ### Step 3: Update Backlog
 
 If work is in progress:
-- Keep the item in Doing in `docs/backlog.md`
+- Keep the item in Doing status (the backlog skill manages persistence)
 - Add a note: `(handoff: docs/handoffs/YYYY-MM-DD-HHMMSS-description.md)`
 
 ### Step 4: Present

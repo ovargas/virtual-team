@@ -39,7 +39,7 @@ When this command is invoked:
 1. **Parse $ARGUMENTS for a spec path, feature ID, or story reference:**
    - If a file path was provided, read it immediately and fully
    - If a FEAT-NNN ID was provided, search `docs/features/` for the matching file
-   - If a `--story=S-NNN` reference was provided, find the story in `docs/backlog.md` and its parent feature spec
+   - If a `--story=S-NNN` reference was provided, call **`get(id)`** via the backlog skill to find the story and its parent feature spec
    - If nothing was provided, list specs with `status: refined` or `status: ready` and ask which to plan
 
 2. **Read the full context:**
@@ -461,7 +461,7 @@ implementation is blocked until the check passes. Run `/virtual-team:check` to r
 After the plan is approved:
 
 1. **Update the feature spec** frontmatter to add `plan: docs/plans/YYYY-MM-DD-feature-name.md`
-2. **Update `docs/backlog.md`** — move the feature's stories from Ready to a clear "ready for implementation" state, now that the plan exists
+2. **Update the backlog** via the backlog skill — move the feature's stories to a clear "ready for implementation" state, now that the plan exists
 3. **Note the plan in each story's reference** so `/virtual-team:implement` can find it later
 
 ---
