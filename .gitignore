@@ -14,3 +14,6 @@ Thumbs.db
 
 # FUSE artifacts
 .fuse_hidden*
+
+# Node
+node_modules/

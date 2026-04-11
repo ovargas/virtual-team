@@ -1,0 +1,29 @@
+{
+  "name": "virtual-team",
+  "version": "1.0.0",
+  "description": "A .claude/ configuration library that turns Claude Code into a virtual development team for solo founders.",
+  "type": "module",
+  "scripts": {
+    "test": "vitest run",
+    "test:watch": "vitest"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ovargas/virtual-team.git"
+  },
+  "keywords": [
+    "claude-code",
+    "workflow",
+    "virtual-team"
+  ],
+  "author": "ovargas",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/ovargas/virtual-team/issues"
+  },
+  "homepage": "https://github.com/ovargas/virtual-team#readme",
+  "devDependencies": {
+    "typescript": "^6.0.2",
+    "vitest": "^4.1.4"
+  }
+}
