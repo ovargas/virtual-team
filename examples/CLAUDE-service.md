@@ -108,7 +108,7 @@ Commands are the workflow. Pre-implementation commands produce documents, never 
 - `/decisions` — Query project conventions and design patterns. `/virtual-team:decisions go practices`, `/virtual-team:decisions testing`, `/virtual-team:decisions DI`. Use `--verbose` for code examples, `--diff` to see what's customized vs template defaults.
 
 ### Setup & Sync
-- `/init` — Initialize a new project with stack definition and structure
+- `/virtual-team:start` — Initialize a new project with stack definition and structure
 - `/update-workflow` — Update generic workflow files (commands, agents, skills) from the template repo
 
 ## Skills

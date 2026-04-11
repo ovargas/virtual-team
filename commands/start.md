@@ -1,5 +1,5 @@
 ---
-name: init
+name: start
 description: Initialize a repository with stack definition, project structure, and team configuration
 model: opus
 ---
@@ -13,11 +13,11 @@ This command uses `opus` because it involves deep decisions about architecture a
 ## Invocation
 
 **Usage patterns:**
-- `/virtual-team:init` — full interactive initialization for a new project
-- `/virtual-team:init --hub` — explicitly initialize as a hub repo
-- `/virtual-team:init --service` — explicitly initialize as a service repo
-- `/virtual-team:init --from=../other-repo` — bootstrap from another repo's stack.md as a starting point
-- `/virtual-team:init --minimal` — create structure only, skip the interview (fill in stack.md manually later)
+- `/virtual-team:start  ` — full interactive initialization for a new project
+- `/virtual-team:start   --hub` — explicitly initialize as a hub repo
+- `/virtual-team:start   --service` — explicitly initialize as a service repo
+- `/virtual-team:start   --from=../other-repo` — bootstrap from another repo's stack.md as a starting point
+- `/virtual-team:start   --minimal` — create structure only, skip the interview (fill in stack.md manually later)
 
 ## Process
 
@@ -155,7 +155,7 @@ Walk through each known service repo. For each one, gather:
 If not all repos exist yet:
 ```
 That's fine — add repos here as you create them. The teams registry is a
-living document. Run `/virtual-team:init --update` later to add new teams.
+living document. Run `/virtual-team:start   --update` later to add new teams.
 ```
 
 Repeat for each repo. Then move to Step 4 (Generate stack.md).
@@ -450,10 +450,10 @@ Created:
 **Next steps:**
 - `/virtual-team:idea` — if this is a new product and you want to explore the concept
 - `/virtual-team:epic` — if you already know what to build first
-- Run `/virtual-team:init --service` in each service repo to set up their stacks
+- Run `/virtual-team:start   --service` in each service repo to set up their stacks
 - Install the virtual-team plugin if not already active: `claude plugin add ovargas/virtual-team`
 
-Add new teams to the registry anytime with `/virtual-team:init --update`.
+Add new teams to the registry anytime with `/virtual-team:start   --update`.
 ```
 
 **For Service repos:**

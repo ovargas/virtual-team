@@ -191,7 +191,7 @@ cp examples/CLAUDE-hub.md CLAUDE.md
 Start a Claude Code session and run:
 
 ```
-/virtual-team:init --hub
+/virtual-team:start   --hub
 ```
 
 This walks you through: product identity (name, description, target users, stage) and teams registry (each service repo's name, path, role, responsibility, stack summary).
@@ -230,7 +230,7 @@ rm examples/CLAUDE-hub.md
 Start a Claude Code session and run:
 
 ```
-/virtual-team:init --service
+/virtual-team:start   --service
 ```
 
 This walks you through: hub reference (path to the hub repo), language, runtime, package manager, framework, project structure, database, ORM, API style, auth, external services, configuration, environments, testing, linting, CI/CD, deployment, and build/run commands.
@@ -647,7 +647,7 @@ The `backlog.lock` file on main prevents both from picking the same item.
 
 | Command | Where | What It Does | Produces | When to Use |
 |---------|-------|-------------|----------|-------------|
-| `/virtual-team:init` | Any | Initialize repo structure and stack | `stack.md`, `docs/` | Starting a new project or onboarding an existing repo to the workflow |
+| `/virtual-team:start  ` | Any | Initialize repo structure and stack | `stack.md`, `docs/` | Starting a new project or onboarding an existing repo to the workflow |
 | `/virtual-team:idea` | Any | Capture and shape a product concept | Feature brief | Early-stage thinking — you have a concept but haven't committed to building it yet |
 | `/virtual-team:epic` | Hub | Define cross-team initiative | Epic + decision records | Large initiatives that span multiple features or services |
 | `/virtual-team:feature` | Service | Spec a feature with YAGNI check | Feature spec + stories (with groups) | Ready to commit to building something — this starts the core pipeline |
@@ -701,7 +701,7 @@ Available in: `/virtual-team:feature`, `/virtual-team:plan`, `/virtual-team:impl
 
 ### Command-Specific Options
 
-#### `/virtual-team:init`
+#### `/virtual-team:start  `
 - `--hub` — initialize as a hub repository (product brain)
 - `--service` — initialize as a service repository (implementation)
 - `--from=../path` — bootstrap from another repo's stack.md
@@ -935,7 +935,7 @@ These hooks are what make behavioral skills "always on" rather than requiring ma
 
 **Architect as gatekeeper.** The software architect agent runs a dependency check before any plan is written. If `stack.md` has TBD items the feature needs, planning halts until you decide.
 
-**TBD is valid.** During `/virtual-team:init`, mark unknowns as TBD. Don't agonize over decisions you don't need yet. The architect will catch them at the right time.
+**TBD is valid.** During `/virtual-team:start  `, mark unknowns as TBD. Don't agonize over decisions you don't need yet. The architect will catch them at the right time.
 
 **Documents as the source of truth.** Epics, features, plans, and decisions are markdown files in `docs/`. They're versioned in git, referenced by frontmatter IDs, and read by commands for context.
 
@@ -955,6 +955,6 @@ These hooks are what make behavioral skills "always on" rather than requiring ma
 
 Each command produces artifacts stored in the project's `docs/` directory:
 
-**Hub repos:** `/virtual-team:idea` → `docs/features/`, `/virtual-team:epic` → `docs/epics/` + `docs/decisions/`, `/virtual-team:research` → `docs/research/`, `/virtual-team:init` → `stack.md` + `docs/backlog.md`
+**Hub repos:** `/virtual-team:idea` → `docs/features/`, `/virtual-team:epic` → `docs/epics/` + `docs/decisions/`, `/virtual-team:research` → `docs/research/`, `/virtual-team:start  ` → `stack.md` + `docs/backlog.md`
 
 **Service repos:** `/virtual-team:feature` → `docs/features/` + `docs/backlog.md`, `/virtual-team:plan` → `docs/plans/`, `/virtual-team:implement` → code + `docs/backlog.md`, `/virtual-team:pr` → `docs/backlog.md`, `/virtual-team:bug` → `docs/bugs/`, `/virtual-team:debug` → `docs/bugs/` (updated), `/virtual-team:check` → `docs/knowledge-checks/`, `/virtual-team:next` → `docs/backlog.lock` + `docs/backlog.md`

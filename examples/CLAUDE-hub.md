@@ -88,7 +88,7 @@ Commands are the workflow. Each one has a specific job and a hard boundary: pre-
 - `/decisions` — Query project conventions and design patterns. `/virtual-team:decisions branching`, `/virtual-team:decisions api error handling`. Use `--verbose` for code examples.
 
 ### Setup & Sync
-- `/init` — Initialize a new project with stack definition and structure
+- `/virtual-team:start` — Initialize a new project with stack definition and structure
 - `/update-workflow` — Update generic workflow files (commands, agents, skills) from the template repo
 
 ## Skills
