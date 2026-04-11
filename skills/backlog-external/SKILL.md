@@ -43,27 +43,9 @@ backlog_config:
 
 **External service manages:** Item status, priority ordering, team comments/feedback, assignment, labels, sprint planning.
 
-**Local files manage:** Document references (spec paths, plan paths). Locks are local or external depending on mode (see below).
+**Local files manage:** Document references (spec paths, plan paths).
 
 **The bridge:** Each backlog item has an external issue ID AND a local story ID. The external issue links to the local spec file. Local operations update the external service after each status change.
-
-## Locking Strategy by Mode
-
-Read `stack.md` → `mode:` field (default: `solo`). The mode determines how item locking works:
-
-**Solo mode (`mode: solo`):** Locks use `docs/backlog.lock` (same as `backlog-local`). The external service is the source of truth for status, but locking is local because there is no concurrency concern — one developer across worktrees.
-
-**Team mode (`mode: team`):** Locks use the external service's assignment mechanism. **No `docs/backlog.lock` file is created or used.** This eliminates merge conflicts when multiple developers run `/virtual-team:next` concurrently.
-
-| Operation | Solo mode | Team mode |
-|-----------|-----------|-----------|
-| `check_lock(id)` | Read `docs/backlog.lock` | Query external issue: is it assigned and in "In Progress" state? |
-| `start(id, branch, ...)` | Create lock in `docs/backlog.lock`, commit on main | Assign issue to current user, move to "In Progress", add comment with branch name |
-| `lock(id, branch, ...)` | Create lock entry in `docs/backlog.lock` | Assign issue without status change |
-| `release_lock(id)` | Remove entry from `docs/backlog.lock` | Unassign issue |
-| `clean_stale_locks()` | Clean stale entries in `docs/backlog.lock` | Query issues assigned to current user with deleted branches, unassign them |
-
-**Team mode identity:** The "current user" is determined by the external service's authentication context (e.g., `gh api user` for GitHub, the authenticated MCP user for Linear/Jira).
 
 ---
 
@@ -103,14 +85,7 @@ gh issue list --repo {project} --state open --label "{label}" --json number,titl
 **Intent:** Get a single item with full metadata.
 
 - Fetch the issue from the external service by ID
-- Check lock info: **solo mode** → read `docs/backlog.lock`; **team mode** → check issue assignee and status in the external service
-- Return merged metadata: external (title, status, labels, comments) + lock info + spec path from labels/description
-
-### check_lock(id)
-
-**Solo mode:** Same as backlog-local — read `docs/backlog.lock`.
-
-**Team mode:** Query the external issue. It is locked if it is assigned to someone AND in the `doing` state. Return: locked (boolean), assignee (who), branch (from issue comment/field), started (issue transition timestamp).
+- Return metadata: title, status, labels, comments, spec path from labels/description
 
 ### get_feature_progress(feature_id)
 
@@ -150,74 +125,30 @@ For each item:
 | S-011 | #43 | FEAT-005 | ready |
 ```
 
-### start(id, branch, worktree_mode)
+### start(id)
 
-**Two actions:**
+**Intent:** Move an item from ready to doing.
 
-**Action 1 — Lock:**
-
-- **Solo mode:** Same as backlog-local — create/update `docs/backlog.lock` with the lock entry. Commit placement follows the same rules (main for worktree/in-place, current branch for --current).
-- **Team mode:** Assign the issue to the current user in the external service. Add a comment: "Locked for branch `{branch}`". No local lock file is created.
-
-**Action 2 — Update external status:**
 - Move the issue to the `doing` state in the external service
-- Add a comment: "Started on branch `{branch}`"
+- Add a comment: "Started"
 - Update `docs/backlog-index.md` status column
 
-### start_group(feature_id, group, branch, worktree_mode)
+### mark_implemented(id)
 
-1. Query all issues for the feature/group
-2. Lock ALL items: **solo mode** → same as backlog-local group locking (`docs/backlog.lock`); **team mode** → assign all issues to the current user in the external service
-3. Move the FIRST issue to `doing` in the external service
-4. Add comments to all issues: "Locked for branch `{branch}` — will be worked sequentially"
-
-### advance_in_group(feature_id, group)
-
-1. Find the current `doing` issue for this feature/group
-2. Move it to `done` in the external service, add completion comment
-3. Find the next issue in the group (by order label)
-4. Move it to `doing` in the external service
-5. Update local lock and index
-6. If no more issues: report "group complete"
-
-### mark_implemented(id, branch)
+**Intent:** Mark an item as code-complete, pending PR.
 
 - Move the issue to the `implemented` state in the external service
-- Add comment: "Implementation complete, pending PR on `{branch}`"
+- Add comment: "Implementation complete, pending PR"
 - Update local index
 
 ### complete(id, reference)
 
+**Intent:** Mark an item as done.
+
 - Move the issue to the `done` state in the external service
 - Add comment with PR reference: "Completed — PR #{number}" or "Completed on main"
-- Call release_lock(id) — **solo mode:** remove from `docs/backlog.lock`; **team mode:** unassign issue
 - Update local index
 - Check feature completion: if all stories for the feature are done, update the feature spec status
-
-### complete_all_on_branch(branch, reference)
-
-- Find all issues associated with this branch: **solo mode** → read lock entries from `docs/backlog.lock`; **team mode** → query external service for issues assigned to current user on this branch
-- Move each to `done` in the external service with PR reference
-- Release all locks for this branch (mode-appropriate — local file or external unassignment)
-- Update local index
-
-### lock(id, branch, worktree_mode)
-
-**Solo mode:** Same as backlog-local — create lock entry in `docs/backlog.lock`.
-
-**Team mode:** Assign the issue to the current user in the external service. No status change, no local file.
-
-### release_lock(id)
-
-**Solo mode:** Same as backlog-local — remove entry from `docs/backlog.lock`.
-
-**Team mode:** Unassign the issue in the external service. No local file to clean.
-
-### clean_stale_locks()
-
-**Solo mode:** Same as backlog-local for lock cleanup. Additionally, verify that the external service status matches expectations (if an issue is `done` externally but locked locally, clean the lock).
-
-**Team mode:** Query the external service for issues assigned to the current user that are in "In Progress" but whose branches no longer exist (check via `git branch --list` and `git ls-remote`). Unassign stale issues.
 
 ---
 
@@ -233,7 +164,7 @@ Update the issue status in the external service. Map the workflow status to the 
 
 ### push_summary(feature_id, title, spec_link)
 
-Create or update a parent issue/virtual-team:epic in the external service:
+Create or update a parent issue/epic in the external service:
 - Title: `{feature_id}: {title}`
 - Description: Link to the local spec file
 - If the service supports parent-child relationships (Linear, Jira), set this as the parent of all story issues

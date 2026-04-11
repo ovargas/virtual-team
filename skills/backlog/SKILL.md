@@ -7,7 +7,7 @@ description: Abstract backlog operations interface. Load this skill before any b
 
 This skill defines the backlog operations that commands use. It does NOT define how they're implemented — that's the job of the active backlog implementation skill (`virtual-team:backlog-local`, `virtual-team:backlog-external`, etc.), selected by the `backlog:` field in `stack.md`.
 
-**Commands MUST reference operations from this interface, never format-specific details.** A command says "call **start(id, branch, worktree)**" — the implementation skill decides whether that means editing a markdown file or calling an API.
+**Commands MUST reference operations from this interface, never format-specific details.** A command says "call **start(id)**" — the implementation skill decides whether that means editing a markdown file or calling an API.
 
 ## How to Load the Implementation
 
@@ -16,18 +16,6 @@ This skill defines the backlog operations that commands use. It does NOT define 
 3. Use that skill's instructions for every backlog operation
 
 If the `backlog:` field is missing from `stack.md`, assume `local`.
-
-## Mode Detection
-
-The `mode:` field in `stack.md` determines the locking strategy:
-
-1. Read `stack.md` and find the `mode:` field (default: `solo` if not specified)
-2. Pass the mode to the implementation skill — it affects locking behavior:
-   - **`solo`**: All locking is local (`docs/backlog.lock`). One developer, worktree-based coordination.
-   - **`team`**: Locking uses the external service's assignment mechanism (no local lock file). Multiple developers, concurrent work with service-native coordination.
-3. `mode: team` requires `backlog: external` — local backlogs do not support team mode (there is no external service to coordinate through)
-
-If the `mode:` field is missing from `stack.md`, assume `solo`.
 
 ---
 
@@ -57,9 +45,8 @@ Return backlog items matching the filter criteria.
 - `feature` — feature ID (e.g., `FEAT-005`)
 - `service` — service tag (e.g., `be`, `fe`)
 - `group` — group number within a feature
-- `branch` — items associated with a specific branch
 
-**Returns:** List of items, each with: id, title, status, feature, group, order, service, branch (if doing/implemented), spec path.
+**Returns:** List of items, each with: id, title, status, feature, group, order, service, spec path.
 
 ### get(id)
 
@@ -67,15 +54,7 @@ Return a single backlog item with all metadata.
 
 **Parameters:** `id` — story ID (e.g., `S-003`) or ticket ID (e.g., `CTR-12`)
 
-**Returns:** Full item metadata: id, title, status, feature, group, order, service, branch, worktree, spec path, lock info.
-
-### check_lock(id)
-
-Check if an item is locked and by whom.
-
-**Parameters:** `id` — story ID
-
-**Returns:** locked (boolean), branch, worktree, started (timestamp). If not locked, returns locked=false.
+**Returns:** Full item metadata: id, title, status, feature, group, order, service, spec path.
 
 ### get_feature_progress(feature_id)
 
@@ -106,70 +85,31 @@ Add new items to the backlog in ready status.
 - Items are placed in the Ready section/state, ordered by group then order number
 - This is called by `/virtual-team:feature` during story breakdown
 
-### start(id, branch, worktree_mode)
+### start(id)
 
-Move an item from ready to doing and create a lock.
+Move an item from ready to doing.
 
 **Parameters:**
 - `id` — story ID
-- `branch` — branch name (e.g., `feat/CTR-12`)
-- `worktree_mode` — one of: `worktree` (default), `in-place`, `current-branch`
 
 **Behavior:**
 - Change item status: ready → doing
-- Add branch reference to the item
-- Create lock entry with: item, feature, branch, worktree path/mode, timestamp
-- **Lock commit placement:**
-  - `worktree` or `in-place`: lock committed on main BEFORE branch creation
-  - `current-branch`: lock committed on current branch
-- Status change committed on the working branch (not main) — so it merges with the PR
+- Commit the status change
 
-### start_group(feature_id, group, branch, worktree_mode)
-
-Lock all items in a feature group and start the first one.
-
-**Parameters:**
-- `feature_id` — e.g., `FEAT-005`
-- `group` — group number
-- `branch` — branch name (e.g., `feat/FEAT-005`)
-- `worktree_mode` — same as start()
-
-**Behavior:**
-- Lock ALL ready items in the specified group
-- Change ONLY the first item (lowest `order:N`) to doing
-- Other items remain ready but locked (they'll be started by subsequent `/virtual-team:next --current` calls)
-
-### advance_in_group(feature_id, group)
-
-Complete the current doing item and start the next one in the group.
-
-**Parameters:**
-- `feature_id` — e.g., `FEAT-005`
-- `group` — group number
-
-**Behavior:**
-- Find the item in `doing` status for this feature/group
-- Mark it `done`
-- Find the next `ready` item in the group (lowest `order:N`)
-- Mark it `doing`
-- If no more items: report "all stories in this group are done"
-
-### mark_implemented(id, branch)
+### mark_implemented(id)
 
 Mark an item as code-complete, pending PR. **Only used in branch flow.**
 
 **Parameters:**
 - `id` — story ID
-- `branch` — branch reference
 
 **Behavior:**
 - Change item status: doing → implemented
 - Add "pending PR" notation
-- Lock stays active — released by complete()
 
 ### complete(id, reference)
 
-Mark an item as done and release its lock.
+Mark an item as done.
 
 **Parameters:**
 - `id` — story ID
@@ -177,52 +117,8 @@ Mark an item as done and release its lock.
 
 **Behavior:**
 - Change item status: doing → done (direct flow) or implemented → done (branch flow)
-- Remove lock entry for this item
-- If removing the last lock entry, clean up the lock store entirely
 - Add reference (PR number or "on main") to the item
-
-### complete_all_on_branch(branch, reference)
-
-Mark ALL items on a branch as done. Used by `/virtual-team:pr` when a branch has multiple stories.
-
-**Parameters:**
-- `branch` — branch name
-- `reference` — PR number
-
-**Behavior:**
-- Find all items in doing or implemented status for this branch
-- Mark each as done with the PR reference
-- Remove all lock entries for this branch
-
-### lock(id, branch, worktree_mode)
-
-Create a lock entry without changing status. Used for group locking.
-
-**Parameters:** Same as start(), but only creates the lock — no status change.
-
-### release_lock(id)
-
-Remove a lock entry for an item.
-
-**Parameters:** `id` — story ID
-
-**Behavior:**
-- Remove lock entry
-- If last entry, clean up the lock store entirely
-
-### clean_stale_locks()
-
-Detect and remove stale lock entries.
-
-**Detection rules:**
-- PR for the branch was merged (check via `gh pr list --head <branch> --state merged`)
-- Worktree no longer exists
-- Branch was deleted
-
-**Behavior:**
-- Remove stale entries
-- Report what was cleaned
-- Commit changes if any
+- Check if all stories for the parent feature are done — if yes, update the feature spec status
 
 ---
 
@@ -258,7 +154,7 @@ Retrieve comments/feedback from the external service for an item.
 
 Retrieve the current priority ordering from the external service.
 
-**Called by:** `/virtual-team:next` when picking the next item (external ordering overrides local ordering).
+**Called by:** `/virtual-team:implement` when picking the next item (external ordering overrides local ordering).
 
 ---
 
@@ -270,6 +166,6 @@ Retrieve the current priority ordering from the external service.
 
 3. **Commit after write operations.** The implementation skill produces file changes (for local) or API calls (for external). Either way, commit local file changes immediately after the operation.
 
-4. **Handle errors from the skill.** If an operation fails (item not found, lock conflict, API error), report the error and stop — don't fall back to a different implementation.
+4. **Handle errors from the skill.** If an operation fails (item not found, API error), report the error and stop — don't fall back to a different implementation.
 
 5. **Sync operations are optional.** Only call push_*/pull_* if the backlog implementation indicates it supports them (external backends). Local backend ignores them.
