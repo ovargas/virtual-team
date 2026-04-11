@@ -490,6 +490,7 @@ Before writing code, load the relevant skills in three layers:
 **Layer 0 — Behavioral discipline.** Always load these behavioral skills before starting work. They are **rigid** — follow them exactly, no exceptions. This layer is not optional and does not depend on the type of work being done.
 
 - **`virtual-team:test-driven-development`** — No production code without a failing test first. Defines the red-green-refactor cycle.
+- **`virtual-team:design-principles`** — Accept collaborators, don't create them. Depend on behavior, not implementation. Checkpoint before writing function signatures and constructors.
 - **`virtual-team:verification-before-completion`** — No completion claims without fresh verification evidence. Every "done" must cite proof from this message.
 - **`virtual-team:receiving-code-review`** — No performative agreement with review feedback. Verify before implementing, push back when wrong.
 

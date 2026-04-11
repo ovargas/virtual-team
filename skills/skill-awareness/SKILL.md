@@ -13,6 +13,7 @@ Behavioral skills must be active when relevant, even in ad-hoc sessions without 
 |---------|--------------|---------|
 | Starting a pipeline | `virtual-team:triage` | Before `/flow` executes any step, or when `/feature`/`/implement` need to determine ceremony level |
 | Writing production code | `virtual-team:test-driven-development` | Before any Edit/Write to non-test files (reads `stack.md` `tdd:` field for mode: strict, recommended, off) |
+| Writing production code | `virtual-team:design-principles` | Before writing function signatures, constructors, or service boundaries (reads `stack.md` `design:` field for mode: strict, recommended, off) |
 | Claiming completion | `virtual-team:verification-before-completion` | Before saying "done", "complete", "passes" |
 | Receiving review feedback | `virtual-team:receiving-code-review` | When processing review comments |
 | Executing multi-task plan with `--sdd` | `virtual-team:subagent-driven-development` | When `/virtual-team:implement --sdd` is active |
