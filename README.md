@@ -1,902 +1,254 @@
 # Claude Code Virtual Team
 
-A Claude Code plugin that turns Claude Code into a virtual development team for solo founders. It provides agents (specialized sub-agents), commands (workflow steps), and skills (coding standards) that enforce a deliberate pipeline from idea to shipped code.
+A Claude Code plugin that turns Claude Code into a virtual development team. It provides a deliberate pipeline from idea to shipped code — with agents, commands, and skills that enforce TDD, contract-first development, and quality gates at every step.
 
-This library is designed to be copied into your repositories. It supports two repo types: a **hub** (product brain) and **service** repos (implementation hands).
+## Getting Started
 
-## Prerequisites
+### 1. Install the plugin
 
-- [Claude Code](https://docs.anthropic.com/en/docs/claude-code) CLI installed
-- [GitHub CLI](https://cli.github.com/) (`gh`) installed and authenticated
-- Git configured with worktree aliases (see Git Setup below)
-
-### Git Setup
-
-The library expects two global aliases for worktree management. Add them to your `~/.gitconfig`:
-
-```gitconfig
-[alias]
-    wt = "!f() { \
-        REPO_NAME=$(basename $(git rev-parse --show-toplevel)); \
-        WORKTREE_DIR=\"../$(echo $REPO_NAME)-worktrees/$1\"; \
-        if git show-ref --verify --quiet refs/heads/$1 2>/dev/null; then \
-            git worktree add \"$WORKTREE_DIR\" $1; \
-        else \
-            git worktree add -b $1 \"$WORKTREE_DIR\"; \
-        fi \
-    }; f"
-    wtr = "!f() { \
-        REPO_NAME=$(basename $(git rev-parse --show-toplevel)); \
-        git worktree remove \"../$(echo $REPO_NAME)-worktrees/$1\"; \
-    }; f"
-```
-
-This creates worktrees in a sibling directory:
+In a Claude Code session, run:
 
 ```
-my-app-api/                  ← main branch (your repo)
-my-app-api-worktrees/        ← worktrees live here
-  feat/CTR-12/
-  fix/CTR-45/
+/plugin marketplace add ovargas/virtual-team-marketplace
+/plugin install virtual-team@virtual-team-marketplace
 ```
 
-## Quickstart
+### 2. Initialize your project
 
-Once you've set up a repo (hub or service — see below), these are the only commands you need to know:
+Start a Claude Code session and run:
+
+```
+/virtual-team:start
+```
+
+This walks you through an interactive interview to define your tech stack, project structure, and conventions. It creates `stack.md` (the source of truth for your project) and sets up the `docs/` directory structure.
+
+Anything you haven't decided yet gets marked as TBD — the architect agent will catch it later when a feature actually needs it.
+
+> **Working on multiple repositories?** You can create a hub repo to coordinate across services — shared decisions, epics, and API contracts in one place. Run `/virtual-team:start --hub` in a new repo to set it up. See the [command reference](docs/command-reference.md#multi-repo-setup) for details.
+
+### 3. Start building
+
+You only need **5 commands** for daily work:
+
+| Command | What it does |
+|---------|-------------|
+| `/virtual-team:status` | Start your day — shows what's in progress, what's next |
+| `/virtual-team:flow <description>` | Build a feature end-to-end (spec → plan → code → review → PR) |
+| `/virtual-team:flow --fix <description>` | Fix a bug end-to-end (report → investigate → fix → review → PR) |
+| `/virtual-team:commit` | Create a clean, atomic commit |
+| `/virtual-team:handoff` | End a session — captures state for the next one |
+
+That's it. Everything else is optional.
+
+## Daily Workflow
 
 ### Start your day
 
 ```
-/status
+/virtual-team:status
 ```
 
-Shows what's in progress, what's next, and suggests the right command to run. This is your entry point every morning.
+Shows what's in progress, what's blocked, and suggests the right command to run next.
 
-### Build a feature end-to-end
+### Build a feature
 
 ```
 /virtual-team:flow Add password reset via email
 ```
 
-Runs the full pipeline in one session: `/virtual-team:feature` → `/virtual-team:contracts` → `/virtual-team:plan` → `/virtual-team:implement` → `/virtual-team:review` + `/virtual-team:validate` → `/virtual-team:pr`. Interactive gates between each step resolve TBDs and decisions without leaving the session.
+This runs the full pipeline in one session:
 
-### Fix a bug end-to-end
+```
+/feature → /contracts → /plan → /implement → /review + /validate → /pr
+```
+
+Interactive gates between each step resolve decisions and TBDs without leaving the session. If the session is interrupted, just run `/virtual-team:flow` again — it auto-detects where you left off.
+
+### Fix a bug
 
 ```
 /virtual-team:flow --fix "users can't log in after password reset"
 ```
 
-Runs the bug fix pipeline: `/virtual-team:bug` → `/virtual-team:debug` → implement fix → `/virtual-team:review` + `/virtual-team:validate` → `/virtual-team:pr`. Includes mandatory pattern sweep to catch all occurrences.
+Runs the bug fix pipeline with a mandatory pattern sweep to catch all occurrences:
 
-### Common `/virtual-team:flow` variations
-
-```bash
-/virtual-team:flow --deep Add search capability          # agent-powered analysis (slower, more thorough)
-/virtual-team:flow --to=plan Add email notifications     # stop after planning, don't implement yet
-/virtual-team:flow --from=implement                       # resume mid-pipeline (spec and plan already exist)
-/virtual-team:flow --resume                              # pick up where last /virtual-team:flow left off
-/virtual-team:flow --auto Add simple utility             # minimal gates, only stop on hard failures
-/virtual-team:flow --fix BUG-003                         # bug already documented, start at /debug
-/virtual-team:flow --fix --quick "typo in error message" # skip bug report, go straight to /debug
+```
+/bug → /debug → fix → /review + /validate → /pr
 ```
 
-### Manual step-by-step (when you want control)
+### Common variations
 
-Run each pipeline step individually instead of using `/virtual-team:flow`:
+```bash
+/virtual-team:flow --deep Add search capability        # agent-powered analysis (thorough)
+/virtual-team:flow --auto Add simple utility           # minimal gates, stops only on failures
+/virtual-team:flow --to=plan Add notifications         # stop after planning
+/virtual-team:flow --from=implement                     # resume from implementation
+/virtual-team:flow --fix BUG-003                       # bug already documented, start at debug
+/virtual-team:flow --fix --quick "typo in header"      # skip bug report, go straight to debug
+```
+
+---
+
+## Want More Control?
+
+`/flow` chains the pipeline automatically. You can run each step individually when you want to pause, review, or iterate between steps.
+
+### The Pipeline Steps
+
+These are the commands that `/flow` runs under the hood. Use them directly when you want granular control:
+
+```
+/feature → /contracts → /plan → /implement → /review + /validate → /pr
+```
+
+| Step | Command | What it produces |
+|------|---------|-----------------|
+| **Spec** | `/virtual-team:feature Add password reset` | Feature spec with acceptance criteria + backlog stories |
+| **Contracts** | `/virtual-team:contracts extract docs/features/...` | API schemas in `contracts/` — locks down payload shapes before code |
+| **Plan** | `/virtual-team:plan FEAT-001` | Phased implementation plan with file references and patterns |
+| **Build** | `/virtual-team:implement FEAT-001` | Working code — picks up stories, executes plan, runs TDD |
+| **Review** | `/virtual-team:review` | Code review (quality + security + domain) against the diff |
+| **Validate** | `/virtual-team:validate FEAT-001` | Gap analysis — compares spec requirements vs actual implementation |
+| **Ship** | `/virtual-team:pr` | PR with summary, testing notes, and backlog updates |
+
+#### Example: manual step-by-step
 
 ```bash
 /virtual-team:feature Add password reset via email     # spec + stories
 /virtual-team:contracts extract docs/features/...      # lock down API shapes
-/virtual-team:plan FEAT-001                            # technical plan (architect gates)
-/virtual-team:implement FEAT-001                       # pick stories + write code
-/virtual-team:commit                                   # commit
-/virtual-team:pr                                       # ship
+/virtual-team:plan FEAT-001                            # technical plan
+/virtual-team:implement FEAT-001                       # write code (TDD enforced)
+/virtual-team:review                                   # code review
+/virtual-team:validate FEAT-001                        # spec coverage check
+/virtual-team:commit                                   # atomic commit
+/virtual-team:pr                                       # create PR
 ```
 
-### Other useful commands
+### Pipeline Flags
 
-| Need | Command |
-|------|---------|
-| Capture a rough idea | `/virtual-team:idea Build a task management app` |
-| Multi-repo initiative (hub) | `/virtual-team:epic Add multilingual support` |
-| Research before committing | `/virtual-team:research WebSocket libraries for Go` |
-| Check project conventions | `/virtual-team:decisions testing` or `/virtual-team:decisions api error handling` |
-| Quiz yourself on decisions | `/virtual-team:check` or `/virtual-team:check --verbose` |
-| End a session cleanly | `/virtual-team:handoff` |
+These flags work with both `/flow` and the individual pipeline commands:
+
+| Flag | Effect | Available in |
+|------|--------|-------------|
+| `--deep` | Spawn specialized agents for thorough analysis | `/feature`, `/plan`, `/implement`, `/debug`, `/flow` |
+| `--auto` | Skip confirmations, stop only on failures | `/feature`, `/plan`, `/implement`, `/flow` |
+| `--sdd` | Subagent-driven development — parallel implementation | `/implement`, `/flow` |
+| `--fresh` | Delete checkpoint, start from scratch | `/feature`, `/plan`, `/implement`, `/debug`, `/flow` |
+| `--phase=N` | Resume from a specific phase | `/implement` |
+
+---
+
+## Support Commands
+
+These commands complement the pipeline. They're grouped by when you'd reach for them.
+
+### Discovery and Research
+
+Use these **before** the pipeline — when you're still exploring what to build.
+
+| Command | What it does |
+|---------|-------------|
+| `/virtual-team:idea Build a task management app` | Structured interview to capture a product concept. Spawns product-owner agent for market/risk analysis with `--deep`. |
+| `/virtual-team:research WebSocket libraries for Go` | Deep-dive research (market, technical, or codebase). Produces a sourced research document. |
+| `/virtual-team:proposal FEAT-001` | Business proposal with scope, timeline, and cost estimates. |
+| `/virtual-team:epic Add multilingual support` | Cross-team initiative for multi-repo products. Defines shared agreements and routes work across repos. Requires a [hub repo](docs/command-reference.md#multi-repo-setup). |
+
+### Bug Investigation
+
+Use these to investigate bugs independently of `/flow --fix`.
+
+| Command | What it does |
+|---------|-------------|
+| `/virtual-team:bug Users can't reset password` | Document a bug report with reproduction steps and severity. |
+| `/virtual-team:debug BUG-003` | Investigate: reproduce → trace → root cause → **mandatory pattern sweep** across the entire codebase. |
+
+### Quality and Review
+
+Use these **after** implementation — to verify and improve.
+
+| Command | What it does |
+|---------|-------------|
+| `/virtual-team:review` | Code review of staged/recent changes (quality + security + domain). |
+| `/virtual-team:validate FEAT-001` | Compare spec vs implementation — finds gaps, deviations, scope creep. |
+| `/virtual-team:tech-review` | Architecture health check — debt, patterns, dependencies, risks. |
+| `/virtual-team:check` | Quiz yourself on technical decisions in the current work. |
+| `/virtual-team:decisions testing` | Quick lookup: "what did we decide about X?" with source references. |
+
+### Git and Delivery
+
+| Command | What it does |
+|---------|-------------|
+| `/virtual-team:commit` | Clean, atomic commit following project conventions. |
+| `/virtual-team:pr` | Create PR with summary, testing notes, and backlog updates. Supports `--draft`, `--rebase`, `--base=develop`. |
+| `/virtual-team:worktree` | Create, remove, or clean up git worktrees. |
+
+### Session and Project Management
+
+| Command | What it does |
+|---------|-------------|
+| `/virtual-team:status` | Morning standup — project state, backlog health, what to work on next. |
+| `/virtual-team:handoff` | End a session cleanly — captures exact state for the next session. |
+| `/virtual-team:refine docs/features/...` | Iterate on an existing spec, plan, or document with new context. |
+| `/virtual-team:docs` | Generate project documentation — setup guides, config references, runbooks. |
+
+### Maintenance
+
+| Command | What it does |
+|---------|-------------|
+| `/virtual-team:start` | Initialize or re-initialize project structure and `stack.md`. |
+| `/virtual-team:update-workflow` | Pull latest commands, skills, and agents from the template repo. |
+
+---
+
+## How It Works
+
+### Skills (coding standards)
+
+Skills are domain-specific coding standards that load automatically based on what you're working on:
+
+- **Behavioral skills** (always active): TDD enforcement, verification-before-completion, code review reception
+- **Domain skills** (loaded by context): API design, UI design, data layer, service layer
+- **Stack skills** (you create these): Project-specific patterns matched via `stack.md`
+
+### Agents (specialized sub-agents)
+
+8 read-only agents that analyze and recommend — they never write code:
+
+| Agent | Role | Spawned by |
+|-------|------|-----------|
+| `product-owner` | Market analysis, YAGNI checks | `/idea`, `/feature`, `/epic` |
+| `software-architect` | Architecture decisions, dependency gatekeeper | `/plan`, `/epic` |
+| `security-reviewer` | Security vulnerability scanning | `/review` |
+| `pattern-finder` | Find existing code patterns as templates | `/plan`, `/implement` |
+| `codebase-analyzer` | Trace data flow and system behavior | `/debug`, `/plan` |
+| `codebase-locator` | Find relevant files by area/concern | `/feature`, `/plan` |
+| `docs-locator` | Find docs, plans, decisions by topic | `/feature`, `/plan` |
+| `web-researcher` | External research with source attribution | `/research`, `/idea` |
+
+Agents are spawned with the `--deep` flag. Without it, commands use direct tools (faster, cheaper).
+
+### Hooks (automatic enforcement)
+
+Two hooks run automatically — no setup needed:
+
+- **SessionStart**: Loads skill-awareness so behavioral skills activate based on context
+- **PreToolUse** (on Edit/Write): Checks TDD discipline and verification discipline before code changes
+
+---
+
+## Further Reading
+
+- **[Command Reference](docs/command-reference.md)** — Full flag reference, story groups, knowledge checks, backlog lifecycle, multi-repo setup, skill customization, and design principles
+- **[Workflow Review](docs/workflow-review-report.md)** — Independent assessment of the plugin's strengths, friction points, and token efficiency
 
 ## File Structure
 
 ```
-examples/
-├── CLAUDE-hub.md            ← CLAUDE.md template for hub repos
-└── CLAUDE-service.md        ← CLAUDE.md template for service repos
-agents/                      ← 8 specialized sub-agents
-├── product-owner.md         ← Market, users, risk, value analysis
-├── software-architect.md    ← Architecture + dependency gatekeeper
-├── web-researcher.md        ← External research (market, tech, users)
-├── codebase-locator.md      ← Finds files by area or concern
-├── codebase-analyzer.md     ← Traces data flow and system behavior
-├── pattern-finder.md        ← Finds existing implementation patterns
-├── docs-locator.md          ← Finds relevant docs, plans, decisions
-└── security-reviewer.md     ← Security review of code changes
-commands/                    ← 26 workflow commands
-├── idea.md                  ← Capture a new product concept
-├── epic.md                  ← Hub-level initiative with cross-team agreements
-├── feature.md               ← Spec a feature with YAGNI challenge + story groups
-├── flow.md                  ← Pipeline orchestrator: feature → contracts → plan → next → implement → pr
-├── research.md              ← Deep-dive research
-├── contracts.md             ← Extract, define, validate API contracts as schema files
-├── plan.md                  ← Technical implementation plan + knowledge check
-├── next.md                  ← Pick up work, lock it, create worktree (supports story groups)
-├── implement.md             ← Execute plan phase by phase
-├── commit.md                ← Git commit following conventions
-├── pr.md                    ← Pull request + release lock + knowledge check
-├── init.md                  ← Initialize repo (hub or service)
-├── worktree.md              ← Manage git worktrees
-├── review.md                ← Code review
-├── tech-review.md           ← Architecture review
-├── validate.md              ← Compare spec vs implementation, find gaps
-├── refine.md                ← Iterate on existing documents
-├── bug.md                   ← Document a bug report
-├── debug.md                 ← Investigate issues with mandatory pattern sweep
-├── check.md                 ← Knowledge check: quiz on technical decisions
-├── proposal.md              ← Business proposal (scope, timeline, costs)
-├── decisions.md             ← Query project conventions and design patterns
-├── docs.md                  ← Generate project documentation
-├── status.md                ← Project status briefing
-├── handoff.md               ← Session continuity notes
-└── update-workflow.md       ← Sync workflow files from template repo
-hooks/
-└── hooks.json               ← Hooks: SessionStart (skill-awareness), PreToolUse (TDD + verification)
-skills/                      ← 16 skills (domain, behavioral, backlog)
-├── git-practices/           ← Branch, commit, PR, worktree, backlog lock conventions
-├── api-design/              ← API endpoint and route handler standards
-├── ui-design/               ← Frontend component and styling standards
-├── data-layer/              ← Database, migration, query standards
-├── service-layer/           ← Business logic, interfaces, dependency injection standards
-├── go-practices/            ← Go-specific: DI pattern, mockery, project structure (stack: go)
-├── checkpoints/             ← Checkpoint protocol for resuming multi-phase commands
-├── knowledge-check/         ← Developer understanding validation protocol
-├── test-driven-development/        ← Iron law: no production code without a failing test first
-├── verification-before-completion/ ← No completion claims without fresh verification evidence
-├── receiving-code-review/          ← Verify before implementing review feedback, no performative agreement
-├── subagent-driven-development/    ← Orchestrator protocol for --sdd mode (fresh subagent per task)
-├── skill-awareness/         ← SessionStart hook: maps contexts to behavioral skills
-├── backlog/                 ← Abstract backlog operations interface (20 operations)
-├── backlog-local/           ← File-based backlog: docs/backlog.md (bracket markers)
-└── backlog-external/        ← External service backlog: GitHub Issues, Linear, JIRA (solo or team mode)
+commands/       — 26 workflow commands (slash commands)
+skills/         — 15 coding standards (domain, behavioral, backlog)
+agents/         — 8 specialized sub-agents (read-only)
+hooks/          — Automatic enforcement (SessionStart, PreToolUse)
+examples/       — CLAUDE.md templates for hub and service repos
+tests/          — Structural validation (frontmatter, references)
 ```
-
-## Setting Up a Hub Repo
-
-The hub is the product brain. It holds epics, cross-team decisions, and coordinates service repos. No application code lives here.
-
-### Step 1: Create the repo and copy the library
-
-```bash
-mkdir my-app-hub && cd my-app-hub
-git init
-
-# Copy the library directories from this repo
-cp -r /path/to/this-library/{commands,skills,agents,hooks,examples} .
-
-# Use the hub CLAUDE.md template
-cp examples/CLAUDE-hub.md CLAUDE.md
-```
-
-### Step 2: Initialize
-
-Start a Claude Code session and run:
-
-```
-/virtual-team:start   --hub
-```
-
-This walks you through: product identity (name, description, target users, stage) and teams registry (each service repo's name, path, role, responsibility, stack summary).
-
-It creates: `stack.md` (product definition with teams registry), `docs/epics/`, `docs/decisions/`, `docs/research/`, `docs/reviews/`, and `docs/backlog.md` (product backlog with Active / Next / Inbox sections).
-
-### Step 3: Commit the setup
-
-```bash
-git add -A
-git commit -m "chore(init): initialize hub repository"
-```
-
-## Setting Up a Service Repo
-
-A service repo is an implementation repo — API, frontend, mobile, etc. It has its own codebase, backlog, and development cycle.
-
-### Step 1: Create the repo and copy the library
-
-```bash
-mkdir my-app-api && cd my-app-api
-git init
-
-# Copy the library directories from this repo
-cp -r /path/to/this-library/{commands,skills,agents,hooks,examples} .
-
-# Use the service CLAUDE.md template
-cp examples/CLAUDE-service.md CLAUDE.md
-
-# Remove hub-only template (optional, keeps things clean)
-rm examples/CLAUDE-hub.md
-```
-
-### Step 2: Initialize
-
-Start a Claude Code session and run:
-
-```
-/virtual-team:start   --service
-```
-
-This walks you through: hub reference (path to the hub repo), language, runtime, package manager, framework, project structure, database, ORM, API style, auth, external services, configuration, environments, testing, linting, CI/CD, deployment, and build/run commands.
-
-Anything you haven't decided yet is marked TBD. The software architect will catch it later when a feature actually needs it.
-
-It creates: `stack.md` (tech stack definition with TBD tracking), `docs/features/`, `docs/plans/`, `docs/decisions/`, `docs/research/`, `docs/handoffs/`, `docs/bugs/`, `docs/reviews/`, and `docs/backlog.md` (service backlog with Doing / Ready / Inbox sections).
-
-### Step 3: Commit the setup
-
-```bash
-git add -A
-git commit -m "chore(init): initialize service repository"
-```
-
-## Keeping the Library in Sync
-
-If you have multiple service repos, the library directories (`commands/`, `skills/`, `agents/`, `hooks/`) are the same across all of them. You can share them via:
-
-- **Git submodule**: Point the library dirs to this repo. Update all repos by pulling the submodule.
-- **Manual copy**: Copy the library dirs when creating new repos. Sync manually when commands or agents change.
-- **Template repo**: Use this library as a GitHub template repository.
-- **Update command**: Run `/virtual-team:update-workflow` in a service repo to pull latest generic files from a template path.
-
-The only repo-specific file is `CLAUDE.md` at the root (copied from the appropriate template in `examples/`). Everything else is generic.
-
-## The Full Workflow
-
-Here is the complete lifecycle from product idea to shipped code, showing which repo each step runs in and what it produces.
-
-### Phase 1: Product Discovery (Hub)
-
-```
-Hub repo:
-  /virtual-team:idea Build a task management app for remote teams
-    → Structured interview about the problem, users, risks
-    → Product owner agent researches market and competition
-    → Output: docs/features/2026-02-12-task-management-app.md (IDEA-001)
-    → Added to docs/backlog.md in Inbox
-```
-
-### Phase 2: Epic Definition (Hub)
-
-```
-Hub repo:
-  /virtual-team:epic Add real-time collaboration to task boards
-    → Phase 1: Capture the initiative (what, why, for whom)
-    → Phase 2: Product owner analyzes market context, risks, success metrics
-    → Phase 3: Software architect reads teams registry, identifies affected repos
-    → Phase 4: Create cross-team agreements (API contracts, conventions)
-    → Phase 5: Document the epic
-    → Output:
-        docs/epics/2026-02-15-realtime-collaboration.md (EPIC-001)
-        docs/decisions/2026-02-15-websocket-api-contract.md (ADR-001, type: contract)
-        docs/decisions/2026-02-15-event-format-convention.md (ADR-002, type: convention)
-```
-
-### Phase 3: Feature Breakdown (Service Repo)
-
-```
-Service repo (my-app-api):
-  /virtual-team:feature --epic=EPIC-001
-    → Reads hub epic and its decision records (ADR-001, ADR-002) as constraints
-    → Phase 1: Understand what this repo needs to implement
-    → Phase 2: YAGNI check (skipped for epic-driven — PO already assessed)
-    → Phase 3: Research codebase patterns and technical feasibility
-    → Phase 4: Define scope, definition of done, success metrics
-    → Phase 4.5: Incremental delivery conversation (thinnest slice, milestones)
-    → Phase 5: Write feature spec
-    → Phase 6: Break into vertically-sliced stories with execution groups
-    → Output:
-        docs/features/2026-02-16-websocket-backend.md (FEAT-001)
-        Stories added to docs/backlog.md in Ready column (with group/order tags)
-```
-
-Stories are vertically sliced — each story delivers one complete capability through all layers, not one technical layer across all capabilities. They're organized into execution groups (see Story Groups below) that define which stories belong together on a single branch.
-
-### Phase 4: Planning (Service Repo)
-
-```
-Service repo (my-app-api):
-  /virtual-team:plan FEAT-001
-    → Phase 0: Software architect runs dependency check against stack.md
-      ✅ Pass — all TBD items resolved (or)
-      ⛔ HALT — "Database: TBD, need to choose before proceeding"
-    → Phase 1: Codebase analysis (locator, analyzer, pattern-finder agents)
-    → Phase 2: Write plan with vertical phases (each phase = one end-to-end capability)
-    → Phase 3: Review and validate
-    → Phase 3.5: Knowledge check (if enabled — see Knowledge Checks)
-    → Output: docs/plans/2026-02-16-websocket-backend.md
-```
-
-#### What Happens When the Architect Halts
-
-```
-Service repo (my-app-api):
-  /virtual-team:plan FEAT-001
-    → Phase 0: Architect checks stack.md
-    → ⛔ HALT — WebSocket library: TBD, Caching: TBD
-    → Presents options with recommendations:
-        Decision 1: WebSocket library — gorilla/websocket vs nhooyr/websocket vs gobwas/ws
-        Decision 2: Cache layer — Redis vs in-memory
-    → You decide, update stack.md, create decision records
-    → Re-run /virtual-team:plan FEAT-001
-    → ✅ Architect passes, planning continues
-```
-
-### Phase 5: Implementation (Service Repo)
-
-```
-Service repo (my-app-api):
-  /implement FEAT-001
-    → Reads backlog, finds first Ready story (S-001) for FEAT-001
-    → Moves S-001 from Ready [ ] to Doing [>] in backlog.md
-    → Reads the plan
-    → Phase 1: Data model & migration — writes code, runs verification
-    → Phase 2: Business logic & service — writes code, runs verification
-    → Phase 3: API endpoint — writes code, runs verification
-    → Phase 4: Integration tests — writes code, runs verification
-    → Final verification: all tests pass, lint clean, build succeeds
-    → Advances to next story automatically, repeats until all stories done
-    → Output: working code, all checks green
-```
-
-### Phase 6: Ship (Service Repo)
-
-```
-  /commit
-    → Reads git-practices skill
-    → Extracts ticket ID from branch: feat/CTR-12 → CTR-12
-    → Stages changes, writes commit message:
-      feat(websocket): implement real-time task updates [CTR-12]
-    → Commits
-
-  /pr
-    → Reviews ALL commits on the branch
-    → Composes PR title and body (Summary, Changes, Testing, Ticket)
-    → Knowledge check (if enabled — see Knowledge Checks)
-    → Presents draft for review
-    → After confirmation: gh pr create
-    → Marks all stories on this branch as Done [x] in backlog.md
-    → Output: PR URL, cleanup suggestions
-```
-
-### Phase 7: Cleanup
-
-```
-Back in main repo directory:
-  /virtual-team:worktree  clean
-    → Finds worktrees where PR is merged
-    → Removes them after confirmation
-```
-
-## Backlog Lifecycle
-
-Stories move through four states. The backlog is managed by the abstract backlog interface — commands use operations like `list()`, `get()`, `start()`, `complete()` rather than reading files directly.
-
-**With `backlog: local` (default):** States are tracked in `docs/backlog.md` using bracket markers:
-
-```
-[ ] Ready     → story is specced and available for pickup
-[>] Doing     → story is locked and being worked on
-[=] Implemented → code is done, pending PR/review
-[x] Done      → PR merged, story complete
-```
-
-Each backlog entry includes metadata tags:
-
-```markdown
-- [ ] S-010: Create user model | feature:FEAT-005 | group:1 | order:1 | service:be
-```
-
-Tags: `feature:FEAT-NNN` (parent feature), `group:N` (execution group), `order:N` (sequence within group), `service:xx` (target repo).
-
-**With `backlog: external`:** States are tracked in the external service (GitHub Issues, Linear, JIRA). A lightweight `docs/backlog-index.md` maps local story IDs to external issue IDs. No `docs/backlog.md` file is used.
-
-### Workflow Mode
-
-The `mode:` field in `stack.md` affects backlog behavior:
-
-- **`mode: solo`** (default): One developer. Uses `backlog: local` (file-based) or `backlog: external`.
-- **`mode: team`**: Multiple developers. Requires `backlog: external`. The external service's assignment mechanism coordinates work.
-
-### Backlog Status Tracking
-
-**Backlog status** changes happen on the current branch. The status lifecycle is committed alongside the code. `/implement` moves items to Doing (via `start()`); `/pr` marks them as Done (via `complete()`). When using feature branches, the backlog status merges with the code when the PR lands.
-
-## Story Groups
-
-Features often break down into multiple stories that should be implemented sequentially on a single branch. Story groups solve this.
-
-### How Groups Work
-
-During `/virtual-team:feature` Phase 6 (story breakdown), stories are assigned to execution groups:
-
-```markdown
-- [ ] S-010: Create user model | feature:FEAT-005 | group:1 | order:1 | service:be
-- [ ] S-011: Add user API endpoints | feature:FEAT-005 | group:1 | order:2 | service:be
-- [ ] S-012: Add user validation | feature:FEAT-005 | group:1 | order:3 | service:be
-- [ ] S-013: User profile page | feature:FEAT-005 | group:2 | order:1 | service:fe
-- [ ] S-014: User settings page | feature:FEAT-005 | group:2 | order:2 | service:fe
-```
-
-Stories in the same group are sequential and go on one branch. Different groups can run in parallel on separate branches.
-
-### Working with Groups
-
-Implement a feature with multiple stories:
-
-```
-/implement FEAT-005
-  → Finds first Ready story in the feature (S-010, lowest order)
-  → Marks it as Doing [>]
-  → Implements it following the plan
-  → Marks it as Done, advances to next story (S-011)
-  → Repeats until all stories are complete
-```
-
-Ship as one PR:
-
-```
-/pr
-  → Marks all implemented stories as Done [x]
-  → Creates a single PR covering the entire feature
-```
-
-## Knowledge Checks
-
-The knowledge check system validates that developers understand the technical decisions made by the AI during planning and implementation. It serves as a tutoring mechanism, not a gate.
-
-### How It Works
-
-At key checkpoints (after `/virtual-team:plan` approval and before `/virtual-team:pr` submission), the system generates 3-5 questions about the technical work: 2-3 multiple-choice questions testing factual understanding, and 1-2 open-ended questions testing reasoning about tradeoffs and design decisions.
-
-Post-plan questions focus on architectural choices, dependency decisions, phase ordering, integration points, and risk areas. Pre-PR questions focus on implementation patterns, data flow, edge cases, error handling, and testing strategy.
-
-Answers are evaluated against key concepts from the plan or implementation. The pass threshold is 60% of total points. Regardless of score, every question gets a tutoring explanation so the developer learns from the process.
-
-### Developer Settings
-
-Knowledge checks are controlled per-developer via `~/.claude/settings.json`:
-
-```json
-{
-  "knowledgeCheck": "on"
-}
-```
-
-- `"on"` — Run checks at plan and PR checkpoints. Soft block: warns on gaps but always proceeds.
-- `"strict"` — Hard block: developer must pass (≥60%) before the workflow continues. On failure, prompts to retry with `/virtual-team:check`.
-- `"off"` or absent — Skip checks entirely at automated checkpoints.
-
-### Standalone Command
-
-Run `/virtual-team:check` at any time to quiz yourself on current work. This always runs regardless of the settings file since the developer explicitly invoked it.
-
-```
-/virtual-team:check                    ← auto-detect context from branch and backlog
-/virtual-team:check --plan             ← focus on architectural decisions
-/virtual-team:check --pr               ← focus on implementation patterns
-/virtual-team:check --verbose          ← study mode: show key concepts as hints before answering
-/virtual-team:check FEAT-007           ← check understanding of a specific feature
-```
-
-Results are logged to `docs/knowledge-checks/` for tracking developer growth over time.
-
-## Bug Investigation and Pattern Sweep
-
-The `/virtual-team:debug` command investigates bugs through four phases: Reproduce, Trace, Root Cause, and Document. A critical requirement is the **mandatory pattern sweep** in Phase 3.
-
-When the root cause is identified at one location, `/virtual-team:debug` searches the entire codebase for every instance of the same pattern. Each occurrence is classified as confirmed bug (🔴), likely bug (🟡), or safe (🟢). The investigation is not complete until all occurrences are documented.
-
-If 10+ occurrences are found, the issue is flagged as systemic — not a single bug but a codebase-wide pattern requiring a systematic fix. The bug report's suggested fix must address all confirmed and likely occurrences, not just the primary one.
-
-This prevents the common failure mode where a bug is "fixed" in one location while identical issues remain elsewhere in the codebase.
-
-## Quick Flows
-
-### Automated (recommended)
-
-```bash
-/virtual-team:flow Add password reset via email                    # feature → contracts → plan → implement → review → pr
-/virtual-team:flow --fix "login broken after password reset"       # bug → debug → fix → review → pr
-/virtual-team:flow --deep --sdd Add real-time notifications        # agent-powered + subagent implementation
-/virtual-team:flow --to=plan Add search capability                 # stop after planning
-/virtual-team:flow --resume                                        # continue interrupted flow
-```
-
-### Manual: Solo feature (no hub, single repo)
-
-```
-/virtual-team:feature Add password reset via email     ← spec + stories
-/virtual-team:plan FEAT-001                            ← technical plan (architect gates)
-/virtual-team:implement FEAT-001                       ← pick stories + write code
-/virtual-team:commit                                   ← commit
-/virtual-team:pr                                       ← ship
-```
-
-### Multi-story feature (sequential stories)
-
-```
-/virtual-team:feature Add user management              ← spec + stories with group tags
-/virtual-team:plan FEAT-005                            ← plan covering the feature
-/virtual-team:implement FEAT-005                       ← implements all stories sequentially
-/virtual-team:pr                                       ← one PR, all stories marked Done
-```
-
-### Morning startup
-
-```
-/virtual-team:status                                   ← what's in progress, what's next, suggests commands
-/virtual-team:status backlog                           ← backlog health only
-/virtual-team:status FEAT-007                          ← status of a specific feature
-/virtual-team:implement FEAT-007                       ← continue existing work
-/virtual-team:implement --phase=3                      ← resume from a specific phase
-```
-
-### Ending a session
-
-```
-/handoff                                  ← captures exact state for next session
-```
-
-### Investigating a bug
-
-```
-/virtual-team:bug Users can't reset password if email has uppercase letters
-/virtual-team:debug BUG-003                            ← investigate + pattern sweep
-/virtual-team:feature --ticket=BUG-003                 ← if fix needs a spec
-```
-
-### Knowledge check (standalone)
-
-```
-/virtual-team:check                                    ← quiz on current work
-/virtual-team:check --verbose                          ← study mode with hints
-```
-
-### Multi-repo feature driven by an epic
-
-```
-Hub:
-  /virtual-team:epic Add multilingual support
-    → creates EPIC-001
-    → creates ADR-003 (language code convention)
-    → creates ADR-004 (translation API contract)
-
-API repo:
-  /virtual-team:feature --epic=EPIC-001                ← reads epic + ADR-003, ADR-004
-  /virtual-team:plan FEAT-001
-  /virtual-team:implement FEAT-001 → /virtual-team:commit → /pr
-
-Frontend repo:
-  /virtual-team:feature --epic=EPIC-001                ← reads same epic + agreements
-  /virtual-team:plan FEAT-001
-  /virtual-team:implement FEAT-001 → /virtual-team:commit → /pr
-```
-
-Both repos work independently but respect the shared agreements from the hub.
-
-### Parallel work with worktrees
-
-```
-Terminal 1 (worktree A):
-  /virtual-team:implement FEAT-005    ← working on FEAT-005 stories
-
-Terminal 2 (worktree B):
-  /virtual-team:implement FEAT-006    ← working on FEAT-006 in parallel
-```
-
-The user manages their own branches and worktrees. Ensure different sessions work on different features to avoid conflicts.
-
-## Command Reference
-
-| Command | Where | What It Does | Produces | When to Use |
-|---------|-------|-------------|----------|-------------|
-| `/virtual-team:start  ` | Any | Initialize repo structure and stack | `stack.md`, `docs/` | Starting a new project or onboarding an existing repo to the workflow |
-| `/virtual-team:idea` | Any | Capture and shape a product concept | Feature brief | Early-stage thinking — you have a concept but haven't committed to building it yet |
-| `/virtual-team:epic` | Hub | Define cross-team initiative | Epic + decision records | Large initiatives that span multiple features or services |
-| `/virtual-team:feature` | Service | Spec a feature with YAGNI check | Feature spec + stories (with groups) | Ready to commit to building something — this starts the core pipeline |
-| `/virtual-team:flow` | Service | Run full pipeline with interactive gates | All pipeline artifacts + PR | Starting a feature end-to-end — chains feature → contracts → plan → implement → review + validate → pr. Use `--fix` for bug fix pipeline (bug → debug → fix → pr) |
-| `/virtual-team:research` | Any | Deep-dive research | Research document | Technology evaluation, competitive analysis, or exploring unknowns before speccing |
-| `/virtual-team:contracts` | Service | Extract, define, validate API contracts | Schema files in `contracts/` | After `/virtual-team:feature`, before `/virtual-team:plan` — lock down API shapes so implementation can't drift |
-| `/virtual-team:plan` | Service | Technical implementation plan | Plan with file references | After spec and contracts are stable — produces the step-by-step build plan |
-| `/virtual-team:implement` | Service | Pick stories and execute plan | Working code | After plan is approved — accepts FEAT/BUG ID, implements all stories sequentially |
-| `/virtual-team:commit` | Any | Stage and commit | Git commit | Code is working and you've verified it manually |
-| `/virtual-team:pr` | Any | Create PR | Pull request | Implementation is complete, tests pass, ready for review |
-| `/virtual-team:worktree` | Service | Manage worktrees | Create/remove/list/clean | Housekeeping — list active branches, clean up stale worktrees |
-| `/virtual-team:review` | Any | Code review | Review feedback | Before merging — get a second-opinion review on code changes |
-| `/virtual-team:tech-review` | Any | Architecture review | Review document | Before or after implementation — assess architectural decisions and patterns |
-| `/virtual-team:validate` | Service | Compare spec vs implementation | Gap analysis | After implementation — verify nothing was missed or silently changed vs. the spec |
-| `/virtual-team:refine` | Any | Iterate on a document | Updated document | A spec, plan, or doc needs revision based on feedback or new information |
-| `/virtual-team:bug` | Service | Document a bug | Bug report | You found a bug — document it before investigating or fixing |
-| `/virtual-team:debug` | Service | Investigate with pattern sweep | Diagnosis + all occurrences | After `/virtual-team:bug` — systematic investigation with codebase-wide pattern search |
-| `/virtual-team:check` | Any | Knowledge check quiz | Score + tutoring | Learning the codebase — quiz yourself on conventions, architecture, or decisions |
-| `/virtual-team:decisions` | Any | Query project conventions | Bullet list + source refs | Quick lookup — "what did we decide about X?" without digging through files |
-| `/virtual-team:proposal` | Any | Business proposal | Scope, timeline, costs doc | Client-facing or stakeholder-facing scope and cost estimation |
-| `/virtual-team:docs` | Any | Generate project documentation | Guides, references, runbooks | Project needs user guides, API docs, setup instructions, or runbooks |
-| `/virtual-team:status` | Any | Project status briefing | Status report | Morning startup or check-in — see what's done, in progress, and blocked |
-| `/virtual-team:handoff` | Any | Session continuity note | Handoff document | Ending a session mid-work — capture context so the next session picks up cleanly |
-| `/virtual-team:update-workflow` | Service | Sync workflow files from template | Updated `commands/`, `skills/`, `agents/` files | Template has been updated and you want to pull in the latest commands and skills |
-
-## Command Options
-
-Many commands support flags to customize behavior.
-
-### Global Options
-
-#### `--auto` — Autonomous Mode
-Skip confirmations and manual pause points. Use for automated workflows or repeated execution patterns.
-
-Available in: `/virtual-team:plan`, `/virtual-team:implement`, `/virtual-team:feature`, `/virtual-team:epic`, `/virtual-team:flow`
-
-Flags can be combined: `/virtual-team:plan --auto --deep FEAT-007`
-
-#### `--deep` — Agent-Powered Mode
-Spawn specialized research agents for thorough analysis. Without this flag, commands use direct tools (Glob, Grep, Read, WebSearch) — faster and cheaper.
-
-Available in: `/virtual-team:idea`, `/virtual-team:epic`, `/virtual-team:feature`, `/virtual-team:research`, `/virtual-team:plan`, `/virtual-team:implement`, `/virtual-team:debug`, `/virtual-team:flow`
-
-When to use: complex features touching multiple modules, introducing new dependencies, or requiring deep codebase tracing.
-
-#### `--fresh` — Start from Scratch
-Delete any existing checkpoint file and restart the command from the beginning. Useful when prior progress is stale or the context has changed.
-
-Available in: `/virtual-team:feature`, `/virtual-team:plan`, `/virtual-team:implement`, `/virtual-team:debug`, `/virtual-team:flow`
-
-### Command-Specific Options
-
-#### `/virtual-team:start  `
-- `--hub` — initialize as a hub repository (product brain)
-- `--service` — initialize as a service repository (implementation)
-- `--from=../path` — bootstrap from another repo's stack.md
-- `--minimal` — create structure only, skip the interview
-
-#### `/virtual-team:feature`
-- `--epic=EPIC-NNN` — create feature driven by a hub epic
-- `--ticket=PROJ-123` — pull context from an external tracker ticket
-- `--deep` — spawn agents for research (default: direct tools)
-
-#### `/virtual-team:flow`
-- `--fix` — run the bug fix pipeline: `/virtual-team:bug` → `/virtual-team:debug` → implement fix → `/virtual-team:review` + `/virtual-team:validate` → `/virtual-team:pr`
-- `--fix --quick` — skip `/virtual-team:bug` documentation, start directly at `/virtual-team:debug`
-- `--to=STEP` — stop after this step. Feature: `feature`, `contracts`, `plan`, `next`, `implement`, `review`, `pr`. Fix: `bug`, `debug`, `next`, `implement`, `review`, `pr`
-- `--from=STEP` — start from this step, assumes prior steps are done. Feature: `contracts`, `plan`, `implement`, `review`, `pr`. Fix: `debug`, `implement`, `review`, `pr`
-- `--resume` — pick up where the last `/virtual-team:flow` left off (reads the flow checkpoint)
-- `--sdd` — use subagent-driven development for `/virtual-team:implement` (fresh subagent per task, two-stage review). Best for plans with 5+ tasks
-- `--fresh` — delete any existing flow checkpoint and start from scratch
-
-#### `/virtual-team:epic`
-- `--deep` — spawn product-owner and architect agents (default: direct analysis)
-
-#### `/virtual-team:research`
-- `--scope=market|technical|codebase` — limit research to a specific domain
-- `--deep` — spawn specialized research agents (default: direct WebSearch/Grep/Read)
-
-#### `/virtual-team:contracts`
-- `extract <source>` — extract contracts from SPEC.md or feature spec
-- `validate` — check all contract files for completeness
-- `sync` — compare contracts against implementation, flag drift
-- `list` — show all defined contracts and their status
-- `--format=json|go|typescript|proto` — output format (default: JSON Schema)
-- `--hub` — also check hub decisions for cross-team contracts
-
-#### `/virtual-team:plan`
-- `--auto` — skip confirmations, auto-approve the plan
-- `--deep` — spawn agents for architectural gate and codebase analysis
-- `--story=S-003` — plan a specific story instead of full feature
-
-#### `/virtual-team:implement`
-- `--auto` — skip manual pause/confirmation points (still runs all automated verification)
-- `--deep` — allow agent spawning when plan doesn't provide enough context
-- `--sdd` — subagent-driven development: orchestrator dispatches fresh subagent per task with two-stage review. Best for plans with 5+ tasks
-- `--phase=N` — resume from a specific phase after a session break
-- Can specify: FEAT ID (`/virtual-team:implement FEAT-003`) or BUG ID (`/virtual-team:implement BUG-005`)
-
-#### `/virtual-team:pr`
-- `--draft` — create a draft PR
-- `--manual` — ask for confirmation before committing/submitting
-- `--no-commit` — skip auto-committing pending changes
-- `--rebase` — rebase onto latest target branch
-- `--base=develop` — target specific base branch
-
-#### `/virtual-team:debug`
-- `--deep` — spawn codebase agents for parallel investigation
-- `--fresh` — delete existing checkpoint, start investigation from scratch
-- Can specify: bug ID (`/virtual-team:debug BUG-003`), file path, or symptom description
-
-#### `/virtual-team:check`
-- `--plan` — focus questions on architectural decisions
-- `--pr` — focus questions on implementation patterns
-- `--verbose` — study mode showing key concepts as hints before answering
-- Can specify: feature ID (`/virtual-team:check FEAT-007`) or plan path
-
-#### `/virtual-team:decisions`
-- `--verbose` — include short code examples from the source files
-- `--diff` — show which conventions are customized vs still using template defaults
-- Can specify: topic (`/virtual-team:decisions testing`), language (`/virtual-team:decisions go`), layer (`/virtual-team:decisions service`), or concept (`/virtual-team:decisions mockery`)
-
-#### `/virtual-team:docs`
-- `--update <path>` — update an existing doc to match current codebase state
-
-### Examples with Flags
-
-```bash
-# Autonomous feature workflow
-/virtual-team:feature --auto --deep Add user authentication
-/virtual-team:plan --auto --deep FEAT-001
-/virtual-team:implement --auto --deep FEAT-001
-
-# Multi-story sequential workflow
-/virtual-team:implement FEAT-005                   # implements all stories sequentially
-/virtual-team:pr                                   # ship all stories
-
-# Epic-driven feature with lightweight research
-/virtual-team:epic Add multilingual support        # in hub, no --deep for speed
-/virtual-team:feature --epic=EPIC-001              # in service, reads epic constraints
-
-# Resume interrupted implementation
-/virtual-team:implement --phase=3                  # pick up where you left off
-
-# Full pipeline in one command
-/virtual-team:flow Add search with full-text and aggregation
-
-# Pipeline with agent-powered analysis, stop after plan
-/virtual-team:flow --deep --to=plan Add search capability
-
-# Resume a flow that was interrupted
-/virtual-team:flow --resume
-
-# Knowledge check
-/virtual-team:check --verbose                      # study mode with hints
-/virtual-team:check --plan FEAT-007                # quiz on specific feature's architecture
-```
-
-## Agents
-
-All 8 agents are read-only sub-agents. They analyze and recommend — they never write code or make final decisions. Commands spawn them with the `--deep` flag.
-
-| Agent | Model | Purpose |
-|-------|-------|---------|
-| `product-owner` | opus | Market analysis, user research, risk assessment, value calculation |
-| `software-architect` | opus | Architectural recommendations, TBD dependency gatekeeper |
-| `web-researcher` | sonnet | External research (competitors, market, user sentiment, trends) |
-| `codebase-locator` | sonnet | Find relevant files by feature area or concern |
-| `codebase-analyzer` | sonnet | Trace data flow, dependencies, implementation patterns |
-| `pattern-finder` | sonnet | Find existing code patterns as references for new work |
-| `docs-locator` | sonnet | Find relevant docs, plans, decisions by topic or keyword |
-| `security-reviewer` | sonnet | Review code for security vulnerabilities and risks |
-
-Without `--deep`, commands use direct tools (Glob, Grep, Read, WebSearch) instead of spawning agents. This is faster and cheaper — use `--deep` only when the analysis requires cross-module tracing or external research.
-
-## Skills
-
-Skills are domain-specific coding standards loaded by implementation commands. They establish conventions for each layer of the codebase.
-
-### Two-Layer Skill System
-
-Skills work in two layers:
-
-**Layer 1 — Generic domain skills** (included in this library): `virtual-team:api-design`, `virtual-team:ui-design`, `virtual-team:data-layer`, `virtual-team:service-layer`, `virtual-team:git-practices`. These contain framework-agnostic conventions with `<!-- CUSTOMIZE -->` markers for project-specific details.
-
-**Layer 2 — Stack-specific skills** (you create these): Skills matched via `stack:` frontmatter against your `stack.md`. For example, a `go-gin` skill with `stack: go, gin` would be auto-loaded alongside `virtual-team:api-design` when implementing API endpoints in a Go/Gin project.
-
-The `/virtual-team:implement` command reads `stack.md` to identify your frameworks, then loads matching skills from `skills/`. Generic skills provide the baseline; stack-specific skills add concrete patterns for your exact stack.
-
-### Skill Reference
-
-#### Domain Skills (loaded by `/virtual-team:implement` based on file type and `stack.md`)
-
-| Skill | Purpose | When Loaded |
-|-------|---------|-------------|
-| `virtual-team:git-practices` | Branch naming, commit format, PR format, worktree conventions | `/virtual-team:commit`, `/virtual-team:pr`, `/virtual-team:worktree` |
-| `virtual-team:api-design` | API endpoint structure, validation, status codes, response format, auth/authz | Implementing routes, controllers, API code |
-| `virtual-team:ui-design` | Component structure, hooks, styling, state management, accessibility | Implementing frontend components |
-| `virtual-team:data-layer` | Schema design, migrations, models, queries, ORM patterns, indexes | Implementing database code |
-| `virtual-team:service-layer` | Business logic organization, domain rules, orchestration, transactions | Implementing services and use cases |
-| `virtual-team:checkpoints` | Protocol for saving and resuming multi-phase commands | `/virtual-team:implement`, `/virtual-team:debug`, `/virtual-team:feature`, `/virtual-team:plan`, `/virtual-team:epic` |
-| `virtual-team:knowledge-check` | Developer understanding validation: question generation, evaluation, tutoring | `/virtual-team:plan`, `/virtual-team:pr`, `/virtual-team:check` |
-| `virtual-team:go-practices` | Go-specific: unexported struct/exported constructor pattern, mockery, project layout | Implementing `.go` files (auto-matched via `stack: go`) |
-
-#### Behavioral Skills (auto-loaded via hooks — no manual invocation needed)
-
-These skills enforce coding discipline automatically. They are loaded by the `SessionStart` hook (`settings.json`) and reinforced by the `PreToolUse` hook on `Edit|Write` calls.
-
-| Skill | Purpose | When Active |
-|-------|---------|-------------|
-| `virtual-team:skill-awareness` | Maps execution contexts to the correct behavioral skills | Every session start (loaded by `SessionStart` hook) |
-| `virtual-team:test-driven-development` | Enforces red-green-refactor: no production code without a failing test first | Before any `Edit`/`Write` to non-test files |
-| `virtual-team:verification-before-completion` | No completion claims ("done", "passes") without fresh verification evidence | Before any completion claim |
-| `virtual-team:receiving-code-review` | Verify feedback before implementing, push back when wrong, no performative agreement | When processing review comments (PR reviews, SDD reviewers, founder feedback) |
-| `virtual-team:subagent-driven-development` | Orchestrator protocol: fresh subagent per task, two-stage review | When `/virtual-team:implement --sdd` is active |
-
-#### Backlog Skills (loaded by any command that reads/writes the backlog)
-
-| Skill | Purpose | When Loaded |
-|-------|---------|-------------|
-| `virtual-team:backlog` | Abstract interface defining operations all commands use (`list`, `start`, `complete`, etc.) | First — loaded before any backlog operation, delegates to implementation |
-| `virtual-team:backlog-local` | File-based implementation using `docs/backlog.md` (bracket markers) | Default when `stack.md` has `backlog: local` or no `backlog:` field |
-| `virtual-team:backlog-external` | External service implementation (GitHub Issues, Linear, JIRA) | When `stack.md` has `backlog: external` with a `backlog_config` section |
-
-### Where to Put Architectural Conventions
-
-Not all coding knowledge goes in the same place. Here's how to decide:
-
-**Generic skills** (e.g., `virtual-team:service-layer`, `virtual-team:api-design`) — for universal architectural principles that apply regardless of language or framework. Examples: "all dependencies must be interfaces," "services own transaction boundaries," "business rules must be independently testable." These skills ship with the template and have `<!-- CUSTOMIZE -->` markers where you fill in language-specific details.
-
-**Stack-specific skills** (e.g., `go-gin`, `react-nextjs`) — for concrete patterns tied to your stack. Examples: "use mockery to generate mocks from interfaces," "define interfaces in the same package as the consumer," "use Gin's `ShouldBindJSON` for request validation." Create these with `stack:` frontmatter so they auto-load alongside generic skills during `/virtual-team:implement`.
-
-**`CLAUDE.md`** — for short, project-wide behavioral directives that don't fit in a skill. Examples: "always run `make lint` before committing," "this repo uses a monorepo structure," "never import from `internal/legacy`." Keep this file lean — if a rule needs examples or explanation, it belongs in a skill.
-
-**`stack.md`** — for factual stack definitions, not conventions. What framework, what ORM, what test runner — not how to use them.
-
-The general rule: if it's a *principle*, it goes in a generic skill. If it's a *pattern with code examples*, it goes in a stack-specific skill. If it's a *one-liner rule*, it goes in `CLAUDE.md`.
-
-### Customizing Skills
-
-Two approaches:
-
-1. **Edit in place** — Modify the generic skills with your project-specific conventions. Good for single-project use.
-2. **Keep generic + add stack skills** — Leave generic skills as templates. Create stack-specific skills (e.g., `go-gin/SKILL.md`, `react-nextjs/SKILL.md`) with `stack:` frontmatter for auto-matching. Good if you share the library across projects with different stacks.
-
-## Hooks
-
-The `hooks/hooks.json` file configures two hooks that enforce behavioral skills automatically:
-
-### `SessionStart` Hook
-
-Runs `cat skills/skill-awareness/SKILL.md` at the start of every session. This loads the context-to-skill mapping so behavioral skills activate based on what you're doing, even without explicit slash commands.
-
-### `PreToolUse` Hook (on `Edit|Write`)
-
-Before any `Edit` or `Write` tool call, a prompt-based hook checks:
-1. **TDD discipline** — If writing production code (not test code), is there a failing test first?
-2. **Verification discipline** — Is the agent about to claim completion without fresh evidence?
-
-These hooks are what make behavioral skills "always on" rather than requiring manual activation.
-
-## Key Design Principles
-
-**Vertical slicing.** Every story delivers one complete user-facing capability through all layers (data model → logic → API → UI). Never "all migrations first, then all services." After the first story, something must be testable or demoable. `/virtual-team:feature` Phase 4 forces a conversation about incremental delivery before stories are written, and `/virtual-team:plan` organizes phases by capability, not by layer.
-
-**Deliberate pipeline.** Every command produces a specific artifact and stops. No command jumps ahead. `/virtual-team:feature` writes specs, never code. `/virtual-team:plan` writes plans, never code. Only `/virtual-team:implement` writes code.
-
-**YAGNI enforcement.** The product owner agent and YAGNI checks in `/virtual-team:feature` challenge every "what if." Three lines of duplicated code beats a premature abstraction.
-
-**Architect as gatekeeper.** The software architect agent runs a dependency check before any plan is written. If `stack.md` has TBD items the feature needs, planning halts until you decide.
-
-**TBD is valid.** During `/virtual-team:start  `, mark unknowns as TBD. Don't agonize over decisions you don't need yet. The architect will catch them at the right time.
-
-**Documents as the source of truth.** Epics, features, plans, and decisions are markdown files in `docs/`. They're versioned in git, referenced by frontmatter IDs, and read by commands for context.
-
-**Worktree isolation.** Each ticket gets its own worktree. Parallel work is possible. The backlog lock prevents conflicts. The main branch stays clean.
-
-**Lock on main, status on branch.** Coordination (locks) happens on main so all worktrees see it. Reality tracking (backlog status) happens on the feature branch so it merges with the code.
-
-**Mandatory pattern sweep.** Bug investigations must scan the entire codebase for all instances of the root cause pattern. A bug report that only covers one location is incomplete.
-
-**Knowledge as a process.** The knowledge check system ensures developers understand AI-generated decisions, not just execute them. It teaches through the process of asking and explaining.
-
-**Founder input, not just founder approval.** Every major phase in `/virtual-team:feature` ends with an open-ended checkpoint: "Anything I should know that I haven't asked about?" This gives the founder a structured place to add business constraints, user insights, technical preferences, or context the AI couldn't infer from the codebase. Founder observations are captured in a "Founder Context" section in the spec so they persist into planning and implementation.
-
-**Founder decides.** Agents recommend, the founder chooses. Every agent presents reasoning and options. No agent makes final calls.
-
-## Document Outputs by Command
-
-Each command produces artifacts stored in the project's `docs/` directory:
-
-**Hub repos:** `/virtual-team:idea` → `docs/features/`, `/virtual-team:epic` → `docs/epics/` + `docs/decisions/`, `/virtual-team:research` → `docs/research/`, `/virtual-team:start  ` → `stack.md` + `docs/backlog.md`
-
-**Service repos:** `/virtual-team:feature` → `docs/features/` + `docs/backlog.md`, `/virtual-team:plan` → `docs/plans/`, `/virtual-team:implement` → code + `docs/backlog.md`, `/virtual-team:pr` → `docs/backlog.md`, `/virtual-team:bug` → `docs/bugs/`, `/virtual-team:debug` → `docs/bugs/` (updated), `/virtual-team:check` → `docs/knowledge-checks/`
