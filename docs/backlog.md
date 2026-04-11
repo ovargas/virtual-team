@@ -3,6 +3,9 @@
 ## Doing
 
 ## Ready
+- [x] S-014: Strip lock infrastructure from backlog skills | feature:FEAT-014 | group:1 | order:1 | spec:docs/features/2026-04-10-remove-next-command.md
+- [x] S-015: Delete /next command and update /implement for FEAT/BUG selection | feature:FEAT-014 | group:1 | order:2 | spec:docs/features/2026-04-10-remove-next-command.md
+- [x] S-016: Update /flow pipeline and all cross-references | feature:FEAT-014 | group:1 | order:3 | spec:docs/features/2026-04-10-remove-next-command.md
 
 ## Done
 - [x] S-013: Add auto-detection to bare /flow invocation — completed on main

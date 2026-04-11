@@ -1,8 +1,9 @@
 {
   "name": "virtual-team",
   "version": "1.0.0",
-  "description": "A .claude/ configuration library that turns Claude Code into a virtual development team for solo founders.",
+  "description": "Virtual development team: TDD, debugging, code review, backlog management, and proven workflow patterns",
   "type": "module",
+  "main": ".opencode/plugins/virtual-team.js",
   "scripts": {
     "test": "vitest run",
     "test:watch": "vitest"

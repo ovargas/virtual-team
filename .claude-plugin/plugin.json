@@ -1,0 +1,20 @@
+{
+  "name": "virtual-team",
+  "description": "Virtual development team: TDD, debugging, code review, backlog management, and proven workflow patterns",
+  "version": "1.0.0",
+  "homepage": "https://github.com/ovargas/virtual-team",
+  "repository": "https://github.com/ovargas/virtual-team",
+  "license": "MIT",
+  "author": {
+    "name": "Orlando Vargas",
+    "email": "ovargast@gmail.com"
+  },
+  "keywords": [
+    "skills",
+    "tdd",
+    "debugging",
+    "collaboration",
+    "best-practices",
+    "workflows"
+  ]
+}
