@@ -250,7 +250,7 @@ The appetite constrains the scope. If they say 2 weeks but the scope is 6 weeks 
 ---
 id: IDEA-[NNN]
 date: [YYYY-MM-DD]
-status: draft              # draft → active (first epic/feature created) → fulfilled (all MVP items covered)
+status: draft              # draft → active (first epic/virtual-team:feature created) → fulfilled (all MVP items covered)
 research_level: [skip|light|deep]
 appetite: [time budget chosen]
 ---
@@ -435,7 +435,7 @@ After the feature brief is finalized:
    - Do NOT suggest "let me start building this" or "I can implement this now"
    - Do NOT create project directories, install packages, or set up environments
    - When the document is done, STOP. The next step depends on the repo type: `/virtual-team:epic` for hub repos, `/virtual-team:feature` for service repos.
-   - If the founder asks you to start building during this command, remind them: "Let's finish the brief first. When it's approved, the next step is [/epic or /feature depending on repo type] to break it down into actionable work."
+   - If the founder asks you to start building during this command, remind them: "Let's finish the brief first. When it's approved, the next step is [/virtual-team:epic or /virtual-team:feature depending on repo type] to break it down into actionable work."
 
 ## Agent Usage
 

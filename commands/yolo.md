@@ -1,6 +1,6 @@
 ---
 name: yolo
-description: Run /flow with --auto baked in. Same pipeline, less friction, more regret potential. All /flow flags pass through.
+description: Run /virtual-team:flow with --auto baked in. Same pipeline, less friction, more regret potential. All /virtual-team:flow flags pass through.
 model: haiku
 ---
 
@@ -27,14 +27,14 @@ Before doing anything else, generate a short, funny, original cautionary quote a
 "[The joke quote]"
 
 Proceeding with --auto. All gates will auto-resolve unless they hit a hard failure.
-If you wanted manual control, you still have time: Ctrl+C and run /flow instead.
+If you wanted manual control, you still have time: Ctrl+C and run /virtual-team:flow instead.
 
 ───────────────────────────────────────────────────
 ```
 
 **Wait 0 seconds** — just print it and continue. The joke IS the speed bump.
 
-## Step 2: Delegate to /flow --auto
+## Step 2: Delegate to /virtual-team:flow --auto
 
 After printing the joke, execute the full `/virtual-team:flow` command with `--auto` injected. Pass through ALL arguments and flags the user provided.
 

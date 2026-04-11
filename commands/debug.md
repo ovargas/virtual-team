@@ -103,7 +103,7 @@ Once reproduced (or with enough information to investigate), trace through the c
 
    **Default (no `--deep`):** Use Glob, Grep, and Read directly to find all files involved in the broken flow and trace from entry point to expected output.
 
-   **If `--deep` was passed:** Spawn **virtual-team:codebase-analyzer** agent: "Find all files involved in [the feature/flow that's broken] AND trace the complete flow from [entry point] to [expected output]. Document every step with file:line references."
+   **If `--deep` was passed:** Spawn **virtual-team:codebase-analyzer** agent: "Find all files involved in [the feature/virtual-team:flow that's broken] AND trace the complete flow from [entry point] to [expected output]. Document every step with file:line references."
 
 2. **Trace the fault path:**
    - Start at the entry point (the API endpoint, the UI event handler, the scheduled job)

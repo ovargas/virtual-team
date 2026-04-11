@@ -83,7 +83,7 @@ Wait for confirmation before proceeding. If `--auto` behavior is desired (e.g., 
 
 ### Phase 2: Scope Analysis
 
-**Goal:** Transform the feature/idea spec into a detailed, unambiguous scope of work.
+**Goal:** Transform the feature/virtual-team:idea spec into a detailed, unambiguous scope of work.
 
 1. **Break down every capability into deliverables.** Each deliverable is a concrete piece of work with a clear definition of done:
 

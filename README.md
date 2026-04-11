@@ -55,7 +55,7 @@ Shows what's in progress, what's next, and suggests the right command to run. Th
 ### Build a feature end-to-end
 
 ```
-/flow Add password reset via email
+/virtual-team:flow Add password reset via email
 ```
 
 Runs the full pipeline in one session: `/virtual-team:feature` → `/virtual-team:contracts` → `/virtual-team:plan` → `/virtual-team:next` → `/virtual-team:implement` → `/virtual-team:review` + `/virtual-team:validate` → `/virtual-team:pr`. Interactive gates between each step resolve TBDs and decisions without leaving the session.
@@ -63,7 +63,7 @@ Runs the full pipeline in one session: `/virtual-team:feature` → `/virtual-tea
 ### Fix a bug end-to-end
 
 ```
-/flow --fix "users can't log in after password reset"
+/virtual-team:flow --fix "users can't log in after password reset"
 ```
 
 Runs the bug fix pipeline: `/virtual-team:bug` → `/virtual-team:debug` → `/virtual-team:next` → implement fix → `/virtual-team:review` + `/virtual-team:validate` → `/virtual-team:pr`. Includes mandatory pattern sweep to catch all occurrences.
@@ -71,13 +71,13 @@ Runs the bug fix pipeline: `/virtual-team:bug` → `/virtual-team:debug` → `/v
 ### Common `/virtual-team:flow` variations
 
 ```bash
-/flow --deep Add search capability          # agent-powered analysis (slower, more thorough)
-/flow --to=plan Add email notifications     # stop after planning, don't implement yet
-/flow --from=next                           # resume mid-pipeline (spec and plan already exist)
-/flow --resume                              # pick up where last /flow left off
-/flow --auto Add simple utility             # minimal gates, only stop on hard failures
-/flow --fix BUG-003                         # bug already documented, start at /debug
-/flow --fix --quick "typo in error message" # skip bug report, go straight to /debug
+/virtual-team:flow --deep Add search capability          # agent-powered analysis (slower, more thorough)
+/virtual-team:flow --to=plan Add email notifications     # stop after planning, don't implement yet
+/virtual-team:flow --from=next                           # resume mid-pipeline (spec and plan already exist)
+/virtual-team:flow --resume                              # pick up where last /virtual-team:flow left off
+/virtual-team:flow --auto Add simple utility             # minimal gates, only stop on hard failures
+/virtual-team:flow --fix BUG-003                         # bug already documented, start at /debug
+/virtual-team:flow --fix --quick "typo in error message" # skip bug report, go straight to /debug
 ```
 
 ### Manual step-by-step (when you want control)
@@ -85,14 +85,14 @@ Runs the bug fix pipeline: `/virtual-team:bug` → `/virtual-team:debug` → `/v
 Run each pipeline step individually instead of using `/virtual-team:flow`:
 
 ```bash
-/feature Add password reset via email     # spec + stories
-/contracts extract docs/features/...      # lock down API shapes
-/plan FEAT-001                            # technical plan (architect gates)
-/next                                     # lock + worktree
+/virtual-team:feature Add password reset via email     # spec + stories
+/virtual-team:contracts extract docs/features/...      # lock down API shapes
+/virtual-team:plan FEAT-001                            # technical plan (architect gates)
+/virtual-team:next                                     # lock + worktree
   # → new session in worktree
-/implement                                # write code
-/commit                                   # commit
-/pr                                       # ship + unlock
+/virtual-team:implement                                # write code
+/virtual-team:commit                                   # commit
+/virtual-team:pr                                       # ship + unlock
 ```
 
 ### Other useful commands
@@ -191,7 +191,7 @@ cp examples/CLAUDE-hub.md CLAUDE.md
 Start a Claude Code session and run:
 
 ```
-/init --hub
+/virtual-team:init --hub
 ```
 
 This walks you through: product identity (name, description, target users, stage) and teams registry (each service repo's name, path, role, responsibility, stack summary).
@@ -230,7 +230,7 @@ rm examples/CLAUDE-hub.md
 Start a Claude Code session and run:
 
 ```
-/init --service
+/virtual-team:init --service
 ```
 
 This walks you through: hub reference (path to the hub repo), language, runtime, package manager, framework, project structure, database, ORM, API style, auth, external services, configuration, environments, testing, linting, CI/CD, deployment, and build/run commands.
@@ -265,7 +265,7 @@ Here is the complete lifecycle from product idea to shipped code, showing which 
 
 ```
 Hub repo:
-  /idea Build a task management app for remote teams
+  /virtual-team:idea Build a task management app for remote teams
     → Structured interview about the problem, users, risks
     → Product owner agent researches market and competition
     → Output: docs/features/2026-02-12-task-management-app.md (IDEA-001)
@@ -276,7 +276,7 @@ Hub repo:
 
 ```
 Hub repo:
-  /epic Add real-time collaboration to task boards
+  /virtual-team:epic Add real-time collaboration to task boards
     → Phase 1: Capture the initiative (what, why, for whom)
     → Phase 2: Product owner analyzes market context, risks, success metrics
     → Phase 3: Software architect reads teams registry, identifies affected repos
@@ -292,7 +292,7 @@ Hub repo:
 
 ```
 Service repo (my-app-api):
-  /feature --epic=EPIC-001
+  /virtual-team:feature --epic=EPIC-001
     → Reads hub epic and its decision records (ADR-001, ADR-002) as constraints
     → Phase 1: Understand what this repo needs to implement
     → Phase 2: YAGNI check (skipped for epic-driven — PO already assessed)
@@ -312,7 +312,7 @@ Stories are vertically sliced — each story delivers one complete capability th
 
 ```
 Service repo (my-app-api):
-  /plan FEAT-001
+  /virtual-team:plan FEAT-001
     → Phase 0: Software architect runs dependency check against stack.md
       ✅ Pass — all TBD items resolved (or)
       ⛔ HALT — "Database: TBD, need to choose before proceeding"
@@ -327,14 +327,14 @@ Service repo (my-app-api):
 
 ```
 Service repo (my-app-api):
-  /plan FEAT-001
+  /virtual-team:plan FEAT-001
     → Phase 0: Architect checks stack.md
     → ⛔ HALT — WebSocket library: TBD, Caching: TBD
     → Presents options with recommendations:
         Decision 1: WebSocket library — gorilla/websocket vs nhooyr/websocket vs gobwas/ws
         Decision 2: Cache layer — Redis vs in-memory
     → You decide, update stack.md, create decision records
-    → Re-run /plan FEAT-001
+    → Re-run /virtual-team:plan FEAT-001
     → ✅ Architect passes, planning continues
 ```
 
@@ -390,7 +390,7 @@ Worktree session (../my-app-api-worktrees/feat/CTR-12):
 
 ```
 Back in main repo directory:
-  /worktree clean
+  /virtual-team:worktree  clean
     → Finds worktrees where PR is merged
     → Removes them after confirmation
     → Cleans up stale locks
@@ -448,7 +448,7 @@ Stories in the same group are sequential and go on one branch. Different groups 
 Pick up a feature group:
 
 ```
-/next --feature=FEAT-005
+/virtual-team:next --feature=FEAT-005
   → Locks all stories in group 1 (lowest group with Ready items)
   → Creates branch feat/FEAT-005 (feature ID, not story ID)
   → Marks first story as Doing
@@ -457,7 +457,7 @@ Pick up a feature group:
 Advance through stories in the group:
 
 ```
-/next --current
+/virtual-team:next --current
   → Marks current story as Implemented [=]
   → Picks next story in the group by order:N
   → Marks it as Doing [>]
@@ -513,11 +513,11 @@ Knowledge checks are controlled per-developer via `~/.claude/settings.json`:
 Run `/virtual-team:check` at any time to quiz yourself on current work. This always runs regardless of the settings file since the developer explicitly invoked it.
 
 ```
-/check                    ← auto-detect context from branch and backlog
-/check --plan             ← focus on architectural decisions
-/check --pr               ← focus on implementation patterns
-/check --verbose          ← study mode: show key concepts as hints before answering
-/check FEAT-007           ← check understanding of a specific feature
+/virtual-team:check                    ← auto-detect context from branch and backlog
+/virtual-team:check --plan             ← focus on architectural decisions
+/virtual-team:check --pr               ← focus on implementation patterns
+/virtual-team:check --verbose          ← study mode: show key concepts as hints before answering
+/virtual-team:check FEAT-007           ← check understanding of a specific feature
 ```
 
 Results are logged to `docs/knowledge-checks/` for tracking developer growth over time.
@@ -537,49 +537,49 @@ This prevents the common failure mode where a bug is "fixed" in one location whi
 ### Automated (recommended)
 
 ```bash
-/flow Add password reset via email                    # feature → contracts → plan → implement → review → pr
-/flow --fix "login broken after password reset"       # bug → debug → fix → review → pr
-/flow --deep --sdd Add real-time notifications        # agent-powered + subagent implementation
-/flow --to=plan Add search capability                 # stop after planning
-/flow --resume                                        # continue interrupted flow
+/virtual-team:flow Add password reset via email                    # feature → contracts → plan → implement → review → pr
+/virtual-team:flow --fix "login broken after password reset"       # bug → debug → fix → review → pr
+/virtual-team:flow --deep --sdd Add real-time notifications        # agent-powered + subagent implementation
+/virtual-team:flow --to=plan Add search capability                 # stop after planning
+/virtual-team:flow --resume                                        # continue interrupted flow
 ```
 
 ### Manual: Solo feature (no hub, single repo)
 
 ```
-/feature Add password reset via email     ← spec + stories
-/plan FEAT-001                            ← technical plan (architect gates)
-/next                                     ← lock + worktree
+/virtual-team:feature Add password reset via email     ← spec + stories
+/virtual-team:plan FEAT-001                            ← technical plan (architect gates)
+/virtual-team:next                                     ← lock + worktree
   ↓ new session in worktree
-/implement                                ← write code
-/commit                                   ← commit
-/pr                                       ← ship + unlock
+/virtual-team:implement                                ← write code
+/virtual-team:commit                                   ← commit
+/virtual-team:pr                                       ← ship + unlock
 ```
 
 ### Multi-story feature (sequential stories, one branch)
 
 ```
-/feature Add user management              ← spec + stories with group tags
-/plan FEAT-005                            ← plan covering the feature
-/next --feature=FEAT-005                  ← lock group, create feat/FEAT-005 worktree
+/virtual-team:feature Add user management              ← spec + stories with group tags
+/virtual-team:plan FEAT-005                            ← plan covering the feature
+/virtual-team:next --feature=FEAT-005                  ← lock group, create feat/FEAT-005 worktree
   ↓ new session in worktree
-/implement                                ← implement first story
-/next --current                           ← advance to next story in group
-/implement                                ← implement second story
-/next --current                           ← advance again
-/implement                                ← implement third story
-/pr                                       ← one PR, all stories marked Done
+/virtual-team:implement                                ← implement first story
+/virtual-team:next --current                           ← advance to next story in group
+/virtual-team:implement                                ← implement second story
+/virtual-team:next --current                           ← advance again
+/virtual-team:implement                                ← implement third story
+/virtual-team:pr                                       ← one PR, all stories marked Done
 ```
 
 ### Morning startup
 
 ```
-/status                                   ← what's in progress, what's next, suggests commands
-/status backlog                           ← backlog health only
-/status FEAT-007                          ← status of a specific feature
-/next                                     ← or continue existing work
+/virtual-team:status                                   ← what's in progress, what's next, suggests commands
+/virtual-team:status backlog                           ← backlog health only
+/virtual-team:status FEAT-007                          ← status of a specific feature
+/virtual-team:next                                     ← or continue existing work
   ↓
-/implement --phase=3                      ← resume from where you left off
+/virtual-team:implement --phase=3                      ← resume from where you left off
 ```
 
 ### Ending a session
@@ -591,36 +591,36 @@ This prevents the common failure mode where a bug is "fixed" in one location whi
 ### Investigating a bug
 
 ```
-/bug Users can't reset password if email has uppercase letters
-/debug BUG-003                            ← investigate + pattern sweep
-/feature --ticket=BUG-003                 ← if fix needs a spec
+/virtual-team:bug Users can't reset password if email has uppercase letters
+/virtual-team:debug BUG-003                            ← investigate + pattern sweep
+/virtual-team:feature --ticket=BUG-003                 ← if fix needs a spec
 ```
 
 ### Knowledge check (standalone)
 
 ```
-/check                                    ← quiz on current work
-/check --verbose                          ← study mode with hints
+/virtual-team:check                                    ← quiz on current work
+/virtual-team:check --verbose                          ← study mode with hints
 ```
 
 ### Multi-repo feature driven by an epic
 
 ```
 Hub:
-  /epic Add multilingual support
+  /virtual-team:epic Add multilingual support
     → creates EPIC-001
     → creates ADR-003 (language code convention)
     → creates ADR-004 (translation API contract)
 
 API repo:
-  /feature --epic=EPIC-001                ← reads epic + ADR-003, ADR-004
-  /plan FEAT-001
-  /next → /implement → /commit → /pr
+  /virtual-team:feature --epic=EPIC-001                ← reads epic + ADR-003, ADR-004
+  /virtual-team:plan FEAT-001
+  /virtual-team:next → /virtual-team:implement → /virtual-team:commit → /pr
 
 Frontend repo:
-  /feature --epic=EPIC-001                ← reads same epic + agreements
-  /plan FEAT-001
-  /next → /implement → /commit → /pr
+  /virtual-team:feature --epic=EPIC-001                ← reads same epic + agreements
+  /virtual-team:plan FEAT-001
+  /virtual-team:next → /virtual-team:implement → /virtual-team:commit → /pr
 ```
 
 Both repos work independently but respect the shared agreements from the hub.
@@ -629,16 +629,16 @@ Both repos work independently but respect the shared agreements from the hub.
 
 ```
 Terminal 1 (main branch):
-  /next                  ← picks S-001, locks it, creates worktree A
+  /virtual-team:next                  ← picks S-001, locks it, creates worktree A
 
 Terminal 1 (main branch, again):
-  /next                  ← picks S-002 (S-001 is locked), creates worktree B
+  /virtual-team:next                  ← picks S-002 (S-001 is locked), creates worktree B
 
 Terminal 2 (worktree A):
-  /implement             ← working on S-001
+  /virtual-team:implement             ← working on S-001
 
 Terminal 3 (worktree B):
-  /implement             ← working on S-002 in parallel
+  /virtual-team:implement             ← working on S-002 in parallel
 ```
 
 The `backlog.lock` file on main prevents both from picking the same item.
@@ -787,39 +787,39 @@ Available in: `/virtual-team:feature`, `/virtual-team:plan`, `/virtual-team:impl
 
 ```bash
 # Autonomous feature workflow
-/feature --auto --deep Add user authentication
-/plan --auto --deep FEAT-001
-/next --auto
+/virtual-team:feature --auto --deep Add user authentication
+/virtual-team:plan --auto --deep FEAT-001
+/virtual-team:next --auto
 # In worktree:
-/implement --auto --deep
+/virtual-team:implement --auto --deep
 
 # Multi-story sequential workflow
-/next --feature=FEAT-005              # lock group, create branch
+/virtual-team:next --feature=FEAT-005              # lock group, create branch
 # In worktree:
-/implement                            # first story
-/next --current                       # advance to second story
-/implement                            # second story
-/pr                                   # ship all stories
+/virtual-team:implement                            # first story
+/virtual-team:next --current                       # advance to second story
+/virtual-team:implement                            # second story
+/virtual-team:pr                                   # ship all stories
 
 # Epic-driven feature with lightweight research
-/epic Add multilingual support        # in hub, no --deep for speed
-/feature --epic=EPIC-001              # in service, reads epic constraints
+/virtual-team:epic Add multilingual support        # in hub, no --deep for speed
+/virtual-team:feature --epic=EPIC-001              # in service, reads epic constraints
 
 # Resume interrupted implementation
-/implement --phase=3                  # pick up where you left off
+/virtual-team:implement --phase=3                  # pick up where you left off
 
 # Full pipeline in one command
-/flow Add search with full-text and aggregation
+/virtual-team:flow Add search with full-text and aggregation
 
 # Pipeline with agent-powered analysis, stop after plan
-/flow --deep --to=plan Add search capability
+/virtual-team:flow --deep --to=plan Add search capability
 
 # Resume a flow that was interrupted
-/flow --resume
+/virtual-team:flow --resume
 
 # Knowledge check
-/check --verbose                      # study mode with hints
-/check --plan FEAT-007                # quiz on specific feature's architecture
+/virtual-team:check --verbose                      # study mode with hints
+/virtual-team:check --plan FEAT-007                # quiz on specific feature's architecture
 ```
 
 ## Agents

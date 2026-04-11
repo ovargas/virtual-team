@@ -473,8 +473,8 @@ tags: [relevant, tags, here]
 **Verification:**
 
 Automated:
-- [ ] [Test/check 1 with command to run]
-- [ ] [Test/check 2 with command to run]
+- [ ] [Test/virtual-team:check 1 with command to run]
+- [ ] [Test/virtual-team:check 2 with command to run]
 
 Manual:
 - [ ] [Manual verification step 1]

@@ -206,7 +206,7 @@ Update the issue status in the external service. Map the workflow status to the 
 
 ### push_summary(feature_id, title, spec_link)
 
-Create or update a parent issue/epic in the external service:
+Create or update a parent issue/virtual-team:epic in the external service:
 - Title: `{feature_id}: {title}`
 - Description: Link to the local spec file
 - If the service supports parent-child relationships (Linear, Jira), set this as the parent of all story issues

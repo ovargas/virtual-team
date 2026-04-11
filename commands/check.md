@@ -22,7 +22,7 @@ This command uses `sonnet` because it's a read-evaluate-respond operation.
 - `/virtual-team:check` — quiz on whatever is currently in progress (auto-detects context)
 - `/virtual-team:check docs/plans/2026-02-12-notifications.md` — quiz on a specific plan
 - `/virtual-team:check --pr` — quiz with implementation/PR focus (reads the branch diff)
-- `/virtual-team:check --plan` — quiz with architectural/plan focus
+- `/virtual-team:check --plan` — quiz with architectural/virtual-team:plan focus
 - `/virtual-team:check FEAT-007` — quiz on a specific feature's plan and implementation
 
 **Flags:**

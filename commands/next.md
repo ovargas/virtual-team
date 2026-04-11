@@ -231,7 +231,7 @@ Gather everything the implementation session will need:
 **What to build:**
 [Acceptance criteria from the story]
 
-**Plan reference:** [docs/plans/... or "No plan — consider running /plan first"]
+**Plan reference:** [docs/plans/... or "No plan — consider running /virtual-team:plan first"]
 
 **Context loaded:**
 - Feature spec: [path]
@@ -260,7 +260,7 @@ Gather everything the implementation session will need:
 **What to build:**
 [Acceptance criteria from the story]
 
-**Plan reference:** [docs/plans/... or "No plan — consider running /plan first"]
+**Plan reference:** [docs/plans/... or "No plan — consider running /virtual-team:plan first"]
 
 **Context loaded:**
 - Feature spec: [path]
@@ -287,7 +287,7 @@ Run `/virtual-team:implement` to start building
 **What to build:**
 [Acceptance criteria from the story]
 
-**Plan reference:** [docs/plans/... or "No plan — consider running /plan first"]
+**Plan reference:** [docs/plans/... or "No plan — consider running /virtual-team:plan first"]
 
 **Context loaded:**
 - Feature spec: [path]

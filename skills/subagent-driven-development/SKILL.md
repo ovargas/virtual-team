@@ -1,6 +1,6 @@
 ---
 name: subagent-driven-development
-description: Use when /implement --sdd is active — defines orchestration protocol for fresh subagent per task with two-stage review
+description: Use when /virtual-team:implement --sdd is active — defines orchestration protocol for fresh subagent per task with two-stage review
 ---
 
 # Subagent-Driven Development

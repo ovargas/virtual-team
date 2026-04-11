@@ -136,7 +136,7 @@ reported_by: [founder|user|automated]
 - **Business impact:** [What users can't do because of this bug]
 
 ## Initial Hypothesis
-[If obvious from the description, note a likely area. Otherwise: "Needs investigation — run /debug BUG-NNN"]
+[If obvious from the description, note a likely area. Otherwise: "Needs investigation — run /virtual-team:debug BUG-NNN"]
 
 ## Related
 - Feature spec: [if applicable]

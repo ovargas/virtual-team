@@ -1,6 +1,6 @@
 ---
 name: knowledge-check
-description: Protocol for validating developer understanding of AI-generated technical decisions. Loaded by /plan, /pr, and the standalone /check command.
+description: Protocol for validating developer understanding of AI-generated technical decisions. Loaded by /plan, /pr, and the standalone /virtual-team:check command.
 ---
 
 # Knowledge Check Skill
@@ -66,7 +66,7 @@ Read the branch diff and the implementation plan, then generate questions target
 
 **Source material:** `git diff <base>...HEAD`, the implementation plan, the feature spec, the test files.
 
-### Standalone /check Questions
+### Standalone /virtual-team:check Questions
 
 Determine what the developer is currently working on:
 1. Read `docs/backlog.md` for items in Doing (`[>]`) or Implemented (`[=]`)

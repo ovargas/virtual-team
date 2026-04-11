@@ -253,7 +253,7 @@ When working with worktrees, multiple sessions may access the backlog simultaneo
 
 **Format:**
 ```yaml
-# Managed by /next and /pr commands — do not edit manually
+# Managed by /virtual-team:next and /virtual-team:pr commands — do not edit manually
 locks:
   - item: "S-003"
     feature: "FEAT-007"
