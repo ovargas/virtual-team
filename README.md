@@ -9,7 +9,7 @@ A Claude Code plugin that turns Claude Code into a virtual development team. It 
 In a Claude Code session, run:
 
 ```
-/plugin marketplace add ovargas/virtual-team-marketplace
+/plugin marketplace add ovargas/virtual-team
 /plugin install virtual-team@virtual-team-marketplace
 ```
 
