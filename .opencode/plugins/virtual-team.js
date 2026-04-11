@@ -12,6 +12,19 @@ import { fileURLToPath } from 'url';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
+// Normalize a path: trim whitespace, expand ~, resolve to absolute
+const normalizePath = (p, homeDir) => {
+  if (!p || typeof p !== 'string') return null;
+  let normalized = p.trim();
+  if (!normalized) return null;
+  if (normalized.startsWith('~/')) {
+    normalized = path.join(homeDir, normalized.slice(2));
+  } else if (normalized === '~') {
+    normalized = homeDir;
+  }
+  return path.resolve(normalized);
+};
+
 // Simple frontmatter extraction (avoid dependency on external packages for bootstrap)
 const extractAndStripFrontmatter = (content) => {
   const match = content.match(/^---\n([\s\S]*?)\n---\n([\s\S]*)$/);
@@ -36,6 +49,8 @@ const extractAndStripFrontmatter = (content) => {
 export const VirtualTeamPlugin = async ({ client, directory }) => {
   const homeDir = os.homedir();
   const skillsDir = path.resolve(__dirname, '../../skills');
+  const envConfigDir = normalizePath(process.env.OPENCODE_CONFIG_DIR, homeDir);
+  const configDir = envConfigDir || path.join(homeDir, '.config/opencode');
 
   // Helper to generate bootstrap content
   const getBootstrapContent = () => {
@@ -67,6 +82,9 @@ ${toolMapping}
 
   return {
     // Inject skills path into live config so OpenCode discovers virtual-team skills
+    // without requiring manual symlinks or config file edits.
+    // This works because Config.get() returns a cached singleton — modifications
+    // here are visible when skills are lazily discovered later.
     config: async (config) => {
       config.skills = config.skills || {};
       config.skills.paths = config.skills.paths || [];
@@ -76,6 +94,9 @@ ${toolMapping}
     },
 
     // Inject bootstrap into the first user message of each session.
+    // Using a user message instead of a system message avoids:
+    //   1. Token bloat from system messages repeated every turn
+    //   2. Multiple system messages breaking Qwen and other models
     'experimental.chat.messages.transform': async (_input, output) => {
       const bootstrap = getBootstrapContent();
       if (!bootstrap || !output.messages.length) return;
