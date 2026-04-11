@@ -18,24 +18,24 @@ You are a QA analyst comparing what was specified against what was built. You re
 - `/virtual-team:validate S-003` — validate a single story
 - `/virtual-team:validate` — interactive mode, lists implemented features to validate
 - `/virtual-team:validate --deep FEAT-007` — spawn agents for thorough codebase tracing
-- `/virtual-team:validate --fix FEAT-007` — read an existing validation report and create stories for the gaps
+- `/virtual-team:validate --remediate FEAT-007` — read an existing validation report and create stories for the gaps
 
 **Flags:**
 - `--deep` — spawn codebase agents for parallel verification of each requirement. Without this flag, all verification is done directly using Glob, Grep, and Read. Default is lightweight.
 - `--strict` — treat every spec item as mandatory. Without this flag, items marked as "nice-to-have" or "future" in the spec are reported but not flagged as gaps.
-- `--fix` — skip validation. Read the existing validation report for this feature and create backlog stories for every gap (❌ Missing, ⚠️ Partial, 🔄 Deviated, 🚫 Scope creep). This is the bridge between "what's wrong" and "fix it."
+- `--remediate` — skip validation. Read the existing validation report for this feature and create backlog stories for every gap (❌ Missing, ⚠️ Partial, 🔄 Deviated, 🚫 Scope creep). This is the bridge between "what's wrong" and "fix it."
 
 ## Process
 
-### Step 0: Check for `--fix` Mode
+### Step 0: Check for `--remediate` Mode
 
-If `--fix` was passed:
+If `--remediate` was passed:
 1. **Find the existing validation report** in `docs/validations/` matching the feature ID
    - If no report exists: "No validation report found for FEAT-NNN. Run `/virtual-team:validate FEAT-NNN` first to produce one."
 2. **Read the report** and extract all gaps from the frontmatter `gaps` list
 3. **Skip to Step 6: Create Gap Stories**
 
-If `--fix` was NOT passed, proceed with normal validation (Steps 1-5).
+If `--remediate` was NOT passed, proceed with normal validation (Steps 1-5).
 
 ### Step 1: Load the Requirements
 
@@ -87,7 +87,7 @@ For each requirement, determine one of these statuses:
 
 **Always save the report** to `docs/validations/FEAT-NNN-validation.md` with frontmatter.
 
-The frontmatter makes the report machine-readable so `--fix` can parse it later:
+The frontmatter makes the report machine-readable so `--remediate` can parse it later:
 
 ```markdown
 ---
@@ -195,7 +195,7 @@ gaps:
 
 [One of:]
 - **Ready for PR** — all requirements met, tests in place
-- **Needs work** — [N] gaps to address before PR. Run `/virtual-team:validate --fix FEAT-NNN` to create stories.
+- **Needs work** — [N] gaps to address before PR. Run `/virtual-team:validate --remediate FEAT-NNN` to create stories.
 - **Needs re-planning** — significant gaps suggest the plan was incomplete. Run `/virtual-team:plan FEAT-NNN` to revise.
 - **Scope discussion needed** — deviations or scope creep found that the founder should review
 ```
@@ -213,7 +213,7 @@ Coverage: N/N requirements (X%)
 Gaps found: [N]
 
 [If gaps found:]
-**Next step:** Run `/virtual-team:validate --fix FEAT-NNN` to create stories for the [N] gaps.
+**Next step:** Run `/virtual-team:validate --remediate FEAT-NNN` to create stories for the [N] gaps.
 
 [If clean:]
 **Next step:** Run `/virtual-team:pr` to submit the work.
@@ -221,9 +221,9 @@ Gaps found: [N]
 
 ---
 
-### Step 6: Create Gap Stories (`--fix` mode)
+### Step 6: Create Gap Stories (`--remediate` mode)
 
-This step runs ONLY when `--fix` was passed.
+This step runs ONLY when `--remediate` was passed.
 
 1. **Read the validation report** from `docs/validations/FEAT-NNN-validation.md`
 
@@ -299,7 +299,7 @@ This step runs ONLY when `--fix` was passed.
    - Do NOT write code, modify files, or create patches
    - Do NOT run `/virtual-team:implement` or suggest "let me fix that"
    - Report the gaps and let the founder decide the next step
-   - The `--fix` flag creates STORIES, not code — it plans the fix, doesn't execute it
+   - The `--remediate` flag creates STORIES, not code — it plans the fix, doesn't execute it
 
 2. **Read the code, don't run it:**
    - Verify by reading the implementation, not by executing it
@@ -310,7 +310,7 @@ This step runs ONLY when `--fix` was passed.
    - "Missing" is not enough — say what's missing and where it should be
    - "Partial" needs to say what's there and what's not
    - "Deviated" needs to say what changed and whether the intent is still met
-   - Every gap MUST have a `story_hint` in the frontmatter — this drives `--fix`
+   - Every gap MUST have a `story_hint` in the frontmatter — this drives `--remediate`
 
 4. **Check the boundaries:**
    - The "NOT building" section of the spec is as important as the "building" section
@@ -327,7 +327,7 @@ This step runs ONLY when `--fix` was passed.
    - **low** — nice-to-have, minor edge case, or cosmetic issue
 
 7. **Scope creep needs human decision:**
-   - `--fix` does NOT auto-create stories for scope creep gaps
+   - `--remediate` does NOT auto-create stories for scope creep gaps
    - Present them to the founder — they decide: keep it (update spec) or remove it (create removal story)
 
 8. **ID generation:**

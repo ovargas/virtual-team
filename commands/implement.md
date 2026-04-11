@@ -27,7 +27,7 @@ This is the ONE command that writes code. Every other command in the pre-impleme
 - `--sdd` — subagent-driven development: the main session becomes an orchestrator that never writes code itself. Dispatches a fresh subagent per plan task with two-stage review (spec compliance + code quality). Use for plans with 5+ tasks. Loads the `virtual-team:subagent-driven-development` skill for the full orchestration protocol.
 - `--phase=N` — resume from a specific phase
 - `--fresh` — delete any existing checkpoint and start from scratch
-- `--triage=standard|minimal` — override triage level. `standard` allows planless execution with inline analysis from the feature spec. `minimal` works from the description alone. Without this flag, the triage level is read from the feature spec's frontmatter or defaults to Level 1 (plan required).
+- `--level=N` — override triage level. `--level=2` (standard) allows planless execution with inline analysis from the feature spec. `--level=3` (minimal) works from the description alone. Without this flag, the triage level is read from the feature spec's frontmatter or defaults to Level 1 (plan required).
 - Flags combine: `/virtual-team:implement --auto --deep --phase=2`
 
 ## Initial Response
@@ -96,7 +96,7 @@ When this command is invoked:
 2. **Determine triage level and check plan accordingly:**
 
    **Triage level detection:** Check (in order):
-   - If `--triage=standard` or `--triage=minimal` was passed → use that level
+   - If `--level=2` or `--level=3` was passed → use that level (2=standard, 3=minimal)
    - If the feature spec has `triage: standard` or `triage: minimal` in frontmatter → use that level
    - If invoked from `/flow`, the flow passes the triage level → use it
    - Otherwise → default to Level 1 (full), which requires a plan

@@ -26,10 +26,9 @@ This command accepts an inline idea description and an optional research level f
 
 When this command is invoked:
 
-1. **Parse $ARGUMENTS for idea text and research flag:**
-   - Look for `--research=skip`, `--research=light`, or `--research=deep` in the arguments
+1. **Parse $ARGUMENTS for idea text and flags:**
+   - Look for `--deep` in the arguments
    - Everything else in the arguments is the idea description
-   - If a research flag is present, store it for later use
 
 2. **If an idea was provided in the arguments:**
    - Acknowledge what was provided

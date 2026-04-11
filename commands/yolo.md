@@ -45,7 +45,7 @@ After printing the joke, execute the full `/virtual-team:flow` command with `--a
 - `/virtual-team:yolo --fix --deep BUG-003` → execute `/virtual-team:flow --auto --fix --deep BUG-003`
 - `/virtual-team:yolo --to=plan Add search` → execute `/virtual-team:flow --auto --to=plan Add search`
 - `/virtual-team:yolo --from=implement` → execute `/virtual-team:flow --auto --from=implement`
-- `/virtual-team:yolo --sdd Add complex feature` → execute `/virtual-team:flow --auto --sdd Add complex feature`
+- `/virtual-team:yolo --deep Add complex feature` → execute `/virtual-team:flow --auto --deep Add complex feature`
 - `/virtual-team:yolo` (bare) → execute `/virtual-team:flow --auto` (triggers auto-detection from FEAT-013)
 
 **Important:** `--auto` is always added. If the user somehow passed `--auto` explicitly, don't double it — just ensure it's present.

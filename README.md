@@ -133,7 +133,7 @@ These flags work with both `/flow` and the individual pipeline commands:
 |------|--------|-------------|
 | `--deep` | Spawn specialized agents for thorough analysis | `/feature`, `/plan`, `/implement`, `/debug`, `/flow` |
 | `--auto` | Skip confirmations, stop only on failures | `/feature`, `/plan`, `/implement`, `/flow` |
-| `--sdd` | Subagent-driven development — parallel implementation | `/implement`, `/flow` |
+| `--sdd` | Subagent-driven development — parallel implementation | `/implement` |
 | `--fresh` | Delete checkpoint, start from scratch | `/feature`, `/plan`, `/implement`, `/debug`, `/flow` |
 | `--phase=N` | Resume from a specific phase | `/implement` |
 

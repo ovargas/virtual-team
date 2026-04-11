@@ -73,7 +73,7 @@ Commands are the workflow. Each one has a specific job and a hard boundary: pre-
 
 ### Quality & Maintenance
 - `/check` — Knowledge check: quiz the developer on technical decisions in the current work. Auto-triggers in `/plan` and `/pr` based on `~/.claude/settings.json` `knowledgeCheck` setting.
-- `/validate` — Compare feature spec against implementation — gap report. Use `--fix` to create stories from gaps.
+- `/validate` — Compare feature spec against implementation — gap report. Use `--remediate` to create stories from gaps.
 - `/review` — Code review
 - `/tech-review` — Technical review of architecture or approach
 - `/refine` — Iterate on an existing document

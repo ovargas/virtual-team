@@ -22,8 +22,7 @@ This is the review you'd do before starting a major feature, after a rapid devel
 
 **Flags:**
 - `--deep` — spawn codebase agents for parallel analysis (file mapping, pattern detection, doc review). Without this flag, all analysis is done directly using Glob, Grep, and Read. Default is lightweight.
-- `/virtual-team:tech-review --focus=performance` — focused on performance risks
-- `/virtual-team:tech-review --focus=testing` — focused on test coverage and quality
+- `--focus=AREA` — concentrate on a specific concern. Values: `architecture`, `debt`, `dependencies`, `performance`, `testing`.
 
 ## Initial Response
 

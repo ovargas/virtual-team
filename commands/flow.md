@@ -17,7 +17,6 @@ You are a pipeline orchestrator that runs the full development cycle from idea t
 - `/virtual-team:flow Add search with full-text and aggregation` — run the full pipeline from feature to PR
 - `/virtual-team:flow --to=plan Add search capability` — run only feature → contracts → plan, then stop
 - `/virtual-team:flow --from=implement` — resume from `/virtual-team:implement` (spec and plan already exist)
-- `/virtual-team:flow --resume` — pick up where the last `/virtual-team:flow` left off (reads the flow checkpoint)
 - `/virtual-team:flow --deep Add email notifications` — enable `--deep` (agent-powered) mode for `/virtual-team:feature`, `/virtual-team:plan`, and `/virtual-team:implement`
 - `/virtual-team:flow --auto Add simple utility function` — minimal gates, only stop on hard failures (contracts incomplete, tests failing)
 - `/virtual-team:flow --fix "users can't log in after password reset"` — run the bug fix pipeline from report to PR
@@ -30,9 +29,7 @@ You are a pipeline orchestrator that runs the full development cycle from idea t
 - `--quick` — (only with `--fix`) skip the `/virtual-team:bug` documentation step, start directly at `/virtual-team:debug`. Use for trivial fixes where a formal bug report isn't needed.
 - `--to=STEP` — stop after this step completes. Feature mode values: `feature`, `contracts`, `plan`, `implement`, `review`, `pr`. Fix mode values: `bug`, `debug`, `implement`, `review`, `pr`.
 - `--from=STEP` — start from this step (assumes prior steps are done). Feature mode values: `contracts`, `plan`, `implement`, `review`, `pr`. Fix mode values: `debug`, `implement`, `review`, `pr`.
-- `--resume` — read the flow checkpoint and continue from where the previous run stopped (note: bare `/virtual-team:flow` does this automatically — `--resume` is now redundant but still supported)
 - `--deep` — pass `--deep` to `/virtual-team:feature`, `/virtual-team:plan`, `/virtual-team:implement`, and `/virtual-team:validate` for agent-powered analysis. Also passes `--sdd` to `/virtual-team:implement` for subagent-driven execution. Note: `/virtual-team:review` always uses specialized dispatch (no `--deep` needed).
-- `--sdd` — pass `--sdd` to `/virtual-team:implement` for subagent-driven development mode. Use for complex features with 5+ plan tasks. Can be used independently of `--deep`.
 - `--auto` — minimize interactive gates. Only stop on hard failures (incomplete contracts, failing tests, unresolved architectural decisions). Soft gates (TBDs that have reasonable defaults, optional improvements) are auto-resolved.
 - `--fresh` — delete any existing flow checkpoint and start from scratch
 - `--level=N` — override the triage-assessed ceremony level (1=full, 2=standard, 3=minimal). Without this flag, triage auto-detects the level. `--deep` forces Level 1. `--quick` (with `--fix`) forces Level 3.
@@ -44,7 +41,7 @@ Flags combine: `/virtual-team:flow --deep --to=plan Add search capability` runs 
 **Before doing anything else:**
 1. Read `stack.md` — understand the project
 2. Load the backlog skill (read `skills/backlog/SKILL.md` → read `stack.md` for `backlog:` field → read `skills/backlog-{value}/SKILL.md`) and call **`list(status=all)`** to understand current state
-3. Check `docs/checkpoints/flow-*.md` if `--resume` was passed
+3. Check `docs/checkpoints/flow-*.md` for existing pipeline state
 4. **Load the triage skill** (`skills/triage/SKILL.md`) — run triage assessment before executing any pipeline step (see "Triage Assessment" below)
 
 ## Auto-Detection (bare invocation)
@@ -220,7 +217,7 @@ The pipeline's token overhead varies by mode:
 | Feature flow (inline) | ~15,000 tokens | Flow prompt + behavioral skills + one domain skill |
 | Feature flow (subagent) | ~20,000 tokens per subagent | Each subagent gets a fresh 200k window |
 | Bug fix flow (`--fix`) | ~18,000 tokens | Flow prompt + fix pipeline + behavioral skills |
-| SDD mode (`--sdd`) | ~20,000 tokens × N subagents | See wave analysis for estimated count |
+| SDD mode (`--deep` → `--sdd`) | ~20,000 tokens × N subagents | See wave analysis for estimated count |
 
 These are baseline instruction costs before any code context is loaded. Keeping features focused (3-5 stories) minimizes the number of subagent dispatches.
 
@@ -261,7 +258,7 @@ auto_fixed_issues: []             # list of issues auto-fixed in this flow run
 remaining_architectural: []       # architectural issues waiting for human judgment
 ```
 
-This checkpoint enables `--resume` to pick up exactly where the flow stopped. The auto-fix tracking fields are only present when the quality gate has triggered the auto-fix cycle.
+This checkpoint enables auto-detection to pick up exactly where the flow stopped. The auto-fix tracking fields are only present when the quality gate has triggered the auto-fix cycle.
 
 ## Gate Logic
 
@@ -524,12 +521,12 @@ When executing each step, you follow the FULL logic of that command as defined i
 
 ### Executing /implement
 
-**Dispatch decision:** If `--deep` or `--sdd` is active, or the context budget heuristic triggers, dispatch as a fresh-context subagent (see "Fresh-Context Dispatch" section). Otherwise, run inline.
+**Dispatch decision:** If `--deep` is active, or the context budget heuristic triggers, dispatch as a fresh-context subagent (see "Fresh-Context Dispatch" section). Otherwise, run inline.
 
 **Inline mode (default):**
 - **Level 1:** Follow `implement.md`: execute the plan phase by phase
-- **Level 2:** Follow `implement.md` in planless mode: pass `--triage=standard` so it does inline analysis from the feature spec's Implementation Hints instead of requiring a plan document
-- **Level 3:** Follow `implement.md` in planless mode: pass `--triage=minimal` so it works from the feature/bug description alone
+- **Level 2:** Follow `implement.md` in planless mode: pass `--level=2` so it does inline analysis from the feature spec's Implementation Hints instead of requiring a plan document
+- **Level 3:** Follow `implement.md` in planless mode: pass `--level=3` so it works from the feature/bug description alone
 - Pass `--deep` if `/virtual-team:flow --deep` was used
 - Pass `--auto` if `/virtual-team:flow --auto` was used (skip manual pause points between phases, but still run verification)
 - Run full verification at the end (tests, lint, typecheck)
@@ -538,7 +535,7 @@ When executing each step, you follow the FULL logic of that command as defined i
 - Dispatch a fresh subagent following the protocol in "Fresh-Context Dispatch > Dispatching `/virtual-team:implement`"
 - The subagent reads the plan and executes `/virtual-team:implement` logic with a clean 200k context window
 - Pass through `--auto` if the flow has `--auto`
-- Pass through `--sdd` if the flow has `--sdd` or `--deep`
+- Pass through `--sdd` if the flow has `--deep` (which implies SDD)
 - The subagent writes its own checkpoints; the flow checkpoint tracks the step-level completion
 - Run in foreground — the flow waits for the subagent to complete before evaluating the post-implement gate
 
@@ -548,7 +545,7 @@ When executing each step, you follow the FULL logic of that command as defined i
 
 **Level 1 (full dispatch):**
 
-**Dispatch decision:** If `--deep` or `--sdd` is active, or the context budget heuristic triggers, dispatch both as fresh-context subagents in parallel (see "Fresh-Context Dispatch > Dispatching `/virtual-team:review` + `/virtual-team:validate`"). Otherwise, run inline.
+**Dispatch decision:** If `--deep` is active, or the context budget heuristic triggers, dispatch both as fresh-context subagents in parallel (see "Fresh-Context Dispatch > Dispatching `/virtual-team:review` + `/virtual-team:validate`"). Otherwise, run inline.
 
 **Inline mode (default):**
 - Execute both in parallel:
@@ -588,7 +585,7 @@ The gate after each story's implementation still applies — tests must pass bef
 When running complex features, the flow dispatches execution-phase steps as fresh-context subagents instead of running them inline. This prevents context degradation — the later steps that need the most precision get the cleanest context.
 
 **Dispatch decision:** Dispatch as a fresh-context subagent if ANY of:
-1. `--deep` or `--sdd` flag is active (explicit override)
+1. `--deep` flag is active (explicit override — `--deep` implies SDD)
 2. Context budget heuristic triggers (see "Context Budget Heuristic" below)
 
 Otherwise, run inline as described in "Step Execution" above.
@@ -751,15 +748,15 @@ Before dispatching a step inline or as a subagent, estimate context pressure usi
 
 **Threshold rule:**
 - If the plan has **4+ tasks** → dispatch as subagent (the quality cliff starts around task 5, so dispatch preemptively at 4)
-- If `--deep` or `--sdd` is active → dispatch as subagent (explicit override, always — regardless of task count)
+- If `--deep` is active → dispatch as subagent (explicit override, always — regardless of task count)
 - Otherwise → run inline
 
 This heuristic is deliberately simple. Do not over-engineer it with token counting or file size analysis. Task count is the strongest signal of context pressure and the easiest to measure. The threshold can be adjusted based on experience.
 
 **How the flow applies this:**
-1. After `/virtual-team:plan` completes (or on `--resume`/`--from`), count the tasks in the plan
+1. After `/virtual-team:plan` completes (or on `--from` or bare invocation resume), count the tasks in the plan
 2. If the count meets the threshold, set an internal flag: `dispatch_mode = subagent`
-3. Both "Executing /implement" and "Executing /virtual-team:review + /validate" check this flag (along with `--deep`/`--sdd`) to decide inline vs. subagent
+3. Both "Executing /implement" and "Executing /virtual-team:review + /validate" check this flag (along with `--deep`) to decide inline vs. subagent
 
 ### Execution Modes
 
@@ -784,11 +781,11 @@ When a step is executed as a subagent, the flow checkpoint records the execution
 - [ ] /pr
 ```
 
-The `[inline]`, `[subagent — fresh context]`, or `[subagent — parallel fresh context]` annotation is informational — it helps the user understand what happened. It does not change `--resume` behavior. The checkpoint protocol already handles step completion regardless of execution mode.
+The `[inline]`, `[subagent — fresh context]`, or `[subagent — parallel fresh context]` annotation is informational — it helps the user understand what happened. It does not change resume behavior. The checkpoint protocol already handles step completion regardless of execution mode.
 
-When review+validate runs as subagents, the checkpoint records each subagent's result on indented sub-lines. This gives visibility into what each subagent found, which is useful for `--resume` (to know whether the gate passed) and for the completion report.
+When review+validate runs as subagents, the checkpoint records each subagent's result on indented sub-lines. This gives visibility into what each subagent found, which is useful for auto-detection resume (to know whether the gate passed) and for the completion report.
 
-The subagent writes its own `/virtual-team:implement` checkpoint (in `docs/checkpoints/implement-*.md`) as normal. The flow checkpoint is authoritative for flow-level progress. If the subagent crashes between writing its checkpoint and reporting back, `--resume` re-dispatches the step (the subagent's checkpoint lets it resume from the last completed phase). For review+validate, if one subagent completes but the other crashes, `--resume` re-dispatches both (the gate evaluation requires both results).
+The subagent writes its own `/virtual-team:implement` checkpoint (in `docs/checkpoints/implement-*.md`) as normal. The flow checkpoint is authoritative for flow-level progress. If the subagent crashes between writing its checkpoint and reporting back, auto-detection re-dispatches the step (the subagent's checkpoint lets it resume from the last completed phase). For review+validate, if one subagent completes but the other crashes, auto-detection re-dispatches both (the gate evaluation requires both results).
 
 ## Bug Fix Pipeline (`--fix` mode)
 
@@ -802,7 +799,7 @@ The subagent writes its own `/virtual-team:implement` checkpoint (in `docs/check
 If any step fails unexpectedly (not a gate issue, but an actual error):
 1. Write the current state to the flow checkpoint
 2. Report what happened clearly
-3. Suggest: "Run `/virtual-team:flow --resume` after fixing the issue to continue from this point"
+3. Suggest: "Run `/virtual-team:flow` after fixing the issue to continue from this point" (auto-detection will resume from the checkpoint)
 
 The flow checkpoint ensures no work is lost and the pipeline can always be picked up.
 

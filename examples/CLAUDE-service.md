@@ -68,7 +68,7 @@ Everything else is available when you need it. See the full command reference be
 Commands are the workflow. Pre-implementation commands produce documents, never code. Only `/implement` writes code.
 
 ### Pipeline Orchestrator
-- `/virtual-team:flow <description>` — Run the full pipeline (feature → contracts → plan → next → implement → review + validate → pr) with interactive gates. Use `--fix` for the bug fix pipeline (bug → debug → next → implement fix → review + validate → pr). Use `--to=plan` to stop early, `--from=next` to resume mid-pipeline, `--resume` to continue an interrupted flow.
+- `/virtual-team:flow <description>` — Run the full pipeline (feature → contracts → plan → next → implement → review + validate → pr) with interactive gates. Use `--fix` for the bug fix pipeline (bug → debug → next → implement fix → review + validate → pr). Use `--to=plan` to stop early, `--from=next` to resume mid-pipeline. Bare `/flow` auto-detects and resumes interrupted flows.
 
 ### Feature Intake
 - `/idea` — Capture a new product concept (for standalone repos without a hub)
@@ -91,7 +91,7 @@ Commands are the workflow. Pre-implementation commands produce documents, never 
 
 ### Quality & Maintenance
 - `/check` — Knowledge check: quiz the developer on technical decisions in the current work. Auto-triggers in `/plan` and `/pr` based on `~/.claude/settings.json` `knowledgeCheck` setting.
-- `/validate` — Compare feature spec against implementation — gap report with frontmatter. Use `--fix` to create backlog stories from gaps.
+- `/validate` — Compare feature spec against implementation — gap report with frontmatter. Use `--remediate` to create backlog stories from gaps.
 - `/review` — Code review
 - `/tech-review` — Technical review of architecture or approach
 - `/refine` — Iterate on an existing document
