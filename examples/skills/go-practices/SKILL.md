@@ -1,13 +1,13 @@
 ---
 name: go-practices
-description: Go-specific patterns for dependency injection, interface design, testing with mockery, and idiomatic project structure. Layers on top of generic skills (service-layer, api-design, data-layer) with concrete Go patterns.
+description: Go-specific patterns for dependency injection, interface design, testing with mockery, and idiomatic project structure.
 stack: go
 loaded_when: Working on .go files — services, repositories, handlers, or tests
 ---
 
 # Go Practices
 
-These are Go-specific conventions that implement the architectural principles from the generic skills (`service-layer`, `api-design`, `data-layer`). When this skill conflicts with a generic skill, this skill wins — it's the concrete implementation for this stack.
+These are Go-specific conventions that implement the architectural principles from the `design-principles` skill with concrete Go patterns. When this skill conflicts with a plugin skill, this skill wins — it reflects the project's actual conventions.
 
 <!-- CUSTOMIZE: Add your specific Go version, module path, project layout, and any additional conventions below -->
 

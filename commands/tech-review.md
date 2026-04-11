@@ -188,12 +188,10 @@ Prioritized list of actions, from most to least impactful:
 
 ## Comparison to Standards
 
-[If domain skills exist (virtual-team:ui-design, virtual-team:api-design, virtual-team:data-layer, virtual-team:service-layer), check the code against those standards and note deviations. This helps maintain consistency as the codebase grows.]
+[If the project provides domain or stack skills (scan `skills/*/SKILL.md`), check the code against those standards and note deviations. This helps maintain consistency as the codebase grows. If no project skills exist, note this as a recommendation — the team may benefit from defining their conventions.]
 
-- `virtual-team:ui-design` compliance: [summary of alignment / deviations]
-- `virtual-team:api-design` compliance: [summary]
-- `virtual-team:data-layer` compliance: [summary]
-- `virtual-team:service-layer` compliance: [summary]
+- [skill-name] compliance: [summary of alignment / deviations]
+- [... repeat for each project-provided skill that applies to the reviewed scope]
 
 ## References
 
@@ -242,9 +240,9 @@ The full report has details and file references for every finding.
    - A solo founder has limited time — don't generate a 50-item to-do list
 
 5. **Compare to the project's own standards:**
-   - Use the domain skills (virtual-team:ui-design, virtual-team:api-design, etc.) as the benchmark
+   - Use the project's own skills (scan `skills/*/SKILL.md`) as the benchmark
    - Don't impose external standards the project hasn't adopted
-   - If there are no standards yet, that's a finding in itself — recommend creating them
+   - If there are no project skills yet, that's a finding in itself — recommend creating them
 
 6. **Track progress with TodoWrite:**
    - Create todos for each review dimension

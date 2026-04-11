@@ -49,14 +49,11 @@ Spawn **virtual-team:security-reviewer** agent (`agents/security-reviewer.md`):
 - Model: sonnet
 
 **Pass 3 — Domain (inline):**
-Determine the relevant domain from the changed file paths and load the matching domain skill:
-- routes/handlers/endpoints → `virtual-team:api-design` skill
-- models/migrations/schemas → `virtual-team:data-layer` skill
-- components/pages/styles → `virtual-team:ui-design` skill
-- services/business logic → `virtual-team:service-layer` skill
-- If multiple domains: load the primary (most files changed), note secondary domains
+Determine the relevant domain from the changed file paths and check if the project provides matching domain or stack skills. Scan `skills/*/SKILL.md` for skills whose `domain` or `stack` frontmatter fields match the work being reviewed (e.g., routes → `domain: api`, models → `domain: data`, components → `domain: ui`, services → `domain: service`).
 
-Read the domain skill from `skills/{domain}/SKILL.md`. Review the changed files against the domain skill's rules and principles. Produce findings in Must Fix / Should Fix / Nit format.
+- If matching project skills exist: read them and review the changed files against the project's documented conventions. Produce findings in Must Fix / Should Fix / Nit format.
+- If no project skills exist: review against standard conventions for the domain (REST semantics, migration safety, accessibility basics, etc.). Note in the review that no project-specific domain skills were found — the team may want to define them.
+- If multiple domains: load the primary (most files changed), note secondary domains.
 
 **Dispatch order:** Spawn Pass 1 and Pass 2 agents in parallel (use the Agent tool with two calls in a single message). Run Pass 3 inline while waiting for agents to return. Wait for all 3 passes to complete before proceeding.
 

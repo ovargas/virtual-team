@@ -281,8 +281,8 @@ gh pr create --base develop --title "<title>" --body "..."
    - Review the branch diff (`git diff <base>...HEAD`) and the implementation context
    - Extract patterns and/or errors following the format in the knowledge files
    - Derive domain tags from:
-     - The domain skills loaded during implementation (virtual-team:api-design, virtual-team:data-layer, virtual-team:ui-design, virtual-team:service-layer)
-     - File paths in the diff (e.g., `routes/` → virtual-team:api-design, `models/` → virtual-team:data-layer)
+     - Project-provided domain skills (scan `skills/*/SKILL.md` for `domain` or `stack` fields matching the changed files)
+     - File paths in the diff (e.g., `routes/` → `api`, `models/` → `data`, `components/` → `ui`, `services/` → `service`)
      - The user can override or add tags
    - Present the extracted entries for confirmation:
      ```

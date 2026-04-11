@@ -112,15 +112,12 @@ Commands are the workflow. Pre-implementation commands produce documents, never 
 
 Skills are domain-specific coding standards. `/implement` loads the relevant skill before writing code for each phase. Skills work in two layers: generic domain principles, then stack-specific patterns on top.
 
-### Generic Skills (included with template)
+### Plugin Skills (included with the plugin)
 
 | Skill | Domain | Loaded When |
 |---|---|---|
 | **git-practices** | Branch naming, commits, PRs, worktrees | `/commit`, `/pr`, `/worktree` |
-| **api-design** | API principles: validation, status codes, response format, middleware | Working on routes, controllers, API code |
-| **ui-design** | UI principles: accessibility, state management, error UX, performance | Working on `.tsx`, `.jsx`, `.css`, frontend dirs |
-| **data-layer** | Data principles: schema design, migration safety, query performance | Working on models, migrations, DB code |
-| **service-layer** | Service principles: boundaries, transactions, side effects, business rules | Working on services, use cases, domain logic |
+| **design-principles** | Dependency inversion, testable design, abstraction boundaries | Writing production code (Layer 0) |
 | **checkpoints** | Progress checkpointing for long-running commands | `/implement`, `/debug`, `/feature`, `/plan`, `/epic` |
 | **knowledge-check** | Developer understanding validation — questions, evaluation, tutoring, logging | `/plan` (after approval), `/pr` (before submission), `/check` (standalone) |
 | **backlog** | Abstract backlog operations interface — defines the 20 operations all commands use | Any command that reads or writes the backlog (loaded first, delegates to implementation) |
@@ -148,7 +145,7 @@ loaded_when: Working on .py files in the backend   # informational — helps mai
 ---
 ```
 
-The `stack` field is what connects skills to `stack.md`. When `/implement` reads that the project uses Django, it finds skills with `stack: django` and loads them alongside the generic `api-design` or `service-layer` skill.
+The `stack` field is what connects skills to `stack.md`. When `/implement` reads that the project uses Django, it finds skills with `stack: django` and loads them for the current phase.
 
 <!-- Add stack-specific skills below as the project defines its stack.
 

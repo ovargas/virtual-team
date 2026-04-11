@@ -97,7 +97,7 @@ Skills are domain-specific standards loaded by implementation commands. In the h
 - **git-practices** — Branch naming (`<type>/<ticket-id>`), commit format, PR format, worktree conventions. Loaded by `/commit`, `/pr`, `/worktree`.
 - **knowledge-check** — Protocol for validating developer understanding of AI-generated decisions. Loaded by `/plan` (after approval), `/pr` (before submission), and standalone `/check`. Trigger controlled by `~/.claude/settings.json` `knowledgeCheck` setting (`"on"`, `"strict"`, or `"off"`).
 
-The coding skills (`api-design`, `ui-design`, `data-layer`, `service-layer`) exist for service repos. They're loaded by `/implement` in those repos.
+Domain and stack skills are project-provided — each service repo defines its own conventions. They're loaded by `/implement` based on `domain` and `stack` frontmatter fields.
 
 ## Behavioral Expectations
 

@@ -18,7 +18,7 @@ Behavioral skills must be active when relevant, even in ad-hoc sessions without 
 | Receiving review feedback | `virtual-team:receiving-code-review` | When processing review comments |
 | Executing multi-task plan with `--sdd` | `virtual-team:subagent-driven-development` | When `/virtual-team:implement --sdd` is active |
 
-Domain skills (`virtual-team:api-design`, `virtual-team:data-layer`, `virtual-team:ui-design`, `virtual-team:service-layer`) are NOT auto-triggered. They remain command-driven via `/virtual-team:implement` Layer 1.
+Project-provided domain and stack skills are NOT auto-triggered. They are discovered and loaded by `/virtual-team:implement` Layer 1 based on `domain` and `stack` frontmatter fields matching the current work.
 
 ## Integration
 

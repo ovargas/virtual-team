@@ -93,7 +93,7 @@ This replaces the formal `/virtual-team:implement` step. The orchestrator implem
 
 1. **Read the debug findings:** root cause, all occurrences (🔴 confirmed + 🟡 likely), suggested fix approach
 2. **Load behavioral skills:** `virtual-team:test-driven-development`, `virtual-team:verification-before-completion`
-3. **Load domain skill** if applicable (`virtual-team:api-design`, `virtual-team:data-layer`, etc. based on the files being modified). If `--deep` was passed, also load the relevant stack-specific skill.
+3. **Load project skills** if applicable (scan `skills/*/SKILL.md` for domain or stack skills matching the files being modified).
 4. **Generate inline fix plan:** List which occurrences to fix, in what order, what regression tests to write. Present the plan briefly before executing.
 5. **TDD cycle for each occurrence:**
    a. Write a regression test that reproduces the bug for this occurrence
@@ -197,7 +197,7 @@ When `--fix` is active, the step execution differs from the feature pipeline:
 - This is orchestrator-managed, not a full `/virtual-team:implement` run
 - Read debug findings, generate inline fix plan, execute with TDD discipline
 - Load `virtual-team:test-driven-development` and `virtual-team:verification-before-completion` skills
-- If `--deep` was passed, also load the relevant domain skill (`virtual-team:api-design`, `virtual-team:data-layer`, etc.)
+- If `--deep` was passed, also load matching project skills (scan `skills/*/SKILL.md` for domain or stack fields matching the files being modified)
 - Run full verification after all occurrences are fixed
 
 #### Executing /virtual-team:review + /virtual-team:validate  (fix mode)

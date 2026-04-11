@@ -494,22 +494,22 @@ Before writing code, load the relevant skills in three layers:
 - **`virtual-team:verification-before-completion`** — No completion claims without fresh verification evidence. Every "done" must cite proof from this message.
 - **`virtual-team:receiving-code-review`** — No performative agreement with review feedback. Verify before implementing, push back when wrong.
 
-**Layer 1 — Domain principles.** Load the generic skill that matches the work domain. These cover universal rules (validation, accessibility, migration safety, transaction boundaries) that apply regardless of stack:
+**Layer 1 — Project skills.** The project may provide its own domain and stack-specific skills. These encode the team's conventions — REST response formats, ORM patterns, component structure, service organization, framework idioms. The plugin does not ship these; each project defines what matters for their stack.
 
-- Working on **API endpoints/routes/handlers?** → Read the `virtual-team:api-design` skill
-- Working on **frontend components/pages/styling?** → Read the `virtual-team:ui-design` skill
-- Working on **database/migrations/queries?** → Read the `virtual-team:data-layer` skill
-- Working on **business logic/services?** → Read the `virtual-team:service-layer` skill
+To discover project skills, read `stack.md` to identify the technologies in use, then scan `skills/*/SKILL.md` for skills whose `domain` or `stack` frontmatter fields match the current work:
 
-**Layer 2 — Stack-specific patterns.** Check `skills/` for additional skills that match the specific technology. Read `stack.md` to identify the frameworks in use. Then scan `skills/*/SKILL.md` for project skills — read each skill's `stack` frontmatter field (a comma-separated list of technologies, e.g., `stack: python, django`). A skill matches if **any** of its `stack` entries appears as a technology in `stack.md` (case-insensitive). For example, if `stack.md` lists Django as the framework, a skill with `stack: python, django` matches because "django" appears in both. These cover concrete conventions — which annotations, which libraries, which patterns to follow. Load them on top of the generic skill.
+- `domain` field — matches the type of work: `api`, `ui`, `data`, `service`. Load if the files you're about to change fall in that domain.
+- `stack` field — a comma-separated list of technologies (e.g., `stack: python, django`). A skill matches if **any** of its entries appears as a technology in `stack.md` (case-insensitive).
 
-If the project has no stack-specific skills, the generic skills are sufficient. If a stack-specific skill exists, load **both** — the generic skill for principles, the stack-specific skill for concrete patterns.
+A project might provide one skill per domain, one per framework, or both — load whatever matches the current phase. If two skills cover the same area (e.g., a generic `api` domain skill and a `gin` stack skill), load both — the stack-specific skill takes precedence on conflicts.
 
-If a stack-specific skill conflicts with a generic skill, follow the stack-specific one (it reflects the project's actual conventions). If either conflicts with the implementation plan, the plan takes precedence — but flag the conflict.
+If a project skill conflicts with the implementation plan, the plan takes precedence — but flag the conflict.
 
-Layer 0 is always loaded. For Layers 1 and 2, only load the skill(s) relevant to the current phase — don't load all of them at once.
+If no project skills exist, that's fine — Layer 0 behavioral discipline still applies, and the LLM's built-in knowledge of standard conventions (REST semantics, migration safety, accessibility basics) fills the gap.
 
-> **Why this matters:** Each domain skill is ~150 lines (~2,000 tokens). Each stack skill can be 200+ lines (~2,600+ tokens). Loading all four domain skills upfront adds ~8,000 tokens of instructions irrelevant to the current phase. Load the one you need when you need it — your context budget is better spent on code.
+Layer 0 is always loaded. For Layer 1, only load the skill(s) relevant to the current phase — don't load all of them at once.
+
+> **Why this matters:** Each project skill can be 150–250 lines (~2,000–3,000 tokens). Loading all of them upfront wastes context on instructions irrelevant to the current phase. Load the one you need when you need it — your context budget is better spent on code.
 
 ---
 

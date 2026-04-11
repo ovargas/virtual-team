@@ -158,10 +158,8 @@ If no topic was provided (`/virtual-team:decisions` with no arguments), list the
 
 **Coding conventions** (skills):
 - `virtual-team:git-practices` — branching, commits, PRs, worktrees, backlog
-- `virtual-team:api-design` — endpoints, validation, status codes, auth
-- `virtual-team:service-layer` — business logic, interfaces, DI, transactions
-- `virtual-team:go-practices` — Go DI pattern, mockery, module/layer, clock, logger, tracing
-- [... list all skills with one-line descriptions]
+- `virtual-team:design-principles` — dependency inversion, testable design, abstraction boundaries
+- [... list all project-provided domain and stack skills with one-line descriptions]
 
 **Project directives** (CLAUDE.md):
 [brief summary of directives, or "No project-specific directives set"]
@@ -214,10 +212,10 @@ Examples:
      Context: Evaluated PostgreSQL vs MySQL vs MongoDB. JSONB won for flexible metadata without schema migrations.
    ```
 
-5. **Cross-reference when relevant.** If a Go-specific pattern implements a generic principle, mention both:
+5. **Cross-reference when relevant.** If a stack-specific pattern implements a universal principle, mention both:
    ```
-   - **All dependencies must be interfaces** — universal principle
-     → `skills/service-layer/SKILL.md` (line ~43)
+   - **All dependencies must be abstractions** — universal principle
+     → `skills/design-principles/SKILL.md`
      Go implementation: unexported struct + exported constructor returning consumer interface
      → `skills/go-practices/SKILL.md` (line ~41)
    ```

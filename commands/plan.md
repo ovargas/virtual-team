@@ -160,9 +160,9 @@ Before writing a single line of the plan, understand the terrain. This phase is 
 4. **Load implementation knowledge.** If `docs/knowledge/patterns.md` and `docs/knowledge/errors.md` exist, load relevant entries to inform the plan. If the knowledge directory doesn't exist, skip this step silently.
 
    **Determine relevant domains:** Based on the feature being planned, identify which domain tags are relevant:
-   - Check which domain skills the implementation will likely need (virtual-team:api-design, virtual-team:data-layer, virtual-team:ui-design, virtual-team:service-layer)
+   - Scan `skills/*/SKILL.md` for project-provided domain skills whose `domain` or `stack` fields match the work (e.g., `api`, `data`, `ui`, `service`)
    - Derive from the spec's "Layers:" annotations in stories
-   - Derive from the file types that will be touched (routes → virtual-team:api-design, migrations → virtual-team:data-layer, etc.)
+   - Derive from the file types that will be touched (routes → `api`, migrations → `data`, components → `ui`, services → `service`)
 
    **Read and filter knowledge files:**
    - Read `docs/knowledge/patterns.md` — extract entries under matching `## domain-tag` headings
