@@ -13,17 +13,17 @@ This is the founder's "second pair of eyes" since they're working solo.
 ## Invocation
 
 **Usage patterns:**
-- `/review` — review all staged and unstaged changes (git diff)
-- `/review --staged` — review only staged changes
-- `/review path/to/file.ext` — review a specific file
-- `/review FEAT-003` — review all changes related to a feature (matches against the plan's file list)
+- `/virtual-team:review` — review all staged and unstaged changes (git diff)
+- `/virtual-team:review --staged` — review only staged changes
+- `/virtual-team:review path/to/file.ext` — review a specific file
+- `/virtual-team:review FEAT-003` — review all changes related to a feature (matches against the plan's file list)
 
 ## Process
 
 ### Step 1: Gather Changes
 
 1. **Determine what to review:**
-   - If bare `/review` or `--staged`: run `git diff` and/or `git diff --staged` to see all changes
+   - If bare `/virtual-team:review` or `--staged`: run `git diff` and/or `git diff --staged` to see all changes
    - If a file path: read the file and its git diff
    - If a feature ID: read the plan's "Files Changed Summary" table, then diff each listed file
 
@@ -39,21 +39,21 @@ This is the founder's "second pair of eyes" since they're working solo.
 Dispatch 3 parallel review passes, each focused on one dimension. This ensures thorough coverage without a single reviewer context-switching between concerns.
 
 **Pass 1 — Code quality (agent):**
-Spawn **pattern-finder** agent (`agents/pattern-finder.md`):
+Spawn **virtual-team:pattern-finder** agent (`agents/pattern-finder.md`):
 - "Find the existing codebase patterns for [the type of changes made — endpoints, components, services, etc.]. I need to verify the new code follows established conventions. Check: naming, file structure, test patterns, and DRY."
 - Model: sonnet
 
 **Pass 2 — Security (agent):**
-Spawn **security-reviewer** agent (`agents/security-reviewer.md`):
+Spawn **virtual-team:security-reviewer** agent (`agents/security-reviewer.md`):
 - "Review these files for security issues: [list of changed files]. Focus on [relevant area — auth, input validation, data exposure, SQL injection, secrets, etc.]."
 - Model: sonnet
 
 **Pass 3 — Domain (inline):**
 Determine the relevant domain from the changed file paths and load the matching domain skill:
-- routes/handlers/endpoints → `api-design` skill
-- models/migrations/schemas → `data-layer` skill
-- components/pages/styles → `ui-design` skill
-- services/business logic → `service-layer` skill
+- routes/handlers/endpoints → `virtual-team:api-design` skill
+- models/migrations/schemas → `virtual-team:data-layer` skill
+- components/pages/styles → `virtual-team:ui-design` skill
+- services/business logic → `virtual-team:service-layer` skill
 - If multiple domains: load the primary (most files changed), note secondary domains
 
 Read the domain skill from `skills/{domain}/SKILL.md`. Review the changed files against the domain skill's rules and principles. Produce findings in Must Fix / Should Fix / Nit format.
@@ -65,8 +65,8 @@ Read the domain skill from `skills/{domain}/SKILL.md`. Review the changed files 
 Combine results from all 3 passes into a unified findings list:
 
 1. **Map agent output formats** to the review categories:
-   - `security-reviewer`: Critical → **Must Fix**, Warning → **Should Fix**, Note → **Nit**
-   - `pattern-finder`: Pattern violations → **Should Fix**, adaptation notes → **Nit**
+   - `virtual-team:security-reviewer`: Critical → **Must Fix**, Warning → **Should Fix**, Note → **Nit**
+   - `virtual-team:pattern-finder`: Pattern violations → **Should Fix**, adaptation notes → **Nit**
    - Domain pass: findings already in Must Fix / Should Fix / Nit format (no mapping needed)
 
 2. **Deduplicate:** If two passes flag the same `file:line`, keep the higher-severity finding and merge the descriptions from both passes into one entry. Example: if security flags a Critical at `auth.py:42` and domain flags a Should Fix at the same location, keep it as Must Fix with both explanations.
@@ -138,9 +138,9 @@ Using the security-reviewer's results (already merged in Step 3):
 
 Depending on verdict:
 
-- **APPROVE:** "Looks good. Run `/commit` when ready."
-- **APPROVE WITH NOTES:** "Solid work. The notes above are suggestions, not blockers. Run `/commit` when ready, or address them first."
-- **REQUEST CHANGES:** "There are [N] issues that should be fixed before committing. Fix them and run `/review` again, or `/review --staged` after staging the fixes."
+- **APPROVE:** "Looks good. Run `/virtual-team:commit` when ready."
+- **APPROVE WITH NOTES:** "Solid work. The notes above are suggestions, not blockers. Run `/virtual-team:commit` when ready, or address them first."
+- **REQUEST CHANGES:** "There are [N] issues that should be fixed before committing. Fix them and run `/virtual-team:review` again, or `/virtual-team:review --staged` after staging the fixes."
 
 ---
 
@@ -150,7 +150,7 @@ Depending on verdict:
    - This command REVIEWS code, it does not WRITE code
    - Do NOT fix the issues you find — only report them
    - Do NOT offer to "quickly fix that for you"
-   - The founder (or `/implement`) fixes; you review
+   - The founder (or `/virtual-team:implement`) fixes; you review
    - Exception: If the founder explicitly asks "can you fix the issues you found?" — that's a separate action, not part of this command
 
 2. **Prioritize what matters:**

@@ -39,9 +39,9 @@ function getCommandNames(): Set<string> {
 function extractCommandRefs(content: string): string[] {
   const refs: string[] = [];
 
-  // Match /word patterns that look like command invocations
+  // Match /command or /namespace:command patterns
   // Must be preceded by whitespace, backtick, quote, or start of line
-  const pattern = /(?:^|[\s`"'(])\/([a-z][\w-]*)/gm;
+  const pattern = /(?:^|[\s`"'(])\/(?:[a-z][\w-]*:)?([a-z][\w-]*)/gm;
   let match;
 
   const skipPrefixes = new Set([

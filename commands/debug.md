@@ -15,11 +15,11 @@ You are methodical — you don't guess and patch. You understand first, then exp
 ## Invocation
 
 **Usage patterns:**
-- `/debug BUG-003` — investigate a documented bug report
-- `/debug docs/bugs/2026-02-12-blank-login.md` — investigate from a specific report
-- `/debug The API returns 500 when creating a task with special characters` — investigate a symptom directly
-- `/debug --deep BUG-003` — spawn codebase agents for parallel investigation
-- `/debug` — interactive mode, will list recent bug reports or ask what's wrong
+- `/virtual-team:debug BUG-003` — investigate a documented bug report
+- `/virtual-team:debug docs/bugs/2026-02-12-blank-login.md` — investigate from a specific report
+- `/virtual-team:debug The API returns 500 when creating a task with special characters` — investigate a symptom directly
+- `/virtual-team:debug --deep BUG-003` — spawn codebase agents for parallel investigation
+- `/virtual-team:debug` — interactive mode, will list recent bug reports or ask what's wrong
 
 **Flags:**
 - `--deep` — spawn codebase agents for parallel file location and flow tracing. Without this flag, all investigation is done directly using Glob, Grep, and Read. Default is lightweight.
@@ -29,7 +29,7 @@ You are methodical — you don't guess and patch. You understand first, then exp
 
 When this command is invoked:
 
-0. **Checkpoint check (load the `checkpoints` skill):**
+0. **Checkpoint check (load the `virtual-team:checkpoints` skill):**
    - If `--fresh` was passed, delete `docs/checkpoints/debug-*.md` matching this item and proceed fresh
    - Check `docs/checkpoints/debug-<ID>.md` — if it exists, read it, show the resume summary, and skip to the first incomplete phase
    - If no checkpoint, proceed normally
@@ -40,7 +40,7 @@ When this command is invoked:
    - If a BUG-NNN ID: find the report in `docs/bugs/`, read it fully
    - If a file path: read it fully
    - If a symptom description: treat it as an ad-hoc investigation
-   - If bare `/debug`: list the 5 most recent bug reports and ask which to investigate
+   - If bare `/virtual-team:debug`: list the 5 most recent bug reports and ask which to investigate
 
 2. **Read supporting context:**
    - `stack.md` — understand the tech stack and project structure
@@ -103,7 +103,7 @@ Once reproduced (or with enough information to investigate), trace through the c
 
    **Default (no `--deep`):** Use Glob, Grep, and Read directly to find all files involved in the broken flow and trace from entry point to expected output.
 
-   **If `--deep` was passed:** Spawn **codebase-analyzer** agent: "Find all files involved in [the feature/flow that's broken] AND trace the complete flow from [entry point] to [expected output]. Document every step with file:line references."
+   **If `--deep` was passed:** Spawn **virtual-team:codebase-analyzer** agent: "Find all files involved in [the feature/flow that's broken] AND trace the complete flow from [entry point] to [expected output]. Document every step with file:line references."
 
 2. **Trace the fault path:**
    - Start at the entry point (the API endpoint, the UI event handler, the scheduled job)
@@ -251,9 +251,9 @@ including all occurrences found.
 [If backlog was updated: "Backlog updated: [>] Doing → [=] Investigated"]
 
 **Next steps:**
-- Create a fix story: run `/feature --ticket=BUG-NNN` to spec the fix
+- Create a fix story: run `/virtual-team:feature --ticket=BUG-NNN` to spec the fix
   (must cover ALL [N] confirmed occurrences)
-- Or jump straight to planning: run `/plan BUG-NNN` if the fix is straightforward
+- Or jump straight to planning: run `/virtual-team:plan BUG-NNN` if the fix is straightforward
 ```
 
 ---

@@ -13,11 +13,11 @@ This command uses `opus` because it involves deep decisions about architecture a
 ## Invocation
 
 **Usage patterns:**
-- `/init` — full interactive initialization for a new project
-- `/init --hub` — explicitly initialize as a hub repo
-- `/init --service` — explicitly initialize as a service repo
-- `/init --from=../other-repo` — bootstrap from another repo's stack.md as a starting point
-- `/init --minimal` — create structure only, skip the interview (fill in stack.md manually later)
+- `/virtual-team:init` — full interactive initialization for a new project
+- `/virtual-team:init --hub` — explicitly initialize as a hub repo
+- `/virtual-team:init --service` — explicitly initialize as a service repo
+- `/virtual-team:init --from=../other-repo` — bootstrap from another repo's stack.md as a starting point
+- `/virtual-team:init --minimal` — create structure only, skip the interview (fill in stack.md manually later)
 
 ## Process
 
@@ -117,7 +117,7 @@ Create the initial `docs/backlog.md`:
 
 The interview differs by repo type. Hub repos focus on product identity and team structure. Service repos focus on the technical stack.
 
-**Important:** You are NOT asking them to decide everything upfront. Ask about what they KNOW. If they haven't decided something, mark it as `TBD` — the software-architect agent will catch it later when a feature actually needs it.
+**Important:** You are NOT asking them to decide everything upfront. Ask about what they KNOW. If they haven't decided something, mark it as `TBD` — the virtual-team:software-architect agent will catch it later when a feature actually needs it.
 
 Use `AskUserQuestion` for structured choices where possible. Use follow-up questions for specifics.
 
@@ -136,7 +136,7 @@ What product are we building?
 Gather:
 - **Product name** — what is the product called?
 - **One-line description** — what does it do?
-- **Target users** — who is this for? (Brief — the PO agent will dig deeper during `/idea` or `/epic`)
+- **Target users** — who is this for? (Brief — the PO agent will dig deeper during `/virtual-team:idea` or `/virtual-team:epic`)
 - **Product stage** — concept, MVP, growing, mature?
 
 #### Round 2: Teams Registry
@@ -155,7 +155,7 @@ Walk through each known service repo. For each one, gather:
 If not all repos exist yet:
 ```
 That's fine — add repos here as you create them. The teams registry is a
-living document. Run `/init --update` later to add new teams.
+living document. Run `/virtual-team:init --update` later to add new teams.
 ```
 
 Repeat for each repo. Then move to Step 4 (Generate stack.md).
@@ -216,7 +216,7 @@ Gather:
 
 If they don't have a structure yet:
 ```
-No folder structure yet — that's fine. The software-architect agent will recommend
+No folder structure yet — that's fine. The virtual-team:software-architect agent will recommend
 one when you build your first feature. I'll mark this as TBD.
 ```
 
@@ -235,7 +235,7 @@ Gather:
 If they haven't decided:
 ```
 No database decisions yet — marking as TBD. When you build a feature that needs
-storage, the software-architect will stop and ask you to decide before proceeding.
+storage, the virtual-team:software-architect will stop and ask you to decide before proceeding.
 ```
 
 #### Round 5: API and Communication
@@ -388,7 +388,7 @@ Write `stack.md` at the repository root. The template depends on the repo type.
 <!-- Hub decisions that affect this repo are in the hub's docs/decisions/ -->
 
 ## TBD Items
-<!-- Items not yet decided — the software-architect will flag these when needed -->
+<!-- Items not yet decided — the virtual-team:software-architect will flag these when needed -->
 - [List every item marked TBD above, with a note about when it'll matter]
 ```
 
@@ -426,7 +426,7 @@ repos: [list of affected repos, omit for single-repo decisions]
 
 The `epic`, `type`, and `repos` fields are optional:
 - `epic` — links to an epic if the decision came from a cross-team initiative
-- `type` — categorizes the decision (see `/epic` command for type definitions)
+- `type` — categorizes the decision (see `/virtual-team:epic` command for type definitions)
 - `repos` — lists affected repos for cross-team decisions (hub decisions only)
 
 ### Step 6: Summary
@@ -448,12 +448,12 @@ Created:
 - [repo-name] ([role]) — [responsibility]
 
 **Next steps:**
-- `/idea` — if this is a new product and you want to explore the concept
-- `/epic` — if you already know what to build first
-- Run `/init --service` in each service repo to set up their stacks
+- `/virtual-team:idea` — if this is a new product and you want to explore the concept
+- `/virtual-team:epic` — if you already know what to build first
+- Run `/virtual-team:init --service` in each service repo to set up their stacks
 - Install the virtual-team plugin if not already active: `claude plugin add ovargas/virtual-team`
 
-Add new teams to the registry anytime with `/init --update`.
+Add new teams to the registry anytime with `/virtual-team:init --update`.
 ```
 
 **For Service repos:**
@@ -468,16 +468,16 @@ Created:
 [If hub reference exists:]
 - Hub reference: [hub path] — this repo reads epics and cross-team decisions from there
 
-**TBD items** (the software-architect will flag these when needed):
+**TBD items** (the virtual-team:software-architect will flag these when needed):
 - [List each TBD with when it'll matter]
 
 **Next steps:**
-- `/feature` — if you already know what to build first
-- `/feature --epic=EPIC-NNN` — if the hub has an epic ready for this repo
-- `/plan` — when ready to build, the software-architect will validate the stack
+- `/virtual-team:feature` — if you already know what to build first
+- `/virtual-team:feature --epic=EPIC-NNN` — if the hub has an epic ready for this repo
+- `/virtual-team:plan` — when ready to build, the virtual-team:software-architect will validate the stack
 - Install the virtual-team plugin if not already active: `claude plugin add ovargas/virtual-team`
 
-Don't worry about resolving all TBD items now. The software-architect agent
+Don't worry about resolving all TBD items now. The virtual-team:software-architect agent
 will catch them just-in-time when a feature actually needs them.
 ```
 
@@ -494,7 +494,7 @@ will catch them just-in-time when a feature actually needs them.
 2. **TBD is perfectly valid:**
    - Don't pressure the founder to decide things they haven't thought about
    - Mark unknowns as TBD with a note about when it'll become important
-   - The software-architect agent will catch these at the right moment
+   - The virtual-team:software-architect agent will catch these at the right moment
 
 3. **Respect existing choices:**
    - If the repo already has code, read it to understand what's already decided
@@ -513,5 +513,5 @@ will catch them just-in-time when a feature actually needs them.
 
 6. **No opinions on stack choices:**
    - This command captures decisions, it doesn't make them
-   - If the founder asks for advice, suggest they run `/research` on the topic
-   - The software-architect agent is the one who recommends — this command just documents
+   - If the founder asks for advice, suggest they run `/virtual-team:research` on the topic
+   - The virtual-team:software-architect agent is the one who recommends — this command just documents

@@ -20,21 +20,21 @@ This command uses `sonnet` because it's a mechanical git operation.
 ## Invocation
 
 **Usage patterns:**
-- `/worktree create feat/CTR-12` — create a worktree for a branch
-- `/worktree remove feat/CTR-12` — remove a worktree and clean up
-- `/worktree list` — show all active worktrees with their status
-- `/worktree clean` — remove worktrees for branches that have been merged
+- `/virtual-team:worktree create feat/CTR-12` — create a worktree for a branch
+- `/virtual-team:worktree remove feat/CTR-12` — remove a worktree and clean up
+- `/virtual-team:worktree list` — show all active worktrees with their status
+- `/virtual-team:worktree clean` — remove worktrees for branches that have been merged
 
 Shorthand:
-- `/worktree feat/CTR-12` — same as `create` (default action)
-- `/worktree --rm feat/CTR-12` — same as `remove`
+- `/virtual-team:worktree feat/CTR-12` — same as `create` (default action)
+- `/virtual-team:worktree --rm feat/CTR-12` — same as `remove`
 
 ## Process
 
 ### Action: Create
 
 1. **Parse `$ARGUMENTS`** for the branch name
-2. **Validate the branch name** follows `<type>/<ticket-id>` convention from git-practices skill
+2. **Validate the branch name** follows `<type>/<ticket-id>` convention from `virtual-team:git-practices` skill
    - If it doesn't match, warn:
      ```
      Branch name "my-feature" doesn't follow the convention: <type>/<ticket-id>
@@ -66,7 +66,7 @@ Shorthand:
 
    To work in this worktree:
    - Open a new Claude Code session in the worktree directory
-   - Run `/next CTR-12` to load context and start implementation
+   - Run `/virtual-team:next CTR-12` to load context and start implementation
    ```
 
 ### Action: Remove
@@ -171,7 +171,7 @@ Shorthand:
    - After creating a worktree, STOP — the founder opens a new session there
 
 2. **Always validate branch names:**
-   - Branch naming follows git-practices: `<type>/<ticket-id>`
+   - Branch naming follows `virtual-team:git-practices`: `<type>/<ticket-id>`
    - Warn on non-conforming names but don't block (the founder might have a reason)
 
 3. **Protect uncommitted work:**
@@ -179,7 +179,7 @@ Shorthand:
    - Always show what would be lost
 
 4. **Lock hygiene:**
-   - Creating a worktree does NOT create a lock — `/next` does that
+   - Creating a worktree does NOT create a lock — `/virtual-team:next` does that
    - Removing a worktree DOES clean up its lock if one exists
    - The `clean` action removes stale locks for worktrees/branches that no longer exist
 

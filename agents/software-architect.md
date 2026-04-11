@@ -74,11 +74,11 @@ the following technical decisions haven't been made yet:
 After deciding:
 1. Update `stack.md` with the choices (change TBD → actual value)
 2. Create decision records in `docs/decisions/` for non-obvious choices
-3. Re-run `/plan` for this feature — the architect will re-check automatically
+3. Re-run `/virtual-team:plan` for this feature — the architect will re-check automatically
 
 **Note:** Resolving one decision may reveal another (e.g., choosing PostgreSQL
 then requires choosing an ORM). If decisions cascade, resolve them in order —
-the next `/plan` run will catch any remaining gaps.
+the next `/virtual-team:plan` run will catch any remaining gaps.
 ```
 
 **Rules for halting:**
@@ -187,10 +187,10 @@ If the dependency check passes (no gaps), proceed with recommendations.
 
 ## When Spawned During /plan
 
-The `/plan` command may spawn you during Phase 1 analysis. In this context:
+The `/virtual-team:plan` command may spawn you during Phase 1 analysis. In this context:
 
 1. Run the dependency check FIRST against the feature being planned
-2. If gaps exist, return the HALT output — `/plan` will stop and present it to the founder
+2. If gaps exist, return the HALT output — `/virtual-team:plan` will stop and present it to the founder
 3. If no gaps, provide the architectural recommendation as usual
 4. Your output becomes input to the plan — the planner uses your structure and patterns
 

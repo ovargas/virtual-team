@@ -21,20 +21,20 @@ This command uses `sonnet` because it's a structured, documentation-focused oper
    - Read `stack.md` → find the `backlog:` field (default: `local` if not specified)
    - Read `skills/backlog-{value}/SKILL.md` — the active implementation
 
-The git-practices skill defines the PR format. Follow it precisely. Do not improvise.
+The `virtual-team:git-practices` skill defines the PR format. Follow it precisely. Do not improvise.
 
 ## Invocation
 
 **Usage patterns:**
-- `/pr` — commit pending changes (if any), create and submit a PR without prompts
-- `/pr [TICKET-ID]` — create a PR with a specific ticket reference
-- `/pr --draft` — create a draft PR
-- `/pr --manual` — ask for confirmation before committing and before submitting the PR
-- `/pr --no-commit` — skip auto-committing pending changes (warn if uncommitted changes exist)
-- `/pr --rebase` — rebase the feature branch onto the latest target branch before creating the PR
-- `/pr --base=develop` — target a specific base branch (default: main)
+- `/virtual-team:pr` — commit pending changes (if any), create and submit a PR without prompts
+- `/virtual-team:pr [TICKET-ID]` — create a PR with a specific ticket reference
+- `/virtual-team:pr --draft` — create a draft PR
+- `/virtual-team:pr --manual` — ask for confirmation before committing and before submitting the PR
+- `/virtual-team:pr --no-commit` — skip auto-committing pending changes (warn if uncommitted changes exist)
+- `/virtual-team:pr --rebase` — rebase the feature branch onto the latest target branch before creating the PR
+- `/virtual-team:pr --base=develop` — target a specific base branch (default: main)
 
-Flags combine freely: `/pr --rebase --draft` rebases and creates a draft PR. By default, `/pr` auto-commits pending changes and submits without prompts.
+Flags combine freely: `/virtual-team:pr --rebase --draft` rebases and creates a draft PR. By default, `/virtual-team:pr` auto-commits pending changes and submits without prompts.
 
 ## Process
 
@@ -45,12 +45,12 @@ Flags combine freely: `/pr --rebase --draft` rebases and creates a draft PR. By 
    - Extract the type and ticket ID (e.g., `feat/CTR-12` → type: `feat`, ticket: `CTR-12`)
    - **If on main/master/develop → STOP:**
      ```
-     ⚠️ You're on the main branch. `/pr` creates a pull request from a feature branch into main.
+     ⚠️ You're on the main branch. `/virtual-team:pr` creates a pull request from a feature branch into main.
 
-     If you're working directly on main, there's no PR needed — `/implement` already
+     If you're working directly on main, there's no PR needed — `/virtual-team:implement` already
      marked your stories as done ([x]) and updated the feature status.
 
-     If you intended to work on a branch, run `/next` to pick up work on a new branch.
+     If you intended to work on a branch, run `/virtual-team:next` to pick up work on a new branch.
      ```
    - If the branch doesn't follow `<type>/<ticket-id>` format, ask for the ticket ID
 3. **Determine the base branch:**
@@ -72,8 +72,8 @@ This is critical — the PR describes ALL commits on the branch, not just the la
 ### Step 3: Check Branch State
 
 1. **Run `git status`** — check for uncommitted changes
-   - **If there are uncommitted changes and `--no-commit` was NOT passed (default):** Run the `/commit` flow inline — review changes, group them, write messages, and commit. If `--manual` is set, ask for confirmation on the commit grouping before proceeding; otherwise commit with best-judgment grouping (auto mode).
-   - **If there are uncommitted changes and `--no-commit` was passed:** Warn the founder: "You have uncommitted changes. Run `/commit` first, or re-run without `--no-commit` to auto-commit and create the PR in one step."
+   - **If there are uncommitted changes and `--no-commit` was NOT passed (default):** Run the `/virtual-team:commit` flow inline — review changes, group them, write messages, and commit. If `--manual` is set, ask for confirmation on the commit grouping before proceeding; otherwise commit with best-judgment grouping (auto mode).
+   - **If there are uncommitted changes and `--no-commit` was passed:** Warn the founder: "You have uncommitted changes. Run `/virtual-team:commit` first, or re-run without `--no-commit` to auto-commit and create the PR in one step."
 2. **Check if branch is pushed:**
    - Run `git rev-parse --abbrev-ref --symbolic-full-name @{u} 2>/dev/null` to check tracking
    - If not pushed, push with: `git push -u origin $(git branch --show-current)`
@@ -104,7 +104,7 @@ If `--rebase` was passed:
      Or abort with:
        git rebase --abort
 
-     Re-run `/pr` after resolving.
+     Re-run `/virtual-team:pr` after resolving.
      ```
    - **STOP. Do NOT attempt to resolve conflicts automatically.** The founder must resolve them.
 
@@ -124,7 +124,7 @@ If `--rebase` was passed:
 
 **If `knowledgeCheck` is `"on"` or `"strict"`:**
 
-1. **Load the skill:** Read `skills/knowledge-check/SKILL.md`
+1. **Load the skill:** Read `skills/knowledge-check/SKILL.md` (the `virtual-team:knowledge-check` skill)
 2. **Read the source material:**
    - The full branch diff: `git diff <base>...HEAD`
    - The implementation plan from `docs/plans/`
@@ -139,20 +139,20 @@ If `--rebase` was passed:
 **Strict mode (`"strict"`):** If the developer doesn't pass (< 60%), STOP:
 ```
 ⛔ Knowledge check not passed ([score]%). Review the explanations
-above, then run `/check --pr` to try again. The PR will not be
+above, then run `/virtual-team:check --pr` to try again. The PR will not be
 created until the check passes.
 ```
 
 ### Step 5: Compose the PR
 
-**Title format** (from git-practices skill):
+**Title format** (from `virtual-team:git-practices` skill):
 ```
 <type>(<scope>): <short message> [<ticket-id>]
 ```
 
 Same format as commit messages. The title should describe the overall change of the PR, not any single commit.
 
-**Body format** (from git-practices skill):
+**Body format** (from `virtual-team:git-practices` skill):
 ```markdown
 ## Summary
 [2-4 sentences: what this PR does and why. Written for a reviewer
@@ -253,9 +253,9 @@ gh pr create --base develop --title "<title>" --body "..."
 
 **Why on the branch, not main:** When the PR merges, the backlog updates and lock releases land on main together with the code. Items stay locked on main until the PR is actually merged — which is the correct definition of done.
 
-**Note on lock merge conflicts (worktree mode):** In worktree mode, the lock was committed on main before the branch was created. If main's lockfile has been modified since, the merge may conflict. Resolve by keeping the other locks and removing only this branch's entries. `/next` Step 2 uses **`clean_stale_locks()`** to automatically detect and clean stale locks from merged PRs.
+**Note on lock merge conflicts (worktree mode):** In worktree mode, the lock was committed on main before the branch was created. If main's lockfile has been modified since, the merge may conflict. Resolve by keeping the other locks and removing only this branch's entries. `/virtual-team:next` Step 2 uses **`clean_stale_locks()`** to automatically detect and clean stale locks from merged PRs.
 
-**Note on stale locks:** If a PR is abandoned or a branch is deleted without merging, the lock becomes stale. `/next` calls **`clean_stale_locks()`** automatically to detect and clean them up.
+**Note on stale locks:** If a PR is abandoned or a branch is deleted without merging, the lock becomes stale. `/virtual-team:next` calls **`clean_stale_locks()`** automatically to detect and clean them up.
 
 ### Step 7.5: Knowledge Capture (optional)
 
@@ -286,8 +286,8 @@ gh pr create --base develop --title "<title>" --body "..."
    - Review the branch diff (`git diff <base>...HEAD`) and the implementation context
    - Extract patterns and/or errors following the format in the knowledge files
    - Derive domain tags from:
-     - The domain skills loaded during implementation (api-design, data-layer, ui-design, service-layer)
-     - File paths in the diff (e.g., `routes/` → api-design, `models/` → data-layer)
+     - The domain skills loaded during implementation (virtual-team:api-design, virtual-team:data-layer, virtual-team:ui-design, virtual-team:service-layer)
+     - File paths in the diff (e.g., `routes/` → virtual-team:api-design, `models/` → virtual-team:data-layer)
      - The user can override or add tags
    - Present the extracted entries for confirmation:
      ```
@@ -331,8 +331,8 @@ gh pr create --base develop --title "<title>" --body "..."
 - These changes merge with the code when the PR lands
 
 **Cleanup (optional):**
-- Remove the worktree when PR is merged: `/worktree remove <branch-name>`
-- Or clean up all merged worktrees: `/worktree clean`
+- Remove the worktree when PR is merged: `/virtual-team:worktree remove <branch-name>`
+- Or clean up all merged worktrees: `/virtual-team:worktree clean`
 
 Next steps:
 - Review the PR in GitHub
@@ -345,13 +345,13 @@ Next steps:
 ## Important Guidelines
 
 1. **HARD BOUNDARY — Follow the skill:**
-   - The PR format is defined in `skills/git-practices/SKILL.md`
+   - The PR format is defined in `skills/git-practices/SKILL.md` (the `virtual-team:git-practices` skill)
    - Do NOT use a different format
    - Title follows the exact same pattern as commit messages
 
 2. **HARD BOUNDARY — No implementation:**
    - This command commits and creates PRs, it does NOT write application code
-   - The inline `/commit` flow handles uncommitted changes automatically
+   - The inline `/virtual-team:commit` flow handles uncommitted changes automatically
    - Do NOT modify any application source code
 
 3. **Review ALL commits:**

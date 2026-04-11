@@ -10,17 +10,17 @@ You are a contract engineer defining the precise API boundaries for a project. Y
 
 **Why this exists:** LLMs lose fidelity when translating prose descriptions into code. A paragraph saying "the registration endpoint accepts user details" gets reinterpreted differently by each command run. A JSON schema with explicit fields, types, and constraints cannot be reinterpreted — it either matches or it doesn't.
 
-**Core principle:** Contracts are files, not conversations. They persist across sessions, they're read by `/plan` and `/implement`, and they block implementation if missing.
+**Core principle:** Contracts are files, not conversations. They persist across sessions, they're read by `/virtual-team:plan` and `/virtual-team:implement`, and they block implementation if missing.
 
 ## Invocation
 
 **Usage patterns:**
-- `/contracts` — interactive mode, asks what to define
-- `/contracts extract SPEC.md` — extract all contracts from a spec document
-- `/contracts extract docs/features/FEAT-003.md` — extract contracts from a feature spec
-- `/contracts validate` — check all contract files for completeness
-- `/contracts sync` — compare contracts against implementation, flag drift
-- `/contracts list` — show all defined contracts and their status
+- `/virtual-team:contracts` — interactive mode, asks what to define
+- `/virtual-team:contracts extract SPEC.md` — extract all contracts from a spec document
+- `/virtual-team:contracts extract docs/features/FEAT-003.md` — extract contracts from a feature spec
+- `/virtual-team:contracts validate` — check all contract files for completeness
+- `/virtual-team:contracts sync` — compare contracts against implementation, flag drift
+- `/virtual-team:contracts list` — show all defined contracts and their status
 
 **Flags:**
 - `--format=json` — output contracts as JSON Schema (default)
@@ -58,7 +58,7 @@ contracts/
 
 ## Process
 
-### Mode: Extract (`/contracts extract [source]`)
+### Mode: Extract (`/virtual-team:contracts extract [source]`)
 
 1. **Read the source document** (SPEC.md, feature spec, or hub decision)
 
@@ -113,10 +113,10 @@ contracts/
    Events:
    - contracts/events/user-registered.json — 5 fields
 
-   Total: [N] contracts defined. Run `/contracts validate` to check completeness.
+   Total: [N] contracts defined. Run `/virtual-team:contracts validate` to check completeness.
    ```
 
-### Mode: Validate (`/contracts validate`)
+### Mode: Validate (`/virtual-team:contracts validate`)
 
 1. **Read all contract files** in `contracts/`
 
@@ -145,7 +145,7 @@ contracts/
    [N] complete, [N] incomplete, [N] warnings
    ```
 
-### Mode: Sync (`/contracts sync`)
+### Mode: Sync (`/virtual-team:contracts sync`)
 
 1. **Read all contract files**
 
@@ -172,7 +172,7 @@ contracts/
    [N] synced, [N] drifted
    ```
 
-### Mode: List (`/contracts list`)
+### Mode: List (`/virtual-team:contracts list`)
 
 Show all contract files with a status summary:
 
@@ -325,17 +325,17 @@ Default format. Other formats follow equivalent structure.
 
 4. **Contracts evolve through explicit changes.** If implementation needs a field that's not in the contract, update the contract FIRST, then implement. Never add undocumented fields.
 
-5. **Contract changes require the founder's awareness.** If during `/implement` you discover a contract needs to change, flag it — don't silently update the contract file.
+5. **Contract changes require the founder's awareness.** If during `/virtual-team:implement` you discover a contract needs to change, flag it — don't silently update the contract file.
 
-6. **Use the project's naming convention.** If `stack.md` or `go-practices` specifies `lowerCamelCase` for JSON, contracts MUST use `lowerCamelCase`. The contract files define the exact field names that appear in JSON payloads.
+6. **Use the project's naming convention.** If `stack.md` or `virtual-team:go-practices` specifies `lowerCamelCase` for JSON, contracts MUST use `lowerCamelCase`. The contract files define the exact field names that appear in JSON payloads.
 
 ---
 
 ## Connecting to the Workflow
 
-- **`/feature`** → defines contracts during Phase 4 (API Contract Definition). Creates inline definitions in the spec, or contract files if `contracts/` exists.
-- **`/contracts extract`** → extracts/generates contract files from a SPEC.md or feature spec that has inline definitions.
-- **`/plan`** → reads contracts as hard constraints. HARD STOP if contracts are missing.
-- **`/implement`** → reads contracts before writing code. HARD STOP if contracts are missing. References exact field names and types from contracts during implementation.
-- **`/validate`** → checks implementation against contracts (use `/contracts sync` for detailed drift analysis).
-- **`/contracts validate`** → checks contract files themselves for completeness.
+- **`/virtual-team:feature`** → defines contracts during Phase 4 (API Contract Definition). Creates inline definitions in the spec, or contract files if `contracts/` exists.
+- **`/virtual-team:contracts extract`** → extracts/generates contract files from a SPEC.md or feature spec that has inline definitions.
+- **`/virtual-team:plan`** → reads contracts as hard constraints. HARD STOP if contracts are missing.
+- **`/virtual-team:implement`** → reads contracts before writing code. HARD STOP if contracts are missing. References exact field names and types from contracts during implementation.
+- **`/virtual-team:validate`** → checks implementation against contracts (use `/virtual-team:contracts sync` for detailed drift analysis).
+- **`/virtual-team:contracts validate`** → checks contract files themselves for completeness.

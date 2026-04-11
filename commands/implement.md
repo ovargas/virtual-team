@@ -13,26 +13,26 @@ This is the ONE command that writes code. Every other command in the pre-impleme
 ## Invocation
 
 **Usage patterns:**
-- `/implement` — continue implementing the current in-progress story (reads from backlog Doing state)
-- `/implement docs/plans/2026-02-12-notifications.md` — implement a specific plan
-- `/implement --phase=2` — resume from a specific phase (after a session break)
-- `/implement --story=S-005` — implement a specific story
-- `/implement --auto` — autonomous mode, skip manual pause points
-- `/implement --sdd` — subagent-driven development mode, dispatch fresh subagent per task with two-stage review
+- `/virtual-team:implement` — continue implementing the current in-progress story (reads from backlog Doing state)
+- `/virtual-team:implement docs/plans/2026-02-12-notifications.md` — implement a specific plan
+- `/virtual-team:implement --phase=2` — resume from a specific phase (after a session break)
+- `/virtual-team:implement --story=S-005` — implement a specific story
+- `/virtual-team:implement --auto` — autonomous mode, skip manual pause points
+- `/virtual-team:implement --sdd` — subagent-driven development mode, dispatch fresh subagent per task with two-stage review
 
 **Flags:**
 - `--auto` — autonomous mode: skip manual pause/confirmation points between phases. Still runs all automated verification (tests, lint, typecheck) and still stops on failures. Only skips "pause for manual confirmation" gates. Use this for Ralph Wiggum loops or batch processing.
 - `--deep` — allow agent spawning when the plan doesn't provide enough context. Without this flag, all code understanding is done directly (Glob, Grep, Read) — no agents spawned.
-- `--sdd` — subagent-driven development: the main session becomes an orchestrator that never writes code itself. Dispatches a fresh subagent per plan task with two-stage review (spec compliance + code quality). Use for plans with 5+ tasks. Loads the `subagent-driven-development` skill for the full orchestration protocol.
+- `--sdd` — subagent-driven development: the main session becomes an orchestrator that never writes code itself. Dispatches a fresh subagent per plan task with two-stage review (spec compliance + code quality). Use for plans with 5+ tasks. Loads the `virtual-team:subagent-driven-development` skill for the full orchestration protocol.
 - `--phase=N` — resume from a specific phase
 - `--fresh` — delete any existing checkpoint and start from scratch
-- Flags combine: `/implement --auto --deep --phase=2`
+- Flags combine: `/virtual-team:implement --auto --deep --phase=2`
 
 ## Initial Response
 
 When this command is invoked:
 
-0. **Checkpoint check (load the `checkpoints` skill):**
+0. **Checkpoint check (load the `virtual-team:checkpoints` skill):**
    - If `--fresh` was passed, delete `docs/checkpoints/implement-*.md` matching this item and proceed fresh
    - Check `docs/checkpoints/implement-<ID>.md` — if it exists, read it, show the resume summary, and skip to the first incomplete phase
    - If no checkpoint, proceed normally
@@ -42,24 +42,24 @@ When this command is invoked:
 1. **Determine what to implement:**
    - If a plan path was provided, read it
    - If a story was specified, find its parent plan in `docs/plans/`
-   - If bare `/implement`, load the backlog skill (read `stack.md` → backlog interface → implementation) and call **`list(status=doing)`** to find items in progress. Read the associated plan.
+   - If bare `/virtual-team:implement`, load the backlog skill (read `stack.md` → backlog interface → implementation) and call **`list(status=doing)`** to find items in progress. Read the associated plan.
    - If the item is marked as Implemented (`[=]`):
      - **If on a feature branch → STOP:**
        ```
        ✅ This story is already implemented (marked [=] in the backlog).
-       It's waiting for a PR. Run `/pr` to commit and create the pull request.
+       It's waiting for a PR. Run `/virtual-team:pr` to commit and create the pull request.
        ```
-     - **If on main/master/develop:** This is a stale status — `/implement` on main should have set `[x]`, not `[=]`. Fix it now: update `[=]` to `[x]` in the backlog, release any lock, update the feature spec status if all stories are done, and commit. Then **STOP** with:
+     - **If on main/master/develop:** This is a stale status — `/virtual-team:implement` on main should have set `[x]`, not `[=]`. Fix it now: update `[=]` to `[x]` in the backlog, release any lock, update the feature spec status if all stories are done, and commit. Then **STOP** with:
        ```
        ✅ This story was already implemented. Fixed stale status: [=] → [x].
-       Nothing to implement. Run `/next` to pick up new work.
+       Nothing to implement. Run `/virtual-team:next` to pick up new work.
        ```
    - If the item is marked as Done (`[x]`), **STOP:**
      ```
      ✅ This story is already done (marked [x] in the backlog).
-     Nothing to implement. Run `/next` to pick up new work.
+     Nothing to implement. Run `/virtual-team:next` to pick up new work.
      ```
-   - If nothing is in progress: "Nothing in Doing. Run `/next` to pick up work first."
+   - If nothing is in progress: "Nothing in Doing. Run `/virtual-team:next` to pick up work first."
 
 2. **Check plan approval status:**
    - Read the plan's frontmatter `status` field
@@ -71,7 +71,7 @@ When this command is invoked:
      The plan at [path] is still in draft status. Plans must be approved
      before implementation can begin.
 
-     Run `/plan [FEAT-NNN]` to review and approve the plan, or manually
+     Run `/virtual-team:plan [FEAT-NNN]` to review and approve the plan, or manually
      update the plan's frontmatter to `status: approved` if you've already
      reviewed it.
      ```
@@ -102,7 +102,7 @@ When this command is invoked:
    **Action required:**
    - Define the missing payloads in contract files (`contracts/endpoints/`, `contracts/events/`)
    - Or add complete payload definitions to the feature spec
-   - Then re-run `/implement`
+   - Then re-run `/virtual-team:implement`
 
    I will NOT guess payload shapes. Every field must be explicitly defined
    before implementation begins.
@@ -239,7 +239,7 @@ Beginning Phase 1: [Phase name]
    - Call **`mark_implemented(id, branch)`** — this updates the item status from doing to implemented (pending PR) and commits the change
    - The implemented status means: code is done, tests pass, but it hasn't been committed/PR'd yet
    - This prevents accidentally re-planning or re-implementing a completed story
-   - **Note:** The lock stays active until `/pr` calls **`complete()`** — the work is done but the branch still owns the item
+   - **Note:** The lock stays active until `/virtual-team:pr` calls **`complete()`** — the work is done but the branch still owns the item
 
    **If on main/master/develop** — direct completion (no PR coming):
    - Call **`complete(id, 'completed on main')`** — this updates the status from doing directly to done (skipping implemented since there's no PR step), releases the lock, checks feature completion, and commits all changes together
@@ -257,9 +257,9 @@ Beginning Phase 1: [Phase name]
    - Backlog updated: [>] Doing → [=] Implemented (pending PR)
 
    **Next steps:**
-   - Run `/review` for a code review before committing
+   - Run `/virtual-team:review` for a code review before committing
    - Complete manual testing items above
-   - Run `/pr` when ready (auto-commits and creates the PR)
+   - Run `/virtual-team:pr` when ready (auto-commits and creates the PR)
    ```
 
    **If on main/master/develop:**
@@ -275,9 +275,9 @@ Beginning Phase 1: [Phase name]
    - Lock released: [yes/no lock existed]
 
    **Next steps:**
-   - Run `/review` for a code review
+   - Run `/virtual-team:review` for a code review
    - Complete manual testing items above
-   - Run `/next` to pick up more work
+   - Run `/virtual-team:next` to pick up more work
    ```
 
 ---
@@ -288,7 +288,7 @@ Beginning Phase 1: [Phase name]
 
 ### Setup
 
-1. Load the `subagent-driven-development` skill — it defines the full protocol
+1. Load the `virtual-team:subagent-driven-development` skill — it defines the full protocol
 2. Read the feature spec's acceptance criteria — needed for spec review dispatching
 3. Identify all tasks in the plan — each plan phase/step becomes a dispatchable task
 4. **Run wave analysis** — extract file references from each task, build the dependency graph, group into waves (following the SDD skill's "Wave Analysis" section). Present the wave grouping before proceeding.
@@ -352,7 +352,7 @@ Proceed to the next wave.
 2. You've already tried reading the file and tracing the logic yourself
 3. The question is architectural (not just "what does this function do")
 
-- Spawn **codebase-analyzer** agent: "Analyze how [component] works. I need to understand [specific aspect] to implement [step]."
+- Spawn **virtual-team:codebase-analyzer** agent: "Analyze how [component] works. I need to understand [specific aspect] to implement [step]."
 
 **Never spawn more than 1 agent during implementation**, even with `--deep`. If you're needing agents frequently, the plan is insufficiently detailed — flag this to the founder rather than compensating with expensive agent calls.
 
@@ -362,16 +362,16 @@ Before writing code, load the relevant skills in three layers:
 
 **Layer 0 — Behavioral discipline.** Always load these behavioral skills before starting work. They are **rigid** — follow them exactly, no exceptions. This layer is not optional and does not depend on the type of work being done.
 
-- **`test-driven-development`** — No production code without a failing test first. Defines the red-green-refactor cycle.
-- **`verification-before-completion`** — No completion claims without fresh verification evidence. Every "done" must cite proof from this message.
-- **`receiving-code-review`** — No performative agreement with review feedback. Verify before implementing, push back when wrong.
+- **`virtual-team:test-driven-development`** — No production code without a failing test first. Defines the red-green-refactor cycle.
+- **`virtual-team:verification-before-completion`** — No completion claims without fresh verification evidence. Every "done" must cite proof from this message.
+- **`virtual-team:receiving-code-review`** — No performative agreement with review feedback. Verify before implementing, push back when wrong.
 
 **Layer 1 — Domain principles.** Load the generic skill that matches the work domain. These cover universal rules (validation, accessibility, migration safety, transaction boundaries) that apply regardless of stack:
 
-- Working on **API endpoints/routes/handlers?** → Read the `api-design` skill
-- Working on **frontend components/pages/styling?** → Read the `ui-design` skill
-- Working on **database/migrations/queries?** → Read the `data-layer` skill
-- Working on **business logic/services?** → Read the `service-layer` skill
+- Working on **API endpoints/routes/handlers?** → Read the `virtual-team:api-design` skill
+- Working on **frontend components/pages/styling?** → Read the `virtual-team:ui-design` skill
+- Working on **database/migrations/queries?** → Read the `virtual-team:data-layer` skill
+- Working on **business logic/services?** → Read the `virtual-team:service-layer` skill
 
 **Layer 2 — Stack-specific patterns.** Check `skills/` for additional skills that match the specific technology. Read `stack.md` to identify the frameworks in use. Then scan `skills/*/SKILL.md` for project skills — read each skill's `stack` frontmatter field (a comma-separated list of technologies, e.g., `stack: python, django`). A skill matches if **any** of its `stack` entries appears as a technology in `stack.md` (case-insensitive). For example, if `stack.md` lists Django as the framework, a skill with `stack: python, django` matches because "django" appears in both. These cover concrete conventions — which annotations, which libraries, which patterns to follow. Load them on top of the generic skill.
 
@@ -401,7 +401,7 @@ Layer 0 is always loaded. For Layers 1 and 2, only load the skill(s) relevant to
    - The founder needs to test manually before you build on top of potentially broken work
 
 4. **Handle session breaks gracefully:**
-   - If the session is ending mid-implementation, run `/handoff` to capture state
+   - If the session is ending mid-implementation, run `/virtual-team:handoff` to capture state
    - Note which phase and step you're on
    - The `--phase=N` flag lets the next session resume cleanly
 

@@ -15,12 +15,12 @@ You are a documentarian of the founder's vision. You don't impose your preferenc
 This command accepts an inline idea description and an optional research level flag.
 
 **Usage patterns:**
-- `/idea` — interactive mode, will ask for the idea
-- `/idea Build a meal planning app for busy parents` — starts with the provided idea
-- `/idea --deep Build a meal planning app` — spawn agents for full product and market analysis
+- `/virtual-team:idea` — interactive mode, will ask for the idea
+- `/virtual-team:idea Build a meal planning app for busy parents` — starts with the provided idea
+- `/virtual-team:idea --deep Build a meal planning app` — spawn agents for full product and market analysis
 
 **Flags:**
-- `--deep` — spawn product-owner and web-researcher agents for thorough market analysis, competitive landscape, and user research. Without this flag, all research is done directly using WebSearch. Default is lightweight — no agents spawned.
+- `--deep` — spawn `virtual-team:product-owner` and `virtual-team:web-researcher` agents for thorough market analysis, competitive landscape, and user research. Without this flag, all research is done directly using WebSearch. Default is lightweight — no agents spawned.
 
 ## Initial Response
 
@@ -36,7 +36,7 @@ When this command is invoked:
    - Skip directly to Round 1 (Capture the Spark) using the provided text
    - Do NOT ask the user to describe the idea again — they already did
 
-3. **If no idea was provided (bare `/idea`)**, respond with:
+3. **If no idea was provided (bare `/virtual-team:idea`)**, respond with:
 
 ```
 I'll help you capture and shape a product idea. Think of this as a conversation — you don't need a polished pitch. Just tell me what's rattling around in your head.
@@ -179,9 +179,9 @@ Update the idea based on the founder's reaction.
 
 Spawn agents for comprehensive investigation (max 2):
 
-1. **Spawn product-owner** agent: "Full product analysis for this idea: [description]. Target user: [from Round 2]. Research market context, competitive landscape, user adoption, risks, and define success metrics. Go deep."
+1. **Spawn virtual-team:product-owner** agent: "Full product analysis for this idea: [description]. Target user: [from Round 2]. Research market context, competitive landscape, user adoption, risks, and define success metrics. Go deep."
 
-2. **Spawn web-researcher** agent: "Research competitors, market size, user discussions, and technical feasibility for [idea]. Check Product Hunt, G2, Reddit, forums. For each competitor: features, pricing, user complaints, gaps."
+2. **Spawn virtual-team:web-researcher** agent: "Research competitors, market size, user discussions, and technical feasibility for [idea]. Check Product Hunt, G2, Reddit, forums. For each competitor: features, pricing, user complaints, gaps."
 
 Wait for both agents to return.
 
@@ -333,9 +333,9 @@ The founder's original description: "[Original idea text as first provided]"
 
 3. **Determine the next step based on repo type:**
    - Read `stack.md` and check for a `Hub` field or the presence of `examples/CLAUDE-hub.md`
-   - **If this is a hub repo:** The next step is `/epic` (coordinate across service repos)
-   - **If this is a service repo (single or multi-repo):** The next step is `/feature` (break down into stories)
-   - **If this is a standalone project (no hub, single repo):** The next step is `/feature`
+   - **If this is a hub repo:** The next step is `/virtual-team:epic` (coordinate across service repos)
+   - **If this is a service repo (single or multi-repo):** The next step is `/virtual-team:feature` (break down into stories)
+   - **If this is a standalone project (no hub, single repo):** The next step is `/virtual-team:feature`
 
 4. **Present the document to the user for review:**
 
@@ -344,14 +344,14 @@ The founder's original description: "[Original idea text as first provided]"
 I've created the idea brief at:
 `docs/features/YYYY-MM-DD-description.md`
 
-Please review it. This is a living document — we can refine it now or come back to it later with `/refine`.
+Please review it. This is a living document — we can refine it now or come back to it later with `/virtual-team:refine`.
 
 Key things to check:
 - Does the problem statement ring true?
 - Is the MVP scope right — nothing missing, nothing that should be cut?
 - Are the risks and assumptions accurate?
 
-**Next step:** This is a hub repo with service repos. Run `/epic --idea=IDEA-[NNN]` to create epics from the MVP items. Keep running it until all items are covered — the command tracks which items already have epics.
+**Next step:** This is a hub repo with service repos. Run `/virtual-team:epic --idea=IDEA-[NNN]` to create epics from the MVP items. Keep running it until all items are covered — the command tracks which items already have epics.
 ```
 
 **If service repo or standalone:**
@@ -359,14 +359,14 @@ Key things to check:
 I've created the idea brief at:
 `docs/features/YYYY-MM-DD-description.md`
 
-Please review it. This is a living document — we can refine it now or come back to it later with `/refine`.
+Please review it. This is a living document — we can refine it now or come back to it later with `/virtual-team:refine`.
 
 Key things to check:
 - Does the problem statement ring true?
 - Is the MVP scope right — nothing missing, nothing that should be cut?
 - Are the risks and assumptions accurate?
 
-**Next step:** Run `/feature` to break this idea into a detailed spec with stories for the backlog.
+**Next step:** Run `/virtual-team:feature` to break this idea into a detailed spec with stories for the backlog.
 ```
 
 4. **Iterate based on feedback.** If the founder wants changes, edit the document in place. Don't rewrite from scratch — make surgical edits.
@@ -434,7 +434,7 @@ After the feature brief is finalized:
    - Do NOT write application code, scripts, scaffolds, or prototypes
    - Do NOT suggest "let me start building this" or "I can implement this now"
    - Do NOT create project directories, install packages, or set up environments
-   - When the document is done, STOP. The next step depends on the repo type: `/epic` for hub repos, `/feature` for service repos.
+   - When the document is done, STOP. The next step depends on the repo type: `/virtual-team:epic` for hub repos, `/virtual-team:feature` for service repos.
    - If the founder asks you to start building during this command, remind them: "Let's finish the brief first. When it's approved, the next step is [/epic or /feature depending on repo type] to break it down into actionable work."
 
 ## Agent Usage
@@ -442,7 +442,7 @@ After the feature brief is finalized:
 **Default (no `--deep`): do NOT spawn agents.** Use WebSearch directly for market research, competitor analysis, and user discussions. This is sufficient for most ideas.
 
 **If `--deep` was passed**, spawn max 2 agents in parallel:
-- Spawn **product-owner** agent: "Full product analysis for: [idea]. Target user: [from Round 2]. Market context, competitive landscape, user adoption, risks, success metrics. Go deep."
-- Spawn **web-researcher** agent: "Research competitors, market size, user discussions, and technical feasibility for [idea]. Check Product Hunt, G2, Reddit, forums."
+- Spawn **virtual-team:product-owner** agent: "Full product analysis for: [idea]. Target user: [from Round 2]. Market context, competitive landscape, user adoption, risks, success metrics. Go deep."
+- Spawn **virtual-team:web-researcher** agent: "Research competitors, market size, user discussions, and technical feasibility for [idea]. Check Product Hunt, G2, Reddit, forums."
 
-Wait for both to return. The PO's analysis is the primary synthesis — web-researcher findings provide supporting evidence.
+Wait for both to return. The PO's analysis is the primary synthesis — `virtual-team:web-researcher` findings provide supporting evidence.

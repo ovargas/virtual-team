@@ -5,7 +5,7 @@ description: Abstract backlog operations interface. Load this skill before any b
 
 # Backlog — Abstract Interface
 
-This skill defines the backlog operations that commands use. It does NOT define how they're implemented — that's the job of the active backlog implementation skill (`backlog-local`, `backlog-external`, etc.), selected by the `backlog:` field in `stack.md`.
+This skill defines the backlog operations that commands use. It does NOT define how they're implemented — that's the job of the active backlog implementation skill (`virtual-team:backlog-local`, `virtual-team:backlog-external`, etc.), selected by the `backlog:` field in `stack.md`.
 
 **Commands MUST reference operations from this interface, never format-specific details.** A command says "call **start(id, branch, worktree)**" — the implementation skill decides whether that means editing a markdown file or calling an API.
 
@@ -92,7 +92,7 @@ Add new items to the backlog in ready status.
 **Behavior:**
 - Items are created in **ready** status
 - Items are placed in the Ready section/state, ordered by group then order number
-- This is called by `/feature` during story breakdown
+- This is called by `/virtual-team:feature` during story breakdown
 
 ### start(id, branch, worktree_mode)
 
@@ -125,7 +125,7 @@ Lock all items in a feature group and start the first one.
 **Behavior:**
 - Lock ALL ready items in the specified group
 - Change ONLY the first item (lowest `order:N`) to doing
-- Other items remain ready but locked (they'll be started by subsequent `/next --current` calls)
+- Other items remain ready but locked (they'll be started by subsequent `/virtual-team:next --current` calls)
 
 ### advance_in_group(feature_id, group)
 
@@ -171,7 +171,7 @@ Mark an item as done and release its lock.
 
 ### complete_all_on_branch(branch, reference)
 
-Mark ALL items on a branch as done. Used by `/pr` when a branch has multiple stories.
+Mark ALL items on a branch as done. Used by `/virtual-team:pr` when a branch has multiple stories.
 
 **Parameters:**
 - `branch` — branch name
@@ -228,25 +228,25 @@ Update the item's status in the external service.
 
 Create or update a feature-level entry in the external service with a link to the local spec.
 
-**Called after:** `/feature` creates a feature spec.
+**Called after:** `/virtual-team:feature` creates a feature spec.
 
 ### push_stories(feature_id, items)
 
 Create or update story-level entries in the external service for all stories in a feature.
 
-**Called after:** `/feature` story breakdown.
+**Called after:** `/virtual-team:feature` story breakdown.
 
 ### pull_comments(id)
 
 Retrieve comments/feedback from the external service for an item.
 
-**Called before:** `/implement` starts a story (to check for team feedback).
+**Called before:** `/virtual-team:implement` starts a story (to check for team feedback).
 
 ### pull_priorities()
 
 Retrieve the current priority ordering from the external service.
 
-**Called by:** `/next` when picking the next item (external ordering overrides local ordering).
+**Called by:** `/virtual-team:next` when picking the next item (external ordering overrides local ordering).
 
 ---
 

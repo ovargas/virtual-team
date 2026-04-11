@@ -13,21 +13,21 @@ This command runs in the **hub repository only**. It produces the product-level 
 ## Invocation
 
 **Usage patterns:**
-- `/epic` — interactive mode, will ask about the initiative
-- `/epic Add multilingual support for all user-facing content` — starts with the provided description
-- `/epic --deep Add multilingual support` — spawn PO and architect agents for full analysis
-- `/epic --idea=IDEA-001` — create the next epic from an idea's MVP items (skips already-covered items)
+- `/virtual-team:epic` — interactive mode, will ask about the initiative
+- `/virtual-team:epic Add multilingual support for all user-facing content` — starts with the provided description
+- `/virtual-team:epic --deep Add multilingual support` — spawn PO and architect agents for full analysis
+- `/virtual-team:epic --idea=IDEA-001` — create the next epic from an idea's MVP items (skips already-covered items)
 
 **Flags:**
-- `--idea=IDEA-NNN` — pull context from an existing idea document. Reads the idea's MVP scope, checks which items already have epics, and proposes the next uncovered item as the epic. Keep running `/epic --idea=IDEA-NNN` until all MVP items have epics. Updates the idea status: `draft` → `active` on first epic, `active` → `fulfilled` when all items are covered.
-- `--deep` — spawn product-owner and software-architect agents for Phases 2-3. Without this flag, you do the product analysis and technical routing yourself using your knowledge, stack.md, and WebSearch. Default is lightweight — no agents spawned.
+- `--idea=IDEA-NNN` — pull context from an existing idea document. Reads the idea's MVP scope, checks which items already have epics, and proposes the next uncovered item as the epic. Keep running `/virtual-team:epic --idea=IDEA-NNN` until all MVP items have epics. Updates the idea status: `draft` → `active` on first epic, `active` → `fulfilled` when all items are covered.
+- `--deep` — spawn virtual-team:product-owner and virtual-team:software-architect agents for Phases 2-3. Without this flag, you do the product analysis and technical routing yourself using your knowledge, stack.md, and WebSearch. Default is lightweight — no agents spawned.
 - `--fresh` — delete any existing checkpoint and start from scratch
 
 ## Required Reading
 
 **Before doing anything else:**
 
-0. **Checkpoint check (load the `checkpoints` skill):**
+0. **Checkpoint check (load the `virtual-team:checkpoints` skill):**
    - If `--fresh` was passed, delete `docs/checkpoints/epic-*.md` matching this item and proceed fresh
    - Check `docs/checkpoints/epic-<ID>.md` — if it exists, read it, show the resume summary, and skip to the first incomplete phase
    - If no checkpoint, proceed normally
@@ -139,7 +139,7 @@ Consider reviewing its docs/decisions/ manually before finalizing the epic.
    - EPIC-001: [name] — covers [items]
    - EPIC-002: [name] — covers [items]
 
-   Next step: Run `/feature --epic=EPIC-NNN` in each service repo to break down into stories.
+   Next step: Run `/virtual-team:feature --epic=EPIC-NNN` in each service repo to break down into stories.
    ```
 
 5. **If items remain:** Use the next uncovered item as the initiative description. Skip the interview — the idea document already has the context. Pre-fill Phase 1 output:
@@ -174,7 +174,7 @@ Here's what I understand:
 Is that right?
 ```
 
-2. **If bare `/epic`**, ask:
+2. **If bare `/virtual-team:epic`**, ask:
 
 ```
 What's the initiative? Describe the product change you're envisioning.
@@ -197,7 +197,7 @@ Don't worry about technical details — focus on what changes for users.
 
 **Default (no `--deep`):** Do the product analysis yourself. Read stack.md for product context, use WebSearch for quick market validation if needed. Assess: is this worth pursuing? For whom? What's the risk? Define success metrics.
 
-**If `--deep` was passed:** Spawn **product-owner** agent: "Analyze this initiative from a product perspective: [initiative description]. Research the market context, user adoption implications, risks, and define success metrics."
+**If `--deep` was passed:** Spawn **virtual-team:product-owner** agent: "Analyze this initiative from a product perspective: [initiative description]. Research the market context, user adoption implications, risks, and define success metrics."
 
 ### Present findings:
 
@@ -231,7 +231,7 @@ From `stack.md`, load the teams section — each repo's name, description, respo
 
 **Default (no `--deep`):** Do the routing yourself. You have the teams registry and the initiative description — determine which repos are affected, what work each needs, and what cross-team dependencies exist.
 
-**If `--deep` was passed:** Spawn **software-architect** agent: "Given this initiative: [description], and these teams: [list from teams registry with descriptions], identify which repos are affected and why. For each affected repo, describe what kind of work it would require. Identify cross-team dependencies."
+**If `--deep` was passed:** Spawn **virtual-team:software-architect** agent: "Given this initiative: [description], and these teams: [list from teams registry with descriptions], identify which repos are affected and why. For each affected repo, describe what kind of work it would require. Identify cross-team dependencies."
 
 ### Present the routing:
 
@@ -424,8 +424,8 @@ Written from the user's perspective.]
 ## Next Steps
 
 For each affected repo:
-1. Run `/feature --epic=EPIC-[NNN]` in the repo to create the technical feature spec
-2. The `/feature` command will read this epic and its decision records for context
+1. Run `/virtual-team:feature --epic=EPIC-[NNN]` in the repo to create the technical feature spec
+2. The `/virtual-team:feature` command will read this epic and its decision records for context
 3. Each repo creates its own plan, stories, and implementation independently
 
 ## Origin
@@ -447,8 +447,8 @@ Original description: "[initiative text as first provided]"
 - Open questions: [N]
 
 **Next steps for each affected repo:**
-- awesome-app-api: Run `/feature --epic=EPIC-NNN` to create the API feature spec
-- awesome-app-fe: Run `/feature --epic=EPIC-NNN` to create the FE feature spec
+- awesome-app-api: Run `/virtual-team:feature --epic=EPIC-NNN` to create the API feature spec
+- awesome-app-fe: Run `/virtual-team:feature --epic=EPIC-NNN` to create the FE feature spec
 
 Each repo reads this epic and the decision records for context,
 then does its own analysis, planning, and implementation.
@@ -467,12 +467,12 @@ If `docs/epics/` doesn't exist, create it with a `.gitkeep` file.
 1. **HARD BOUNDARY — No implementation:**
    - This command produces PRODUCT DOCUMENTS and AGREEMENTS, never code
    - Do NOT write application code, create source files, or scaffold anything
-   - Do NOT dive into technical implementation details — that's for `/feature` and `/plan` in each repo
+   - Do NOT dive into technical implementation details — that's for `/virtual-team:feature` and `/virtual-team:plan` in each repo
    - When the epic is documented, STOP
 
 2. **The hub is the brain, not the hands:**
    - The epic captures WHAT and WHY
-   - Each service repo figures out HOW when they run `/feature`
+   - Each service repo figures out HOW when they run `/virtual-team:feature`
    - Don't prescribe implementation — describe requirements and constraints
 
 3. **Agreements are binding contracts:**
@@ -501,11 +501,11 @@ If `docs/epics/` doesn't exist, create it with a `.gitkeep` file.
 **If `--deep` was passed**, spawn up to 2 agents total:
 
 **Phase 2 (Product Analysis):**
-- Spawn **product-owner** agent: "Analyze this initiative from a product perspective: [description]. Research market, users, risks, define success metrics."
+- Spawn **virtual-team:product-owner** agent: "Analyze this initiative from a product perspective: [description]. Research market, users, risks, define success metrics."
 
 **Phase 3 (Technical Routing):**
-- Spawn **software-architect** agent: "Given initiative [description] and teams [list from registry], identify affected repos, cross-team dependencies, and agreements needed."
+- Spawn **virtual-team:software-architect** agent: "Given initiative [description] and teams [list from registry], identify affected repos, cross-team dependencies, and agreements needed."
 
-**Do NOT spawn web-researcher agents.** Use WebSearch directly if you need market or user data — it's cheaper than a dedicated agent.
+**Do NOT spawn virtual-team:web-researcher agents.** Use WebSearch directly if you need market or user data — it's cheaper than a dedicated agent.
 
 Wait for agents to return before proceeding to the next phase.

@@ -6,17 +6,17 @@ model: sonnet
 
 # Bug Report
 
-You are a QA engineer helping document a bug properly. A bug report without clear reproduction steps and expected behavior is useless. Your job is to turn "it's broken" into a structured, actionable report that someone (or `/debug`) can investigate.
+You are a QA engineer helping document a bug properly. A bug report without clear reproduction steps and expected behavior is useless. Your job is to turn "it's broken" into a structured, actionable report that someone (or `/virtual-team:debug`) can investigate.
 
 This command uses `sonnet` because it's primarily documentation — structured intake and writing.
 
 ## Invocation
 
 **Usage patterns:**
-- `/bug The login page shows a blank screen after submitting credentials` — start with a description
-- `/bug --ticket=PROJ-123` — document a bug already reported in the tracker
-- `/bug --severity=critical Users can't complete checkout` — set severity upfront
-- `/bug` — interactive mode, will ask what's broken
+- `/virtual-team:bug The login page shows a blank screen after submitting credentials` — start with a description
+- `/virtual-team:bug --ticket=PROJ-123` — document a bug already reported in the tracker
+- `/virtual-team:bug --severity=critical Users can't complete checkout` — set severity upfront
+- `/virtual-team:bug` — interactive mode, will ask what's broken
 
 ## Initial Response
 
@@ -31,7 +31,7 @@ When this command is invoked:
    - Acknowledge it
    - Proceed to the interview
 
-3. **If bare `/bug`**, respond with:
+3. **If bare `/virtual-team:bug`**, respond with:
 
 ```
 What's broken? Describe what you saw, what you expected to see, and any context about when it happens.
@@ -72,7 +72,7 @@ Does that match your sense of urgency?
 
 ### Step 3: Quick Context Check
 
-Without deep investigation (that's `/debug`'s job), do a fast check:
+Without deep investigation (that's `/virtual-team:debug`'s job), do a fast check:
 
 1. **Search the backlog** (`docs/backlog.md`) — is this already reported?
 2. **Search existing bug reports** (`docs/bugs/`) — has this been seen before?
@@ -164,8 +164,8 @@ Bug report created at: `docs/bugs/YYYY-MM-DD-description.md`
 Added to backlog with severity: [level]
 
 **Next steps:**
-- Run `/debug BUG-NNN` to investigate and find the root cause
-- Or pick it up during implementation with `/next`
+- Run `/virtual-team:debug BUG-NNN` to investigate and find the root cause
+- Or pick it up during implementation with `/virtual-team:next`
 ```
 
 ---
@@ -174,7 +174,7 @@ Added to backlog with severity: [level]
 
 1. **HARD BOUNDARY — No fixing:**
    - This command DOCUMENTS bugs, it does not FIX them
-   - Do NOT investigate code, trace errors, or look for root causes (that's `/debug`)
+   - Do NOT investigate code, trace errors, or look for root causes (that's `/virtual-team:debug`)
    - Do NOT write fixes, patches, or workarounds in code
    - Document what's known, file it properly, and stop
 
@@ -185,7 +185,7 @@ Added to backlog with severity: [level]
 3. **Don't assume the cause:**
    - The "Initial Hypothesis" field is optional and should be clearly labeled as a guess
    - Don't blame specific code without evidence
-   - The bug report describes SYMPTOMS, `/debug` finds CAUSES
+   - The bug report describes SYMPTOMS, `/virtual-team:debug` finds CAUSES
 
 4. **ID generation:**
    - For BUG-[NNN], check existing files in `docs/bugs/` for the highest ID and increment

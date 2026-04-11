@@ -170,7 +170,7 @@ Never fix bugs without a test.
 ## Integration
 
 This skill is loaded by:
-- `/implement` — Layer 0 (behavioral discipline), loaded before domain skills
-- `/debug` — Phase 4, when creating regression tests for the root cause
-- `/flow` — inherited through `/implement`
+- `/virtual-team:implement` — Layer 0 (behavioral discipline), loaded before domain skills
+- `/virtual-team:debug` — Phase 4, when creating regression tests for the root cause
+- `/virtual-team:flow` — inherited through `/virtual-team:implement`
 - SDD implementer subagents — loaded when executing plan tasks

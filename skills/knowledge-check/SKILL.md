@@ -9,9 +9,9 @@ Protocol for validating that developers understand the technical decisions the A
 
 ## When This Skill Is Loaded
 
-- **After `/plan` approval** — quiz on architectural decisions and technical approach
-- **Before `/pr` submission** — quiz on implementation patterns and code decisions
-- **Standalone `/check`** — developer-initiated quiz on any current work
+- **After `/virtual-team:plan` approval** — quiz on architectural decisions and technical approach
+- **Before `/virtual-team:pr` submission** — quiz on implementation patterns and code decisions
+- **Standalone `/virtual-team:check`** — developer-initiated quiz on any current work
 
 ## Developer Settings
 
@@ -35,8 +35,8 @@ The knowledge check triggers automatically based on the developer's home setting
 1. Read `~/.claude/settings.json` at the start of the check step
 2. If `knowledgeCheck` is `"on"` or `"strict"`, run the check
 3. If `knowledgeCheck` is `"off"`, absent, or the file doesn't exist, skip silently
-4. The standalone `/check` command always runs regardless of settings (developer chose to invoke it)
-5. `--auto` mode on `/plan` and `/pr` always skips the check (nobody is there to answer)
+4. The standalone `/virtual-team:check` command always runs regardless of settings (developer chose to invoke it)
+5. `--auto` mode on `/virtual-team:plan` and `/virtual-team:pr` always skips the check (nobody is there to answer)
 
 ---
 
@@ -204,12 +204,12 @@ Log the gaps and continue.
 ⛔ Knowledge check not passed ([X]% score, 60% required).
 
 Review the explanations above, then re-run the check:
-- `/check` to try again
+- `/virtual-team:check` to try again
 - Or ask questions about any concepts that are unclear
 
 The workflow is paused until the check passes.
 ```
-Do NOT proceed. The developer must run `/check` and pass.
+Do NOT proceed. The developer must run `/virtual-team:check` and pass.
 
 ---
 

@@ -13,12 +13,12 @@ You are a QA analyst comparing what was specified against what was built. You re
 ## Invocation
 
 **Usage patterns:**
-- `/validate FEAT-007` — validate a feature by ID
-- `/validate docs/features/2026-02-12-task-notifications.md` — validate from a specific spec
-- `/validate S-003` — validate a single story
-- `/validate` — interactive mode, lists implemented features to validate
-- `/validate --deep FEAT-007` — spawn agents for thorough codebase tracing
-- `/validate --fix FEAT-007` — read an existing validation report and create stories for the gaps
+- `/virtual-team:validate FEAT-007` — validate a feature by ID
+- `/virtual-team:validate docs/features/2026-02-12-task-notifications.md` — validate from a specific spec
+- `/virtual-team:validate S-003` — validate a single story
+- `/virtual-team:validate` — interactive mode, lists implemented features to validate
+- `/virtual-team:validate --deep FEAT-007` — spawn agents for thorough codebase tracing
+- `/virtual-team:validate --fix FEAT-007` — read an existing validation report and create stories for the gaps
 
 **Flags:**
 - `--deep` — spawn codebase agents for parallel verification of each requirement. Without this flag, all verification is done directly using Glob, Grep, and Read. Default is lightweight.
@@ -31,7 +31,7 @@ You are a QA analyst comparing what was specified against what was built. You re
 
 If `--fix` was passed:
 1. **Find the existing validation report** in `docs/validations/` matching the feature ID
-   - If no report exists: "No validation report found for FEAT-NNN. Run `/validate FEAT-NNN` first to produce one."
+   - If no report exists: "No validation report found for FEAT-NNN. Run `/virtual-team:validate FEAT-NNN` first to produce one."
 2. **Read the report** and extract all gaps from the frontmatter `gaps` list
 3. **Skip to Step 6: Create Gap Stories**
 
@@ -43,7 +43,7 @@ If `--fix` was NOT passed, proceed with normal validation (Steps 1-5).
    - If FEAT-NNN: search `docs/features/` for the matching file
    - If S-NNN: find the story in `docs/backlog.md`, then its parent feature spec
    - If a file path: read it directly
-   - If bare `/validate`: list features with status `draft`, `active`, or stories marked `[=]` or `[x]` in the backlog
+   - If bare `/virtual-team:validate`: list features with status `draft`, `active`, or stories marked `[=]` or `[x]` in the backlog
 
 2. **Extract the requirements checklist from the spec:**
    - **Scope items** — each capability listed under "What we're building"
@@ -62,7 +62,7 @@ For each requirement extracted in Step 1, verify it against the codebase:
 
 **Default (no `--deep`):** Use Glob, Grep, and Read directly to find the implementation of each requirement.
 
-**If `--deep` was passed:** Spawn **codebase-analyzer** agent: "Trace the implementation of [requirement]. Find all files involved, verify the complete flow from entry point to expected output, and confirm it handles the specified edge cases. Return file:line references."
+**If `--deep` was passed:** Spawn **virtual-team:codebase-analyzer** agent: "Trace the implementation of [requirement]. Find all files involved, verify the complete flow from entry point to expected output, and confirm it handles the specified edge cases. Return file:line references."
 
 For each requirement, determine one of these statuses:
 
@@ -195,8 +195,8 @@ gaps:
 
 [One of:]
 - **Ready for PR** — all requirements met, tests in place
-- **Needs work** — [N] gaps to address before PR. Run `/validate --fix FEAT-NNN` to create stories.
-- **Needs re-planning** — significant gaps suggest the plan was incomplete. Run `/plan FEAT-NNN` to revise.
+- **Needs work** — [N] gaps to address before PR. Run `/virtual-team:validate --fix FEAT-NNN` to create stories.
+- **Needs re-planning** — significant gaps suggest the plan was incomplete. Run `/virtual-team:plan FEAT-NNN` to revise.
 - **Scope discussion needed** — deviations or scope creep found that the founder should review
 ```
 
@@ -213,10 +213,10 @@ Coverage: N/N requirements (X%)
 Gaps found: [N]
 
 [If gaps found:]
-**Next step:** Run `/validate --fix FEAT-NNN` to create stories for the [N] gaps.
+**Next step:** Run `/virtual-team:validate --fix FEAT-NNN` to create stories for the [N] gaps.
 
 [If clean:]
-**Next step:** Run `/pr` to submit the work.
+**Next step:** Run `/virtual-team:pr` to submit the work.
 ```
 
 ---
@@ -288,7 +288,7 @@ This step runs ONLY when `--fix` was passed.
 
    Validation report updated: status → fix-planned
 
-   **Next step:** Run `/next --current` to start picking up gap stories.
+   **Next step:** Run `/virtual-team:next --current` to start picking up gap stories.
    ```
 
 ---
@@ -298,7 +298,7 @@ This step runs ONLY when `--fix` was passed.
 1. **HARD BOUNDARY — No fixing (in validate mode):**
    - This command VALIDATES, it does not FIX
    - Do NOT write code, modify files, or create patches
-   - Do NOT run `/implement` or suggest "let me fix that"
+   - Do NOT run `/virtual-team:implement` or suggest "let me fix that"
    - Report the gaps and let the founder decide the next step
    - The `--fix` flag creates STORIES, not code — it plans the fix, doesn't execute it
 
@@ -345,7 +345,7 @@ This step runs ONLY when `--fix` was passed.
 **Default (no `--deep`): do NOT spawn agents.** Trace each requirement yourself using Glob, Grep, and Read. For most features this is sufficient — you know what to look for from the spec.
 
 **If `--deep` was passed:** Spawn up to 2 agents in parallel:
-- Spawn **codebase-analyzer** agent: "Trace the implementation of these requirements: [list]. For each, find all files involved, verify the complete flow, and confirm edge case handling. Return file:line references for each requirement."
-- Spawn **pattern-finder** agent: "Find all test files related to [feature]. Map which requirements have test coverage and which don't."
+- Spawn **virtual-team:codebase-analyzer** agent: "Trace the implementation of these requirements: [list]. For each, find all files involved, verify the complete flow, and confirm edge case handling. Return file:line references for each requirement."
+- Spawn **virtual-team:pattern-finder** agent: "Find all test files related to [feature]. Map which requirements have test coverage and which don't."
 
 Wait for agents to return before producing the report.

@@ -13,14 +13,14 @@ Your job: find the answer, present it concisely, and point to where it's documen
 ## Invocation
 
 **Usage patterns:**
-- `/decisions go practices` — what are the Go conventions for this project?
-- `/decisions dependency injection` — how do we handle DI?
-- `/decisions testing` — how do we test? what tools?
-- `/decisions json serialization` — what's the JSON naming convention?
-- `/decisions logging` — how does logging work?
-- `/decisions branching` — what are the git branch conventions?
-- `/decisions api error handling` — how do API errors work?
-- `/decisions` — no topic: list all available knowledge areas
+- `/virtual-team:decisions go practices` — what are the Go conventions for this project?
+- `/virtual-team:decisions dependency injection` — how do we handle DI?
+- `/virtual-team:decisions testing` — how do we test? what tools?
+- `/virtual-team:decisions json serialization` — what's the JSON naming convention?
+- `/virtual-team:decisions logging` — how does logging work?
+- `/virtual-team:decisions branching` — what are the git branch conventions?
+- `/virtual-team:decisions api error handling` — how do API errors work?
+- `/virtual-team:decisions` — no topic: list all available knowledge areas
 
 **Flags:**
 - `--verbose` — include code examples from the skill files (default: bullet points only)
@@ -50,9 +50,9 @@ Extract the topic from `$ARGUMENTS`. The topic can be:
 **Local sources (this repo):**
 1. **`stack.md`** — tech stack definition (language, framework, database, etc.)
 2. **`skills/`** — all skill files. Match by:
-   - Skill name (e.g., `go-practices` for "go")
+   - Skill name (e.g., `virtual-team:go-practices` for "go")
    - Skill `stack:` frontmatter (e.g., `stack: go, gin` matches "gin")
-   - Content grep (e.g., "mockery" appears in `go-practices`)
+   - Content grep (e.g., "mockery" appears in `virtual-team:go-practices`)
 3. **`docs/decisions/`** — local architectural decision records (ADRs). Choices that affect only this repo: ORM, auth library, database, local patterns. These explain WHY something was chosen.
 4. **`docs/features/`** — feature specs. Rich in product decisions: YAGNI verdicts, scope boundaries ("explicitly NOT building"), rabbit holes to avoid, founder context, and incremental delivery strategy. Search by feature ID, keyword, or topic.
 5. **`docs/plans/`** — implementation plans. Contain technical approach decisions: why a certain ordering was chosen, which patterns to follow, risk mitigations, and architectural tradeoffs made during planning.
@@ -131,7 +131,7 @@ Mark each convention as:
 
 ### Step 4: No-Topic Mode
 
-If no topic was provided (`/decisions` with no arguments), list the available knowledge areas:
+If no topic was provided (`/virtual-team:decisions` with no arguments), list the available knowledge areas:
 
 ```
 ## Project Knowledge Areas
@@ -157,22 +157,22 @@ If no topic was provided (`/decisions` with no arguments), list the available kn
 - [list most recent 5 + "[N] more" if needed]
 
 **Coding conventions** (skills):
-- `git-practices` — branching, commits, PRs, worktrees, backlog
-- `api-design` — endpoints, validation, status codes, auth
-- `service-layer` — business logic, interfaces, DI, transactions
-- `go-practices` — Go DI pattern, mockery, module/layer, clock, logger, tracing
+- `virtual-team:git-practices` — branching, commits, PRs, worktrees, backlog
+- `virtual-team:api-design` — endpoints, validation, status codes, auth
+- `virtual-team:service-layer` — business logic, interfaces, DI, transactions
+- `virtual-team:go-practices` — Go DI pattern, mockery, module/layer, clock, logger, tracing
 - [... list all skills with one-line descriptions]
 
 **Project directives** (CLAUDE.md):
 [brief summary of directives, or "No project-specific directives set"]
 
-Ask about anything: `/decisions [topic]`
+Ask about anything: `/virtual-team:decisions [topic]`
 Examples:
-  /decisions database              ← why did we choose this database?
-  /decisions error handling        ← how do we handle errors?
-  /decisions why no websockets     ← why was something excluded?
-  /decisions FEAT-003 scope        ← what was cut from a feature and why?
-  /decisions authentication        ← how does auth work across the project?
+  /virtual-team:decisions database              ← why did we choose this database?
+  /virtual-team:decisions error handling        ← how do we handle errors?
+  /virtual-team:decisions why no websockets     ← why was something excluded?
+  /virtual-team:decisions FEAT-003 scope        ← what was cut from a feature and why?
+  /virtual-team:decisions authentication        ← how does auth work across the project?
 ```
 
 ## Guidelines

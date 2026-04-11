@@ -14,16 +14,16 @@ This command uses `sonnet` because it's a read-evaluate-respond operation.
 
 **Before doing anything else**, load the knowledge check protocol:
 
-1. Read `skills/knowledge-check/SKILL.md` — this defines question generation, evaluation, and logging
+1. Read `skills/knowledge-check/SKILL.md` — this defines question generation, evaluation, and logging (the `virtual-team:knowledge-check` skill)
 
 ## Invocation
 
 **Usage patterns:**
-- `/check` — quiz on whatever is currently in progress (auto-detects context)
-- `/check docs/plans/2026-02-12-notifications.md` — quiz on a specific plan
-- `/check --pr` — quiz with implementation/PR focus (reads the branch diff)
-- `/check --plan` — quiz with architectural/plan focus
-- `/check FEAT-007` — quiz on a specific feature's plan and implementation
+- `/virtual-team:check` — quiz on whatever is currently in progress (auto-detects context)
+- `/virtual-team:check docs/plans/2026-02-12-notifications.md` — quiz on a specific plan
+- `/virtual-team:check --pr` — quiz with implementation/PR focus (reads the branch diff)
+- `/virtual-team:check --plan` — quiz with architectural/plan focus
+- `/virtual-team:check FEAT-007` — quiz on a specific feature's plan and implementation
 
 **Flags:**
 - `--plan` — focus questions on architectural decisions (post-plan style)
@@ -36,7 +36,7 @@ This command uses `sonnet` because it's a read-evaluate-respond operation.
 ### Step 1: Determine Context
 
 1. **Parse `$ARGUMENTS`** for plan path, feature ID, or flags
-2. **If bare `/check`**, auto-detect:
+2. **If bare `/virtual-team:check`**, auto-detect:
    - Read `docs/backlog.md` for items in Doing (`[>]`) or Implemented (`[=]`)
    - Find the associated plan in `docs/plans/`
    - Check the current branch and diff
@@ -141,7 +141,7 @@ Results logged to: docs/knowledge-checks/[filename]
 ⚠️ Knowledge gaps detected ([score]%, 60% required to pass).
 
 Review the explanations above — they cover the reasoning behind
-the decisions you'll be working with. You can run `/check` again
+the decisions you'll be working with. You can run `/virtual-team:check` again
 after reviewing.
 
 Results logged to: docs/knowledge-checks/[filename]

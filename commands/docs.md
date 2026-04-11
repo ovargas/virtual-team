@@ -13,20 +13,20 @@ This command reads the codebase, decision records, stack definition, and existin
 ## Invocation
 
 **Usage patterns:**
-- `/docs` — interactive mode, will ask what to document
-- `/docs setup` — generate a setup/onboarding guide for the project
-- `/docs config` — document all configuration options, env vars, and feature flags
-- `/docs runbook [feature-name]` — operational runbook for a specific feature (how to configure, troubleshoot, maintain)
-- `/docs architecture` — high-level architecture overview with diagrams (mermaid)
-- `/docs api` — API reference from the codebase (endpoints, params, responses)
-- `/docs --update docs/documentation/setup-guide.md` — update an existing doc to match current codebase state
+- `/virtual-team:docs` — interactive mode, will ask what to document
+- `/virtual-team:docs setup` — generate a setup/onboarding guide for the project
+- `/virtual-team:docs config` — document all configuration options, env vars, and feature flags
+- `/virtual-team:docs runbook [feature-name]` — operational runbook for a specific feature (how to configure, troubleshoot, maintain)
+- `/virtual-team:docs architecture` — high-level architecture overview with diagrams (mermaid)
+- `/virtual-team:docs api` — API reference from the codebase (endpoints, params, responses)
+- `/virtual-team:docs --update docs/documentation/setup-guide.md` — update an existing doc to match current codebase state
 
 ## Process
 
 ### Step 1: Determine What to Document
 
 1. **Parse $ARGUMENTS** for a doc type or existing doc path.
-2. **If bare `/docs`**, ask:
+2. **If bare `/virtual-team:docs`**, ask:
    ```
    What do you need documented? Common options:
    - **setup** — How to get the project running from scratch
@@ -226,4 +226,4 @@ If `docs/documentation/` doesn't exist, create it.
 **Default: do NOT spawn agents.** Use Glob, Grep, and Read directly to find config files, trace flows, and locate existing docs. This is a sonnet command — keep it fast and cheap.
 
 **Only spawn 1 agent if the codebase is very large and you need deep flow tracing:**
-- Spawn **codebase-analyzer** agent: "Trace the [feature] flow from entry point to output AND find all configuration files, env var reads, and feature flags."
+- Spawn **virtual-team:codebase-analyzer** agent: "Trace the [feature] flow from entry point to output AND find all configuration files, env var reads, and feature flags."

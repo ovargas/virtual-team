@@ -13,12 +13,12 @@ Your job is to find concrete, actionable answers — not to produce a literature
 ## Invocation
 
 **Usage patterns:**
-- `/research What auth library should we use for a Next.js + Python backend?` — starts research immediately
-- `/research --scope=market How do meal planning apps monetize?` — scoped to market research
-- `/research --scope=technical Should we use WebSockets or SSE for real-time updates?` — scoped to technical research
-- `/research --scope=codebase How does the current payment flow work?` — scoped to codebase investigation
-- `/research --deep How do meal planning apps monetize?` — spawn agents for parallel research
-- `/research` — interactive mode, will ask what to investigate
+- `/virtual-team:research What auth library should we use for a Next.js + Python backend?` — starts research immediately
+- `/virtual-team:research --scope=market How do meal planning apps monetize?` — scoped to market research
+- `/virtual-team:research --scope=technical Should we use WebSockets or SSE for real-time updates?` — scoped to technical research
+- `/virtual-team:research --scope=codebase How does the current payment flow work?` — scoped to codebase investigation
+- `/virtual-team:research --deep How do meal planning apps monetize?` — spawn agents for parallel research
+- `/virtual-team:research` — interactive mode, will ask what to investigate
 
 **Flags:**
 - `--deep` — spawn research agents for parallel investigation. Without this flag, all research is done directly using WebSearch, Glob, Grep, and Read. Default is lightweight — no agents spawned.
@@ -37,7 +37,7 @@ When this command is invoked:
    - Determine the scope if not specified
    - Proceed to Phase 1
 
-3. **If no question was provided (bare `/research`)**, respond with:
+3. **If no question was provided (bare `/virtual-team:research`)**, respond with:
 
 ```
 I'll help you investigate a question. What do you want to know?
@@ -255,7 +255,7 @@ Want to dig deeper into any aspect, or is this enough to move forward?
    - Do NOT write application code, prototype solutions, or install packages
    - Do NOT suggest "let me build a quick proof of concept" or "I can implement this now"
    - When the research is documented, STOP. The founder decides what to do with the findings.
-   - If the founder asks to start building based on findings, remind them: "The research is done. Use `/feature` to spec the feature or `/plan` to plan the implementation."
+   - If the founder asks to start building based on findings, remind them: "The research is done. Use `/virtual-team:feature` to spec the feature or `/virtual-team:plan` to plan the implementation."
 
 ## Agent Usage
 
@@ -264,9 +264,9 @@ Want to dig deeper into any aspect, or is this enough to move forward?
 **If `--deep` was passed**, spawn agents based on scope (max 2):
 
 **Market or technical scope:**
-- Spawn **web-researcher** agent: "[Specific research question with focus areas]"
+- Spawn **virtual-team:web-researcher** agent: "[Specific research question with focus areas]"
 
 **Codebase scope:**
-- Spawn **codebase-analyzer** agent: "Find all files related to [topic] AND analyze how [system/component] works. Trace the full flow with file:line references."
+- Spawn **virtual-team:codebase-analyzer** agent: "Find all files related to [topic] AND analyze how [system/component] works. Trace the full flow with file:line references."
 
 **Mixed scope:** Spawn 1 web-researcher + 1 codebase-analyzer max. Synthesize when both return.

@@ -263,17 +263,17 @@ locks:
 ```
 
 **Rules:**
-- `/next` creates a lock entry when picking up a backlog item
-- `/pr` removes the lock entry on the feature branch — the removal lands on main when the PR merges
-- `/worktree --remove` checks for stale locks and warns
-- Before picking an item, `/next` checks the lockfile — if the item is locked, it skips to the next
-- If a lock is stale (branch no longer exists, PR merged, worktree removed), `/next` cleans it up automatically
+- `/virtual-team:next` creates a lock entry when picking up a backlog item
+- `/virtual-team:pr` removes the lock entry on the feature branch — the removal lands on main when the PR merges
+- `/virtual-team:worktree --remove` checks for stale locks and warns
+- Before picking an item, `/virtual-team:next` checks the lockfile — if the item is locked, it skips to the next
+- If a lock is stale (branch no longer exists, PR merged, worktree removed), `/virtual-team:next` cleans it up automatically
 
 **Lock vs. backlog status — where each is committed:**
 - **Lock file (`backlog.lock`):** Committed on main for default/here modes (cross-worktree coordination). Committed on the current branch for `--current` mode (solo work, no main switching).
 - **Backlog status (`backlog.md`):** Always committed on the feature branch. The `[ ]` → `[>]` → `[=]` → `[x]` lifecycle happens entirely on the branch and merges with the PR. Main's backlog only reflects completed work after PRs merge.
 
-**Multi-story branches:** When using `/next --current` to pick up multiple stories on a single branch, each story gets its own lock entry and `[>]` marker on the feature branch. `/pr` marks ALL stories as Done and removes ALL locks for that branch in a single commit.
+**Multi-story branches:** When using `/virtual-team:next --current` to pick up multiple stories on a single branch, each story gets its own lock entry and `[>]` marker on the feature branch. `/virtual-team:pr` marks ALL stories as Done and removes ALL locks for that branch in a single commit.
 
 ## Story Groups
 
@@ -295,10 +295,10 @@ Stories within a feature can be grouped into execution tracks using backlog tags
 - `service:xx` — which service/repo
 
 **Branch naming for groups:**
-- `/next --feature=FEAT-005` → branch: `feat/FEAT-005` (feature ID, not story ID)
-- `/next S-010` → branch: `feat/S-010` (story ID for single-story pickup)
+- `/virtual-team:next --feature=FEAT-005` → branch: `feat/FEAT-005` (feature ID, not story ID)
+- `/virtual-team:next S-010` → branch: `feat/S-010` (story ID for single-story pickup)
 
 **Group flow:**
-1. `/next --feature=FEAT-005` locks all stories in the group, creates `feat/FEAT-005`
-2. `/next --current` advances through stories in `order:N` sequence
-3. `/pr` marks all stories as Done in one commit
+1. `/virtual-team:next --feature=FEAT-005` locks all stories in the group, creates `feat/FEAT-005`
+2. `/virtual-team:next --current` advances through stories in `order:N` sequence
+3. `/virtual-team:pr` marks all stories as Done in one commit

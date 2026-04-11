@@ -13,23 +13,23 @@ You think in files, functions, and data flows — not features and user stories.
 ## Invocation
 
 **Usage patterns:**
-- `/plan docs/features/2026-02-12-task-notifications.md` — plan from a specific feature spec
-- `/plan FEAT-007` — find the spec by ID and plan it
-- `/plan --story=S-003` — plan a specific story from the backlog (not the whole feature)
-- `/plan` — interactive mode, will list specs that are ready for planning
-- `/plan --auto FEAT-007` — skip confirmations, auto-approve the plan
+- `/virtual-team:plan docs/features/2026-02-12-task-notifications.md` — plan from a specific feature spec
+- `/virtual-team:plan FEAT-007` — find the spec by ID and plan it
+- `/virtual-team:plan --story=S-003` — plan a specific story from the backlog (not the whole feature)
+- `/virtual-team:plan` — interactive mode, will list specs that are ready for planning
+- `/virtual-team:plan --auto FEAT-007` — skip confirmations, auto-approve the plan
 
 **Flags:**
 - `--auto` — autonomous mode: skip founder confirmations at Phase 1 analysis acknowledgment and Phase 3 approval. The plan is auto-approved (`status: approved`) without asking. Use this for Ralph Wiggum loops or batch processing.
 - `--deep` — full agent mode: spawn agents for Phase 0 (architectural gate) and Phase 1 (codebase analysis). Use for complex features that touch multiple modules, introduce new stack dependencies, or require deep codebase tracing. Without this flag, the plan command does all analysis directly (Glob, Grep, Read) — faster and cheaper.
 - `--fresh` — delete any existing checkpoint and start from scratch
-- Flags combine: `/plan --auto --deep FEAT-007`
+- Flags combine: `/virtual-team:plan --auto --deep FEAT-007`
 
 ## Initial Response
 
 When this command is invoked:
 
-0. **Checkpoint check (load the `checkpoints` skill):**
+0. **Checkpoint check (load the `virtual-team:checkpoints` skill):**
    - If `--fresh` was passed, delete `docs/checkpoints/plan-*.md` matching this item and proceed fresh
    - Check `docs/checkpoints/plan-<ID>.md` — if it exists, read it, show the resume summary, and skip to the first incomplete phase
    - If no checkpoint, proceed normally
@@ -73,7 +73,7 @@ When this command is invoked:
        - POST /api/[endpoint] — [what's missing]
        - event: [event.name] — [what's missing]
 
-       Define these in `contracts/` or in the feature spec, then re-run `/plan`.
+       Define these in `contracts/` or in the feature spec, then re-run `/virtual-team:plan`.
        I will not plan implementation around undefined payloads — this leads
        to the API and app diverging from agreed contracts.
        ```
@@ -93,9 +93,9 @@ Let me analyze the codebase to understand what exists and what needs to change.
 
 **Default (no `--deep`):** Do this check yourself. Read `stack.md` and the feature spec. Scan for any TBD items, missing technical decisions, or new stack dependencies this feature would introduce. If everything looks solid, note "Architectural gate: ✅ Passed" and proceed. If you spot gaps, HALT just as the architect agent would.
 
-**If `--deep` was passed:** Spawn the software-architect agent as a gatekeeper:
+**If `--deep` was passed:** Spawn the virtual-team:software-architect agent as a gatekeeper:
 
-- Spawn **software-architect** agent: "Run a dependency check for [feature name]. Read stack.md and the feature spec at [path]. Identify any TBD items or missing technical decisions that this feature requires. If gaps exist, HALT with options and recommendations. If no gaps, provide architectural guidance for the implementation."
+- Spawn **virtual-team:software-architect** agent: "Run a dependency check for [feature name]. Read stack.md and the feature spec at [path]. Identify any TBD items or missing technical decisions that this feature requires. If gaps exist, HALT with options and recommendations. If no gaps, provide architectural guidance for the implementation."
 
 **Wait for the architect to respond before proceeding.**
 
@@ -103,7 +103,7 @@ Let me analyze the codebase to understand what exists and what needs to change.
 ```
 ⛔ Planning paused — technical decisions needed.
 
-The software-architect identified gaps in the technical foundation
+The virtual-team:software-architect identified gaps in the technical foundation
 that must be resolved before this feature can be planned:
 
 [Include the architect's HALT output here — decisions needed, options, recommendations]
@@ -111,7 +111,7 @@ that must be resolved before this feature can be planned:
 Please make these decisions, then:
 1. Update `stack.md` with your choices
 2. Create decision records in `docs/decisions/` for non-obvious choices
-3. Re-run `/plan` for this feature
+3. Re-run `/virtual-team:plan` for this feature
 ```
 
 **STOP HERE. Do not proceed to Phase 1.** The plan cannot be written with unresolved technical decisions. This is not optional.
@@ -160,9 +160,9 @@ Before writing a single line of the plan, understand the terrain. This phase is 
 4. **Load implementation knowledge.** If `docs/knowledge/patterns.md` and `docs/knowledge/errors.md` exist, load relevant entries to inform the plan. If the knowledge directory doesn't exist, skip this step silently.
 
    **Determine relevant domains:** Based on the feature being planned, identify which domain tags are relevant:
-   - Check which domain skills the implementation will likely need (api-design, data-layer, ui-design, service-layer)
+   - Check which domain skills the implementation will likely need (virtual-team:api-design, virtual-team:data-layer, virtual-team:ui-design, virtual-team:service-layer)
    - Derive from the spec's "Layers:" annotations in stories
-   - Derive from the file types that will be touched (routes → api-design, migrations → data-layer, etc.)
+   - Derive from the file types that will be touched (routes → virtual-team:api-design, migrations → virtual-team:data-layer, etc.)
 
    **Read and filter knowledge files:**
    - Read `docs/knowledge/patterns.md` — extract entries under matching `## domain-tag` headings
@@ -431,7 +431,7 @@ The plan is ready. Do you approve it for implementation?
 - Iterate further based on feedback
 - Ask again when changes are applied
 
-This is a hard gate. The plan must be `approved` before `/implement` will execute it.
+This is a hard gate. The plan must be `approved` before `/virtual-team:implement` will execute it.
 
 ### Phase 3.5: Knowledge Check (after approval)
 
@@ -441,7 +441,7 @@ This is a hard gate. The plan must be `approved` before `/implement` will execut
 
 **If `knowledgeCheck` is `"on"` or `"strict"`:**
 
-1. **Load the skill:** Read `skills/knowledge-check/SKILL.md`
+1. **Load the skill:** Read `skills/knowledge-check/SKILL.md` (the `virtual-team:knowledge-check` skill)
 2. **Generate 3-5 questions** from the approved plan — focus on architectural decisions, tech choices, phase ordering, and tradeoffs (follow the skill's "Post-Plan Questions" section)
 3. **Present the questions** and wait for the developer's answers
 4. **Evaluate and provide tutoring response** — explain every answer's reasoning
@@ -452,8 +452,8 @@ This is a hard gate. The plan must be `approved` before `/implement` will execut
 **Strict mode (`"strict"`):** If the developer doesn't pass (< 60%), STOP:
 ```
 ⛔ Knowledge check not passed ([score]%). Review the explanations
-above, then run `/check` to try again. The plan is approved but
-implementation is blocked until the check passes.
+above, then run `/virtual-team:check` to try again. The plan is approved but
+implementation is blocked until the check passes. Run `/virtual-team:check` to retry.
 ```
 
 ### Phase 4: Update Backlog
@@ -462,7 +462,7 @@ After the plan is approved:
 
 1. **Update the feature spec** frontmatter to add `plan: docs/plans/YYYY-MM-DD-feature-name.md`
 2. **Update `docs/backlog.md`** — move the feature's stories from Ready to a clear "ready for implementation" state, now that the plan exists
-3. **Note the plan in each story's reference** so `/implement` can find it later
+3. **Note the plan in each story's reference** so `/virtual-team:implement` can find it later
 
 ---
 
@@ -502,8 +502,8 @@ After the plan is approved:
    - Do NOT write application code, create source files, or run build commands
    - Do NOT suggest "let me start implementing" or "I can code this now"
    - Do NOT create project directories, install packages, or modify the codebase
-   - When the plan is approved, STOP. The next step is `/implement`, not this command continuing into code.
-   - If the founder asks to start building, remind them: "The plan is ready. Run `/implement` to execute it step by step with proper verification."
+   - When the plan is approved, STOP. The next step is `/virtual-team:implement`, not this command continuing into code.
+   - If the founder asks to start building, remind them: "The plan is ready. Run `/virtual-team:implement` to execute it step by step with proper verification."
 
 ## Agent Usage
 
@@ -512,16 +512,16 @@ After the plan is approved:
 **If `--deep` was passed**, use agents from `agents/` at the specified phases:
 
 **Phase 0 (Architectural Gate) — spawn only if the feature introduces new stack dependencies or touches infrastructure:**
-- Spawn **software-architect** agent: "Run a dependency check for [feature]. Read stack.md and the feature spec at [path]. Identify TBD items or missing decisions this feature requires. If gaps exist, HALT. If no gaps, provide architectural guidance."
+- Spawn **virtual-team:software-architect** agent: "Run a dependency check for [feature]. Read stack.md and the feature spec at [path]. Identify TBD items or missing decisions this feature requires. If gaps exist, HALT. If no gaps, provide architectural guidance."
 - **Skip this agent** if the feature is a straightforward addition following existing patterns (e.g., new CRUD endpoint, new UI page using existing components). You can do a quick TBD check yourself by reading stack.md.
 
-If the architect HALTs → stop the entire `/plan` command and present the halt to the founder.
+If the architect HALTs → stop the entire `/virtual-team:plan` command and present the halt to the founder.
 If the architect passes → continue to Phase 1.
 
 **Phase 1 (Codebase Analysis) — spawn 2 agents max, not 4:**
-- Spawn **codebase-analyzer** agent: "Find all files affected by [feature] AND trace how the closest existing implementation works. Include: source files, test files, configs, patterns to follow with file:line references."
-- Spawn **docs-locator** agent: "Find any existing plans, decisions, or research related to [feature area]." — **Only if `docs/decisions/` has more than 5 files.** Otherwise, read them yourself.
+- Spawn **virtual-team:codebase-analyzer** agent: "Find all files affected by [feature] AND trace how the closest existing implementation works. Include: source files, test files, configs, patterns to follow with file:line references."
+- Spawn **virtual-team:docs-locator** agent: "Find any existing plans, decisions, or research related to [feature area]." — **Only if `docs/decisions/` has more than 5 files.** Otherwise, read them yourself.
 
-The codebase-locator and pattern-finder roles are merged into a single codebase-analyzer call. This halves the agent cost with minimal quality loss — the analyzer can do both jobs in one pass.
+The virtual-team:codebase-locator and virtual-team:pattern-finder roles are merged into a single virtual-team:codebase-analyzer call. This halves the agent cost with minimal quality loss — the analyzer can do both jobs in one pass.
 
 Wait for agents to return before writing the plan.

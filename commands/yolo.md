@@ -6,11 +6,11 @@ model: haiku
 
 # YOLO — Flow on Autopilot
 
-You are the `/yolo` command — a thin wrapper around `/flow --auto` that adds a moment of comedic self-awareness before letting the pipeline run fully autonomous.
+You are the `/virtual-team:yolo` command — a thin wrapper around `/virtual-team:flow --auto` that adds a moment of comedic self-awareness before letting the pipeline run fully autonomous.
 
 ## Step 1: The Joke
 
-Before doing anything else, generate a short, funny, original cautionary quote about running code pipelines on autopilot. The tone is self-deprecating developer humor — the joke should make the user smile AND briefly wonder if they should have used `/flow` with manual gates instead.
+Before doing anything else, generate a short, funny, original cautionary quote about running code pipelines on autopilot. The tone is self-deprecating developer humor — the joke should make the user smile AND briefly wonder if they should have used `/virtual-team:flow` with manual gates instead.
 
 **Guidelines for the joke:**
 - One quote, 1-2 sentences max
@@ -36,17 +36,17 @@ If you wanted manual control, you still have time: Ctrl+C and run /flow instead.
 
 ## Step 2: Delegate to /flow --auto
 
-After printing the joke, execute the full `/flow` command with `--auto` injected. Pass through ALL arguments and flags the user provided.
+After printing the joke, execute the full `/virtual-team:flow` command with `--auto` injected. Pass through ALL arguments and flags the user provided.
 
 **Translation rules:**
-- `/yolo Add search capability` → execute `/flow --auto Add search capability`
-- `/yolo --deep Add notifications` → execute `/flow --auto --deep Add notifications`
-- `/yolo --fix "login broken"` → execute `/flow --auto --fix "login broken"`
-- `/yolo --fix --deep BUG-003` → execute `/flow --auto --fix --deep BUG-003`
-- `/yolo --to=plan Add search` → execute `/flow --auto --to=plan Add search`
-- `/yolo --from=implement` → execute `/flow --auto --from=implement`
-- `/yolo --sdd Add complex feature` → execute `/flow --auto --sdd Add complex feature`
-- `/yolo` (bare) → execute `/flow --auto` (triggers auto-detection from FEAT-013)
+- `/virtual-team:yolo Add search capability` → execute `/virtual-team:flow --auto Add search capability`
+- `/virtual-team:yolo --deep Add notifications` → execute `/virtual-team:flow --auto --deep Add notifications`
+- `/virtual-team:yolo --fix "login broken"` → execute `/virtual-team:flow --auto --fix "login broken"`
+- `/virtual-team:yolo --fix --deep BUG-003` → execute `/virtual-team:flow --auto --fix --deep BUG-003`
+- `/virtual-team:yolo --to=plan Add search` → execute `/virtual-team:flow --auto --to=plan Add search`
+- `/virtual-team:yolo --from=implement` → execute `/virtual-team:flow --auto --from=implement`
+- `/virtual-team:yolo --sdd Add complex feature` → execute `/virtual-team:flow --auto --sdd Add complex feature`
+- `/virtual-team:yolo` (bare) → execute `/virtual-team:flow --auto` (triggers auto-detection from FEAT-013)
 
 **Important:** `--auto` is always added. If the user somehow passed `--auto` explicitly, don't double it — just ensure it's present.
 
@@ -57,6 +57,6 @@ Now read `commands/flow.md` and execute it fully, following every instruction in
 **Do not:**
 - Skip any pipeline steps
 - Reduce the quality of any gate evaluation
-- Change any behavior beyond what `--auto` already changes in `/flow`
+- Change any behavior beyond what `--auto` already changes in `/virtual-team:flow`
 
-**The joke was the contribution.** Everything after it is standard `/flow --auto`.
+**The joke was the contribution.** Everything after it is standard `/virtual-team:flow --auto`.

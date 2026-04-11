@@ -57,7 +57,7 @@ Use OpenCode's native \`skill\` tool to list and load skills.`;
     return `<EXTREMELY_IMPORTANT>
 You are part of a virtual development team.
 
-**IMPORTANT: The skill-awareness skill content is included below. It is ALREADY LOADED - you are currently following it. Do NOT use the skill tool to load "skill-awareness" again.**
+**IMPORTANT: The virtual-team:skill-awareness skill content is included below. It is ALREADY LOADED - you are currently following it. Do NOT use the skill tool to load "virtual-team:skill-awareness" again.**
 
 ${content}
 

@@ -13,10 +13,10 @@ This command uses the `sonnet` model because it's a read-and-summarize operation
 ## Invocation
 
 **Usage patterns:**
-- `/status` — full project overview
-- `/status backlog` — backlog health only
-- `/status feature-name` — status of a specific feature
-- `/status FEAT-007` — status of a specific feature by ID
+- `/virtual-team:status` — full project overview
+- `/virtual-team:status backlog` — backlog health only
+- `/virtual-team:status feature-name` — status of a specific feature
+- `/virtual-team:status FEAT-007` — status of a specific feature by ID
 
 ## Context Detection
 
@@ -50,7 +50,7 @@ Plan: [docs/plans/... | not yet planned]
 
 **Stories:**
 - [x] [Story 1] — done
-- [=] [Story 2] — implemented, pending PR → run `/pr`
+- [=] [Story 2] — implemented, pending PR → run `/virtual-team:pr`
 - [>] [Story 3] — in progress
 - [ ] [Story 4] — ready
 
@@ -82,7 +82,7 @@ Plan: [docs/plans/... | not yet planned]
 - [Item] — added [date], consider refining or removing
 ```
 
-### If bare `/status` (full overview):
+### If bare `/virtual-team:status` (full overview):
 
 1. **Read all project documents based on context:**
 
@@ -179,7 +179,7 @@ Plan: [docs/plans/... | not yet planned]
    - Also read `docs/backlog.md` in the hub — check for epics listed in Ready/Next sections
    - An epic is **incomplete** if ANY of these are true:
      - `status: draft` — epic exists but features haven't been created yet
-     - An `affected_repos` entry hasn't had `/feature` run for it (no matching feature in `docs/features/` referencing this epic)
+     - An `affected_repos` entry hasn't had `/virtual-team:feature` run for it (no matching feature in `docs/features/` referencing this epic)
      - Features exist but have stories not yet Done in service repo backlogs
      - Features exist but have no plan yet
    - Present incomplete epics grouped by what's needed next:
@@ -188,22 +188,22 @@ Plan: [docs/plans/... | not yet planned]
    ## Incomplete Epics
 
    **Needs /feature breakdown:**
-   - **EPIC-002** ([name]) — status: draft, no features created yet → run `/feature --epic=EPIC-002` in [affected repos]
+   - **EPIC-002** ([name]) — status: draft, no features created yet → run `/virtual-team:feature --epic=EPIC-002` in [affected repos]
 
    **Needs planning or implementation:**
-   - **EPIC-001** ([name]) — [repo-x] has 2/5 stories done, [repo-y] hasn't started `/feature` yet
+   - **EPIC-001** ([name]) — [repo-x] has 2/5 stories done, [repo-y] hasn't started `/virtual-team:feature` yet
    - **EPIC-003** ([name]) — all features specced, but [repo-x] has 3 stories still in Ready (no plan yet)
 
    **Hub backlog says next:**
    - [Items from hub's backlog.md Ready/Next section]
 
-   **Suggested:** Continue EPIC-002 by running `/feature --epic=EPIC-002` in [repo],
-   or `/next` in [repo-x] to pick up remaining EPIC-001 stories.
+   **Suggested:** Continue EPIC-002 by running `/virtual-team:feature --epic=EPIC-002` in [repo],
+   or `/virtual-team:next` in [repo-x] to pick up remaining EPIC-001 stories.
    ```
 
    If ALL epics are fully complete (all stories Done across all repos), note it:
    ```
-   All epics complete. Time for a new initiative — run `/epic` in the hub.
+   All epics complete. Time for a new initiative — run `/virtual-team:epic` in the hub.
    ```
 
    **In a service repo** — only when Ready and Doing are both empty:
@@ -213,8 +213,8 @@ Plan: [docs/plans/... | not yet planned]
    - If not accessible: suggest checking the hub manually
    ```
    Backlog is empty. Check the hub for available epics:
-   → Run `/status` in the hub to see incomplete epics
-   → Or run `/feature --epic=EPIC-NNN` if you know which epic to continue
+   → Run `/virtual-team:status` in the hub to see incomplete epics
+   → Or run `/virtual-team:feature --epic=EPIC-NNN` if you know which epic to continue
    ```
 
 6. **End with contextual suggestions:**
@@ -235,12 +235,12 @@ Plan: [docs/plans/... | not yet planned]
 
    ```
    **What to do next:**
-   → Run `/implement` to continue S-015 (search endpoint — in progress)
-   → Or `/flow <description>` to start a new feature (3 items in Ready)
-   → Run `/refine FEAT-003` to resolve 2 open questions
+   → Run `/virtual-team:implement` to continue S-015 (search endpoint — in progress)
+   → Or `/virtual-team:flow <description>` to start a new feature (3 items in Ready)
+   → Run `/virtual-team:refine FEAT-003` to resolve 2 open questions
    ```
 
-   This section is the onboarding entry point — a new user who runs `/status` should immediately know which command to run next without reading any other documentation.
+   This section is the onboarding entry point — a new user who runs `/virtual-team:status` should immediately know which command to run next without reading any other documentation.
 
 ---
 
@@ -249,7 +249,7 @@ Plan: [docs/plans/... | not yet planned]
 While reading the project state, flag anything that looks off:
 
 - **Stuck work:** Something in Doing (`[>]`) for more than a few days with no handoff or progress
-- **Implemented but not PR'd:** Items marked `[=]` (implemented) — remind the founder to run `/pr` to ship them. **Note:** If the work was done on main (no feature branch), `[=]` should not appear — `/implement` goes directly to `[x]`. If you see `[=]` on main, flag it as a status inconsistency and suggest updating to `[x]`.
+- **Implemented but not PR'd:** Items marked `[=]` (implemented) — remind the founder to run `/virtual-team:pr` to ship them. **Note:** If the work was done on main (no feature branch), `[=]` should not appear — `/virtual-team:implement` goes directly to `[x]`. If you see `[=]` on main, flag it as a status inconsistency and suggest updating to `[x]`.
 - **Orphaned stories:** Stories in the backlog that don't link to a feature spec
 - **Missing plans:** Features with stories in Ready but no implementation plan
 - **Stale specs:** Feature specs in draft status for more than 2 weeks
@@ -263,7 +263,7 @@ While reading the project state, flag anything that looks off:
   - `status: draft` or `active` but ALL features across ALL affected repos are Done → should be `done`
   - `status: active` but no features exist yet → should still be `draft`
 - **Orphaned agreements:** Decision records referencing an epic that's been abandoned or completed
-- **Missing features:** Epic lists affected repos but some repos have no `/feature` created for it yet
+- **Missing features:** Epic lists affected repos but some repos have no `/virtual-team:feature` created for it yet
 - **Stale drafts:** Epics in `draft` for more than 2 weeks with no progress
 
 For each stale epic status, suggest the fix directly:
@@ -286,7 +286,7 @@ Report these under "Attention Needed" — don't just flag them, suggest what to 
 2. **Be actionable:**
    - End with a clear suggestion of what to do next
    - Attention items should include what action to take, not just what's wrong
-   - "Feature X has 3 open questions" is less useful than "Feature X has 3 open questions — run `/refine FEAT-X` to resolve them"
+   - "Feature X has 3 open questions" is less useful than "Feature X has 3 open questions — run `/virtual-team:refine FEAT-X` to resolve them"
 
 3. **Be honest:**
    - If the project is stuck, say so

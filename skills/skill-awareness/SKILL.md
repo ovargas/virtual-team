@@ -11,15 +11,15 @@ Behavioral skills must be active when relevant, even in ad-hoc sessions without 
 
 | Context | Skill to load | Trigger |
 |---------|--------------|---------|
-| Writing production code | `test-driven-development` | Before any Edit/Write to non-test files |
-| Claiming completion | `verification-before-completion` | Before saying "done", "complete", "passes" |
-| Receiving review feedback | `receiving-code-review` | When processing review comments |
-| Executing multi-task plan with `--sdd` | `subagent-driven-development` | When `/implement --sdd` is active |
+| Writing production code | `virtual-team:test-driven-development` | Before any Edit/Write to non-test files |
+| Claiming completion | `virtual-team:verification-before-completion` | Before saying "done", "complete", "passes" |
+| Receiving review feedback | `virtual-team:receiving-code-review` | When processing review comments |
+| Executing multi-task plan with `--sdd` | `virtual-team:subagent-driven-development` | When `/virtual-team:implement --sdd` is active |
 
-Domain skills (`api-design`, `data-layer`, `ui-design`, `service-layer`) are NOT auto-triggered. They remain command-driven via `/implement` Layer 1.
+Domain skills (`virtual-team:api-design`, `virtual-team:data-layer`, `virtual-team:ui-design`, `virtual-team:service-layer`) are NOT auto-triggered. They remain command-driven via `/virtual-team:implement` Layer 1.
 
 ## Integration
 
 - **Loaded by:** `SessionStart` hook in `hooks/hooks.json`
 - **Reinforced by:** `PreToolUse` hook on `Edit|Write` calls (TDD + verification check)
-- **Does NOT replace:** command-level skill loading in `/implement` (Layer 0, 1, 2)
+- **Does NOT replace:** command-level skill loading in `/virtual-team:implement` (Layer 0, 1, 2)

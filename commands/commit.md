@@ -22,11 +22,11 @@ The skill defines the commit format. Follow it precisely. Do not improvise.
 ## Invocation
 
 **Usage patterns:**
-- `/commit` — review all changes and create commits
-- `/commit [TICKET-ID]` — commit with a specific ticket reference (e.g., `/commit CTR-12`)
-- `/commit --all` — stage and commit everything (use with caution)
-- `/commit --manual` — ask for confirmation before committing (default is auto-commit without prompts)
-- `/commit path/to/file.ext path/to/other.ext` — commit specific files only
+- `/virtual-team:commit` — review all changes and create commits
+- `/virtual-team:commit [TICKET-ID]` — commit with a specific ticket reference (e.g., `/virtual-team:commit CTR-12`)
+- `/virtual-team:commit --all` — stage and commit everything (use with caution)
+- `/virtual-team:commit --manual` — ask for confirmation before committing (default is auto-commit without prompts)
+- `/virtual-team:commit path/to/file.ext path/to/other.ext` — commit specific files only
 
 ## Process
 
@@ -81,7 +81,7 @@ Does this grouping make sense?
 
 ### Step 4: Write Commit Messages
 
-Follow the format from `git-practices` skill exactly:
+Follow the format from `virtual-team:git-practices` skill exactly:
 
 ```
 <type>(<scope>): <short message> [<ticket-id>]
@@ -136,7 +136,7 @@ For each planned commit:
 ## Important Guidelines
 
 1. **HARD BOUNDARY — Follow the skill:**
-   - The commit format is defined in `skills/git-practices/SKILL.md`
+   - The commit format is defined in `skills/git-practices/SKILL.md` (the `virtual-team:git-practices` skill)
    - Do NOT use a different format, even if past commits in the repo don't follow it
    - If existing commits don't match, follow the skill anyway — it's the new standard
 
@@ -165,7 +165,7 @@ For each planned commit:
 
 7. **Don't push:**
    - This command commits locally. It does NOT push to remote
-   - If the founder wants to push, they do it separately or use `/pr`
+   - If the founder wants to push, they do it separately or use `/virtual-team:pr`
 
 8. **One logical change per commit:**
    - If you have to use "and" in the subject, consider splitting

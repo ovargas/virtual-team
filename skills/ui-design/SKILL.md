@@ -95,7 +95,7 @@ These are the rules for writing frontend code in this project. Follow them when 
 
 **Every screen must have an escape route.** If the user reaches a view with no back button, no navigation drawer, no tab bar, and no other way to leave — that's a dead end. Dead ends are especially common in mobile UIs after completing a flow (success screens, confirmation pages, detail views opened from notifications).
 
-This is not a hard requirement to add navigation elements to every screen. It is a **mandatory check during `/implement`**: when building a view, assess whether the user has a way to navigate away. If they don't, raise it.
+This is not a hard requirement to add navigation elements to every screen. It is a **mandatory check during `/virtual-team:implement`**: when building a view, assess whether the user has a way to navigate away. If they don't, raise it.
 
 ### When Implementing a Screen
 

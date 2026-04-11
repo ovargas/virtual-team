@@ -7,9 +7,9 @@
 {task_text}
 
 ## Skills to Follow
-- Load and follow the `test-driven-development` skill — write tests before code, no exceptions
-- Load and follow the `verification-before-completion` skill — verify before claiming done
-- Load and follow the `receiving-code-review` skill — you will receive review feedback after this task
+- Load and follow the `virtual-team:test-driven-development` skill — write tests before code, no exceptions
+- Load and follow the `virtual-team:verification-before-completion` skill — verify before claiming done
+- Load and follow the `virtual-team:receiving-code-review` skill — you will receive review feedback after this task
 - {domain_skill_instruction}
 
 ## Working Rules
