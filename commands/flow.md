@@ -8,7 +8,7 @@ model: opus
 
 You are a pipeline orchestrator that runs the full development cycle from idea to pull request. You execute each command in sequence, evaluate the output at every step, and either continue automatically or pause to resolve missing information — all within a single session.
 
-**Core principle:** You never skip a step. You never reduce scope to avoid a gate. Every artifact gets produced. The difference from running commands manually is that you chain them and resolve issues interactively at the gates instead of stopping and asking the user to fix things externally.
+**Core principle:** You produce every artifact required by the assessed triage level. You never reduce scope to avoid a gate. The difference from running commands manually is that you chain them and resolve issues interactively at the gates instead of stopping and asking the user to fix things externally.
 
 ## Invocation
 
@@ -35,6 +35,7 @@ You are a pipeline orchestrator that runs the full development cycle from idea t
 - `--sdd` — pass `--sdd` to `/virtual-team:implement` for subagent-driven development mode. Use for complex features with 5+ plan tasks. Can be used independently of `--deep`.
 - `--auto` — minimize interactive gates. Only stop on hard failures (incomplete contracts, failing tests, unresolved architectural decisions). Soft gates (TBDs that have reasonable defaults, optional improvements) are auto-resolved.
 - `--fresh` — delete any existing flow checkpoint and start from scratch
+- `--level=N` — override the triage-assessed ceremony level (1=full, 2=standard, 3=minimal). Without this flag, triage auto-detects the level. `--deep` forces Level 1. `--quick` (with `--fix`) forces Level 3.
 
 Flags combine: `/virtual-team:flow --deep --to=plan Add search capability` runs agent-powered analysis through plan and stops.
 
@@ -44,6 +45,7 @@ Flags combine: `/virtual-team:flow --deep --to=plan Add search capability` runs 
 1. Read `stack.md` — understand the project
 2. Load the backlog skill (read `skills/backlog/SKILL.md` → read `stack.md` for `backlog:` field → read `skills/backlog-{value}/SKILL.md`) and call **`list(status=all)`** to understand current state
 3. Check `docs/checkpoints/flow-*.md` if `--resume` was passed
+4. **Load the triage skill** (`skills/triage/SKILL.md`) — run triage assessment before executing any pipeline step (see "Triage Assessment" below)
 
 ## Auto-Detection (bare invocation)
 
@@ -153,12 +155,58 @@ Which item should I resume? (Enter number, or describe a new feature to start fr
 
 Wait for the user's selection before proceeding. If the user provides a feature description instead of a number, treat it as a new `/virtual-team:flow <description>` invocation.
 
+## Triage Assessment (Step 0)
+
+**Before executing any pipeline step**, run a triage assessment to determine the ceremony level. This happens after Required Reading and after Auto-Detection (if applicable).
+
+**Skip triage if:**
+- Resuming from a checkpoint that already has a `triage_level` recorded
+- `--from=STEP` was passed (prior steps are done, triage was already decided)
+
+**Run triage:**
+1. Load the triage skill (`skills/triage/SKILL.md`)
+2. Follow its Assessment Protocol — gather signals, score, classify
+3. **Flag overrides:** `--deep` forces Level 1. `--quick` (with `--fix`) forces Level 3. `--level=N` uses the specified level. These skip auto-detection.
+4. **If `--auto`:** Use the detected level silently. Log it in the flow checkpoint.
+5. **If interactive:** Present the assessment and wait for confirmation or override.
+6. Record the level in the flow checkpoint as `triage_level: N`
+
+**The assessed level determines which pipeline steps execute.** See the pipeline definitions below.
+
 ## Pipeline Steps
 
-The full pipeline is:
+The pipeline adapts based on the triage level:
 
+**Level 1 — Full:**
 ```
-/virtual-team:feature → /virtual-team:contracts → /virtual-team:plan → /virtual-team:implement → /virtual-team:review + /virtual-team:validate  → /pr
+/feature → /contracts → /plan → /implement → /review + /validate → /pr
+```
+
+**Level 2 — Standard:**
+```
+/feature (compact) → /implement (inline analysis) → /review → /pr
+```
+
+**Level 3 — Minimal:**
+```
+/implement → /review (single-pass) → /pr
+```
+
+**Bug fix pipelines:**
+
+**Level 1 — Full:**
+```
+/bug → /debug → /plan → /implement → /review + /validate → /pr
+```
+
+**Level 2 — Standard:**
+```
+/bug → /implement → /review → /pr
+```
+
+**Level 3 — Minimal:**
+```
+/implement → /review (single-pass) → /pr
 ```
 
 Each step is executed by invoking the actual command's logic (not by literally running a slash command — you ARE the orchestrator, you execute each step's full process inline).
@@ -185,6 +233,7 @@ After each step completes, write a checkpoint to `docs/checkpoints/flow-checkpoi
 started: YYYY-MM-DD HH:MM
 feature_description: "<original description>"
 flags: [--deep, --here]  # flags passed to /flow
+triage_level: 2  # 1=full, 2=standard, 3=minimal — assessed by triage skill
 ---
 
 # Flow Checkpoint
@@ -256,7 +305,9 @@ For architectural or scope questions that could reshape the work. The flow:
 
 **On clean pass:** Report "Feature spec complete — proceeding to /contracts" and continue.
 
-### Gate: After /contracts
+### Gate: After /contracts (Level 1 only)
+
+**Skip this gate for Level 2 and Level 3** — `/contracts` is not executed at those levels.
 
 **Check for:**
 - Schema files with placeholder types (`"type": "TBD"`, `"type": "object"` without properties)
@@ -278,7 +329,9 @@ For architectural or scope questions that could reshape the work. The flow:
 
 **On clean pass:** Report "All contracts defined and complete — proceeding to /plan" and continue.
 
-### Gate: After /plan
+### Gate: After /plan (Level 1 only)
+
+**Skip this gate for Level 2 and Level 3** — `/plan` is not executed at those levels.
 
 **Check for:**
 - Plan references files/modules that don't exist in the codebase
@@ -321,7 +374,9 @@ For architectural or scope questions that could reshape the work. The flow:
 
 ### Gate: After /virtual-team:review + /virtual-team:validate  (Quality Gate)
 
-**This gate runs both `/virtual-team:review` and `/virtual-team:validate` in parallel** after the `/virtual-team:implement` gate passes. They check orthogonal concerns — code quality vs spec alignment — so they don't need to wait for each other.
+**Level 2 and Level 3:** This gate runs `/review` only. The verdict determines pass/fail — APPROVE or APPROVE WITH NOTES proceeds to `/pr`, REQUEST CHANGES halts. The validation columns in the gate table below do not apply.
+
+**Level 1:** This gate runs both `/virtual-team:review` and `/virtual-team:validate` in parallel** after the `/virtual-team:implement` gate passes. They check orthogonal concerns — code quality vs spec alignment — so they don't need to wait for each other.
 
 **Parallel execution:**
 - `/virtual-team:review` runs against the git diff (all changes on the branch). Uses the feature ID from the flow context to load the spec and plan for acceptance criteria checking.
@@ -448,17 +503,21 @@ Delete the flow checkpoint file on successful completion.
 When executing each step, you follow the FULL logic of that command as defined in its `commands/*.md` file. You don't simplify or shortcut. Specifically:
 
 ### Executing /feature
-- Follow all phases from `feature.md`: Initial Response, Understand, YAGNI Assessment, Research, Specify, Document, Stories
+- **Level 1:** Follow all phases from `feature.md`: Initial Response, Understand, YAGNI Assessment, Research, Specify, Document, Stories. Full spec template.
+- **Level 2:** Follow `feature.md` but use the compact spec template (from `skills/triage/SKILL.md`). Compress Phases 1-4 into a focused conversation. Skip Phase 6 (story breakdown) if single-story — add one backlog entry directly.
+- **Level 3:** Skip `/feature` entirely. The feature description goes directly to `/implement`, and context is captured in the PR description.
 - Pass `--deep` if `/virtual-team:flow --deep` was used
 - The feature description from `/virtual-team:flow`'s arguments becomes the input
 - Write the checkpoint after the spec is committed
 
 ### Executing /contracts
+- **Level 1 only.** Skip for Level 2 and Level 3.
 - Follow `contracts.md`: extract contracts from the feature spec just produced
 - Use `contracts extract docs/features/<the-spec-just-written>.md`
 - Validate all schemas for completeness before passing the gate
 
 ### Executing /plan
+- **Level 1 only.** Skip for Level 2 and Level 3.
 - Follow `plan.md`: read the feature spec and contracts, produce a phased plan
 - Pass `--deep` if `/virtual-team:flow --deep` was used
 - Reference the contracts as implementation constraints
@@ -468,7 +527,9 @@ When executing each step, you follow the FULL logic of that command as defined i
 **Dispatch decision:** If `--deep` or `--sdd` is active, or the context budget heuristic triggers, dispatch as a fresh-context subagent (see "Fresh-Context Dispatch" section). Otherwise, run inline.
 
 **Inline mode (default):**
-- Follow `implement.md`: execute the plan phase by phase
+- **Level 1:** Follow `implement.md`: execute the plan phase by phase
+- **Level 2:** Follow `implement.md` in planless mode: pass `--triage=standard` so it does inline analysis from the feature spec's Implementation Hints instead of requiring a plan document
+- **Level 3:** Follow `implement.md` in planless mode: pass `--triage=minimal` so it works from the feature/bug description alone
 - Pass `--deep` if `/virtual-team:flow --deep` was used
 - Pass `--auto` if `/virtual-team:flow --auto` was used (skip manual pause points between phases, but still run verification)
 - Run full verification at the end (tests, lint, typecheck)
@@ -482,6 +543,10 @@ When executing each step, you follow the FULL logic of that command as defined i
 - Run in foreground — the flow waits for the subagent to complete before evaluating the post-implement gate
 
 ### Executing /virtual-team:review + /virtual-team:validate  (parallel)
+
+**Level 2 and Level 3:** Run `/review` only — skip `/validate`. The review checks acceptance criteria inline. For Level 3, use a single-pass review (inline, no specialized agents) focused on correctness.
+
+**Level 1 (full dispatch):**
 
 **Dispatch decision:** If `--deep` or `--sdd` is active, or the context budget heuristic triggers, dispatch both as fresh-context subagents in parallel (see "Fresh-Context Dispatch > Dispatching `/virtual-team:review` + `/virtual-team:validate`"). Otherwise, run inline.
 

@@ -5,13 +5,28 @@ description: Bug fix pipeline for /flow --fix mode. Loaded conditionally by flow
 
 ## Bug Fix Pipeline (`--fix` mode)
 
-When `--fix` is passed, the orchestrator runs a compressed pipeline designed for bug fixes:
+When `--fix` is passed, the orchestrator runs a compressed pipeline designed for bug fixes. The pipeline adapts based on the triage level:
 
+**Level 1 — Full:**
 ```
-/virtual-team:bug → /virtual-team:debug → implement fix → /virtual-team:review + /virtual-team:validate  → /pr
+/bug → /debug → implement fix → /review + /validate → /pr
+```
+
+**Level 2 — Standard:**
+```
+/bug → implement fix → /review → /pr
+```
+
+**Level 3 — Minimal (same as `--quick`):**
+```
+implement fix → /review (single-pass) → /pr
 ```
 
 No `/virtual-team:feature`, `/virtual-team:contracts`, or formal `/virtual-team:plan` — the bug report and debug investigation serve as the spec. The debug output (root cause, all occurrences, suggested fix) becomes the implementation guide.
+
+**Level 2 note:** `/debug` is skipped — the developer goes straight from documenting the bug to fixing it. This works when the bug has a known or obvious cause. If the fix attempt reveals the root cause is unclear, the developer can escalate mid-pipeline: "this needs investigation" triggers `/debug` on the fly.
+
+**Level 3 note:** Both `/bug` and `/debug` are skipped — equivalent to `--quick`. The fix description and PR carry the context.
 
 ### Mode Detection
 
@@ -94,12 +109,22 @@ This replaces the formal `/virtual-team:implement` step. The orchestrator implem
 
 ### Quality Gate (fix mode)
 
-After implementation passes, the quality gate runs exactly as in the feature pipeline (see the quality gate section in `commands/flow.md`):
+After implementation passes, the quality gate adapts to the triage level:
+
+**Level 1 (Full):**
 - `/virtual-team:review` checks the fix for correctness, patterns, security
 - `/virtual-team:validate` checks against the bug report's expected behavior and all listed occurrences
 - Halt on Must Fix issues or validation gaps (even in `--auto`)
 - `/virtual-team:review` always dispatches specialized passes (no `--deep` needed). If `--deep` was passed, pass `--deep` to `/virtual-team:validate`
 - The auto-fix cycle applies here too — mechanical Must Fix issues are auto-fixed and re-reviewed (max 3 iterations), architectural concerns halt for human judgment
+
+**Level 2 (Standard):**
+- `/virtual-team:review` only — skip `/validate`. The review checks correctness and patterns.
+- Halt on Must Fix issues (even in `--auto`)
+
+**Level 3 (Minimal):**
+- Single-pass `/review` (inline, no specialized agents) — focus on correctness only
+- Halt on Must Fix issues (even in `--auto`)
 
 ### Executing /virtual-team:pr (fix mode)
 
@@ -115,6 +140,7 @@ started: YYYY-MM-DD HH:MM
 bug_description: "users can't log in after password reset"
 bug_id: BUG-007
 flags: [--fix]
+triage_level: 2  # 1=full, 2=standard, 3=minimal
 ---
 
 # Flow Checkpoint (Bug Fix)

@@ -396,12 +396,22 @@ If the founder adds context here, incorporate it into the spec. If they say "loo
 
 **Goal:** Produce the feature spec as a permanent record.
 
-1. **Create the spec** at `docs/features/YYYY-MM-DD-feature-name.md` where:
+1. **Determine template based on triage level:**
+   - **Level 1 (Full):** Use the full template below (all 18 sections)
+   - **Level 2 (Standard):** Use the compact template defined in `skills/triage/SKILL.md` under "Compact Feature Spec". Add `triage: standard` to the frontmatter.
+   - **Level 3 (Minimal):** Skip this phase entirely — `/feature` is not executed at Level 3.
+
+   The triage level is determined by:
+   - The `--level=N` flag if passed to `/flow`
+   - The triage skill's auto-detection if running within `/flow`
+   - Default to Level 1 if `/feature` is invoked standalone (unless the user says the feature is simple)
+
+2. **Create the spec** at `docs/features/YYYY-MM-DD-feature-name.md` where:
    - YYYY-MM-DD is today's date
    - feature-name is a brief kebab-case description
    - Example: `2026-02-12-task-assignment-notifications.md`
 
-2. **Use this template:**
+3. **Use this template (Level 1 — Full):**
 
 ```markdown
 ---
@@ -409,6 +419,7 @@ id: FEAT-[NNN]
 date: [YYYY-MM-DD]
 status: draft
 type: feature
+triage: full
 epic: [EPIC-NNN if driven by a hub epic, omit otherwise]
 hub_decisions: [ADR-005, ADR-006 — decisions from hub that constrain this feature]
 research_level: [skip|light|deep]
@@ -601,6 +612,12 @@ Key things to check:
 ---
 
 ## Phase 6: Story Breakdown
+
+**Level 2 (Standard) — single-story shortcut:** If triage assessed Level 2 and the feature is a single capability, skip the story breakdown. Add one backlog entry directly with the feature ID, title, and spec path. Proceed to the next pipeline step.
+
+**Level 3 (Minimal):** This phase is skipped — `/feature` is not executed at Level 3.
+
+**Level 1 (Full):** Full story breakdown below.
 
 **Goal:** Split the feature into implementable stories for the backlog, using **vertical slicing** — each story delivers one complete, testable capability through all layers.
 

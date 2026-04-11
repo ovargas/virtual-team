@@ -27,6 +27,7 @@ This is the ONE command that writes code. Every other command in the pre-impleme
 - `--sdd` — subagent-driven development: the main session becomes an orchestrator that never writes code itself. Dispatches a fresh subagent per plan task with two-stage review (spec compliance + code quality). Use for plans with 5+ tasks. Loads the `virtual-team:subagent-driven-development` skill for the full orchestration protocol.
 - `--phase=N` — resume from a specific phase
 - `--fresh` — delete any existing checkpoint and start from scratch
+- `--triage=standard|minimal` — override triage level. `standard` allows planless execution with inline analysis from the feature spec. `minimal` works from the description alone. Without this flag, the triage level is read from the feature spec's frontmatter or defaults to Level 1 (plan required).
 - Flags combine: `/virtual-team:implement --auto --deep --phase=2`
 
 ## Initial Response
@@ -92,7 +93,15 @@ When this command is invoked:
      Nothing to implement. Run `/virtual-team:implement` to pick up more work.
      ```
 
-2. **Check plan approval status:**
+2. **Determine triage level and check plan accordingly:**
+
+   **Triage level detection:** Check (in order):
+   - If `--triage=standard` or `--triage=minimal` was passed → use that level
+   - If the feature spec has `triage: standard` or `triage: minimal` in frontmatter → use that level
+   - If invoked from `/flow`, the flow passes the triage level → use it
+   - Otherwise → default to Level 1 (full), which requires a plan
+
+   **Level 1 (Full) — Plan required:**
    - Read the plan's frontmatter `status` field
    - If `status: approved` → proceed
    - If `status: draft` → **STOP:**
@@ -108,9 +117,19 @@ When this command is invoked:
      ```
    - Do NOT proceed with implementation on an unapproved plan. This is not optional.
 
-3. **Check payload/contract completeness (hard gate):**
+   **Level 2 (Standard) — Plan not required, inline analysis instead:**
+   - No plan document needed. If one exists and is approved, use it (opportunistic).
+   - If no plan exists, proceed to **Inline Analysis** (see below).
 
-   Before writing any code, scan the plan and feature spec for every API endpoint, event, or inter-service message this story touches. For each one, verify that the **request payload**, **response payload**, and **error responses** are fully defined — every field, every type, every constraint.
+   **Level 3 (Minimal) — No plan, no spec required:**
+   - Work from the bug/feature description and codebase alone.
+   - Proceed to **Inline Analysis** (see below).
+
+3. **Check payload/contract completeness (Level 1 only):**
+
+   **Skip this gate for Level 2 and Level 3.** At those levels, types in code are the contracts — the implementation defines them as it goes.
+
+   **Level 1 gate:** Before writing any code, scan the plan and feature spec for every API endpoint, event, or inter-service message this story touches. For each one, verify that the **request payload**, **response payload**, and **error responses** are fully defined — every field, every type, every constraint.
 
    **Check contract files first:** If `contracts/` directory exists, look for matching schema files (`contracts/endpoints/`, `contracts/models/`, `contracts/events/`). These are the authoritative source — they override anything in prose docs.
 
@@ -146,31 +165,96 @@ When this command is invoked:
    - Enum/union types list all possible values
    - If the endpoint references a shared model, that model must also be defined
 
-   **This gate is not optional.** Do not proceed with "I'll use reasonable defaults" or "I'll follow common patterns." The whole point is to prevent the implementation from diverging from the agreed-upon contracts.
+   **This gate is not optional at Level 1.** Do not proceed with "I'll use reasonable defaults" or "I'll follow common patterns." The whole point is to prevent the implementation from diverging from the agreed-upon contracts.
 
 4. **Read the full context:**
-   - The implementation plan (required — refuse to implement without one unless the story is trivially small)
+
+   **Level 1:**
+   - The implementation plan (required)
    - The feature spec it references
    - `stack.md` — the tech stack and conventions
    - Contract files from `contracts/` (if they exist) — these are **hard constraints**, not suggestions
    - Any research or decision docs referenced
 
+   **Level 2:**
+   - The feature spec (compact template — read the Implementation Hints section carefully)
+   - `stack.md` — the tech stack and conventions
+   - The pattern files referenced in Implementation Hints
+   - Any existing plan (if one happens to exist — use it opportunistically)
+
+   **Level 3:**
+   - `stack.md` — the tech stack and conventions
+   - The bug/feature description from the user or backlog entry
+   - Quick codebase scan for related files
+
 5. **If `--phase=N` was specified**, skip to that phase. Otherwise, start from the beginning (or resume from the last completed phase if continuing a session).
 
 6. **Present the implementation overview:**
 
-```
-**Implementing:** [Story/Feature name]
-**Plan:** [path to plan]
-**Phases:** [N] total
-**Starting at:** Phase [N]
+   **Level 1:**
+   ```
+   **Implementing:** [Story/Feature name]
+   **Plan:** [path to plan]
+   **Phases:** [N] total
+   **Starting at:** Phase [N]
 
-I'll work through each phase, verify at each boundary, and pause when the plan requires your confirmation.
+   I'll work through each phase, verify at each boundary, and pause when the plan requires your confirmation.
+   ```
 
-Beginning Phase 1: [Phase name]
-```
+   **Level 2 and Level 3:**
+   ```
+   **Implementing:** [Story/Feature name]
+   **Triage:** [Standard | Minimal] (no formal plan)
+   **Spec:** [path to feature spec, or "from description"]
+   **Pattern:** [file:line reference to the closest existing implementation]
+   **Files to modify:** [list from spec's Implementation Hints or codebase scan]
+
+   I'll analyze the codebase, implement the changes, and verify at the end.
+   ```
+
+## Inline Analysis (Level 2 and Level 3)
+
+When no formal plan exists, `/implement` does lightweight analysis before writing code. This replaces the plan document — it's "planning in your head," not "planning on paper."
+
+### Level 2 Inline Analysis
+
+1. **Read the feature spec's Implementation Hints** — extract:
+   - Pattern to follow (file:line reference)
+   - Files to modify/create (table)
+   - Key considerations and constraints
+
+2. **Read the pattern files** referenced in Implementation Hints. Understand the existing approach: file structure, naming conventions, test patterns.
+
+3. **Scan for related code** — use Glob and Grep to find:
+   - Files that import or depend on what you're changing
+   - Test files for the areas being modified
+   - Configuration files that might need updating
+
+4. **Mentally sequence the work** — determine the natural order:
+   - Data model changes first (if any)
+   - Business logic
+   - API endpoints / UI
+   - Tests throughout (following TDD skill)
+
+5. **Present the brief analysis** (included in the implementation overview above) and proceed to coding.
+
+### Level 3 Inline Analysis
+
+1. **Parse the task description** — extract the intent and scope
+2. **Quick codebase scan** — find the file(s) to modify (Glob + Grep, max 3 queries)
+3. **Read the relevant file(s)** — understand what exists
+4. **Implement the change** — follow existing patterns in the file
+5. **Verify** — run tests, lint, typecheck
+
+No presentation step — just do it.
 
 ## Execution Model
+
+**Level 1:** Follow the phased execution model below — one phase at a time, verify at boundaries, pause when the plan says to.
+
+**Level 2:** Treat the work as a single phase. Follow the Inline Analysis above, then implement all changes, then run final verification (tests, lint, typecheck). No phase boundaries or pause points unless the work naturally splits into testable milestones.
+
+**Level 3:** Same as Level 2 but even simpler — implement the change, verify it works, done.
 
 ### For Each Phase
 
