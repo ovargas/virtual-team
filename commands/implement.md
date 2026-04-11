@@ -13,12 +13,13 @@ This is the ONE command that writes code. Every other command in the pre-impleme
 ## Invocation
 
 **Usage patterns:**
-- `/virtual-team:implement` — continue implementing the current in-progress story (reads from backlog Doing state)
+- `/virtual-team:implement FEAT-003` — implement all stories for this feature
+- `/virtual-team:implement BUG-005` — implement the fix for this bug
+- `/virtual-team:implement` — interactive selection of available FEATs/BUGs
 - `/virtual-team:implement docs/plans/2026-02-12-notifications.md` — implement a specific plan
 - `/virtual-team:implement --phase=2` — resume from a specific phase (after a session break)
-- `/virtual-team:implement --story=S-005` — implement a specific story
-- `/virtual-team:implement --auto` — autonomous mode, skip manual pause points
-- `/virtual-team:implement --sdd` — subagent-driven development mode, dispatch fresh subagent per task with two-stage review
+- `/virtual-team:implement --auto FEAT-003` — autonomous mode, skip manual pause points
+- `/virtual-team:implement --sdd FEAT-003` — subagent-driven development mode, dispatch fresh subagent per task with two-stage review
 
 **Flags:**
 - `--auto` — autonomous mode: skip manual pause/confirmation points between phases. Still runs all automated verification (tests, lint, typecheck) and still stops on failures. Only skips "pause for manual confirmation" gates. Use this for Ralph Wiggum loops or batch processing.
@@ -40,26 +41,56 @@ When this command is invoked:
    - **On successful completion:** delete the checkpoint file (bundle deletion into the final commit)
 
 1. **Determine what to implement:**
-   - If a plan path was provided, read it
-   - If a story was specified, find its parent plan in `docs/plans/`
-   - If bare `/virtual-team:implement`, load the backlog skill (read `stack.md` → backlog interface → implementation) and call **`list(status=doing)`** to find items in progress. Read the associated plan.
+
+   Load the backlog skill: read `stack.md` → backlog interface → implementation.
+
+   **If a FEAT/BUG ID was provided as argument:**
+   - Call **`list(feature=FEAT-NNN, status=all)`** to get all stories for this feature
+   - Check story statuses:
+     - If ALL stories are `done` → STOP: "All stories for FEAT-NNN are already complete."
+     - If a story is `doing` → continue from the in-progress story
+     - If some stories are `done` and some are `ready` → pick the first `ready` story (resume from where left off, by `order:N`)
+     - If all stories are `ready` → start from the first story (lowest `order:N`), call **`start(id)`** to mark it doing
+   - Read the feature spec and find/read the implementation plan in `docs/plans/`
+
+   **If a plan path was provided:**
+   - Read the plan directly
+   - Use the plan's `feature:` frontmatter to identify the feature and its stories
+
+   **If no argument provided (bare `/virtual-team:implement`):**
+   - **For local backlog:**
+     - Call **`list(status=doing)`** — check for in-progress work
+     - If found: present the in-progress FEAT/BUG and offer to continue via `AskUserQuestion`:
+       "You have in-progress work: [FEAT-NNN] — [title]. Continue?"
+     - If not found: call **`list(status=ready)`** — group items by feature/bug ID
+     - Present available FEATs/BUGs via `AskUserQuestion` with options like:
+       - "FEAT-003: Task notifications (3 stories ready)"
+       - "BUG-005: Login failure after reset (1 story ready)"
+     - Include an option for the user to type an ID directly
+   - **For external backlog:**
+     - Query the external service for items assigned to the user in `doing` state
+     - If found: offer to continue
+     - If not found: query for items assigned to the user in `ready` state, group by feature/bug
+     - If the selected FEAT/BUG is not assigned to the user, present an option to continue with it or pick from a list of assigned items via `AskUserQuestion`
+     - Present via `AskUserQuestion`
+
+   **Status handling for the selected item:**
    - If the item is marked as Implemented (`[=]`):
      - **If on a feature branch → STOP:**
        ```
        ✅ This story is already implemented (marked [=] in the backlog).
        It's waiting for a PR. Run `/virtual-team:pr` to commit and create the pull request.
        ```
-     - **If on main/master/develop:** This is a stale status — `/virtual-team:implement` on main should have set `[x]`, not `[=]`. Fix it now: update `[=]` to `[x]` in the backlog, release any lock, update the feature spec status if all stories are done, and commit. Then **STOP** with:
+     - **If on main/master/develop:** Fix stale status: update `[=]` to `[x]`, update the feature spec status if all stories are done, and commit. Then **STOP:**
        ```
        ✅ This story was already implemented. Fixed stale status: [=] → [x].
-       Nothing to implement. Run `/virtual-team:next` to pick up new work.
+       Nothing to implement. Run `/virtual-team:implement` to pick up more work.
        ```
    - If the item is marked as Done (`[x]`), **STOP:**
      ```
      ✅ This story is already done (marked [x] in the backlog).
-     Nothing to implement. Run `/virtual-team:next` to pick up new work.
+     Nothing to implement. Run `/virtual-team:implement` to pick up more work.
      ```
-   - If nothing is in progress: "Nothing in Doing. Run `/virtual-team:next` to pick up work first."
 
 2. **Check plan approval status:**
    - Read the plan's frontmatter `status` field
@@ -124,9 +155,9 @@ When this command is invoked:
    - Contract files from `contracts/` (if they exist) — these are **hard constraints**, not suggestions
    - Any research or decision docs referenced
 
-4. **If `--phase=N` was specified**, skip to that phase. Otherwise, start from the beginning (or resume from the last completed phase if continuing a session).
+5. **If `--phase=N` was specified**, skip to that phase. Otherwise, start from the beginning (or resume from the last completed phase if continuing a session).
 
-5. **Present the implementation overview:**
+6. **Present the implementation overview:**
 
 ```
 **Implementing:** [Story/Feature name]
@@ -202,6 +233,21 @@ Beginning Phase 1: [Phase name]
 
 6. **If the plan does NOT require manual confirmation**, proceed to the next phase automatically after automated verification passes.
 
+### Story Advancement
+
+After completing all phases for the current story within a multi-story feature:
+
+1. **Update the backlog** — call **`complete(id, reference)`** to mark the current story done (see "After All Phases" below for branch-aware behavior)
+2. **Check for remaining stories** — call **`list(feature=FEAT-NNN, status=ready)`** to find remaining stories
+3. **If more stories exist:**
+   - Announce: "Story [id] complete. Advancing to next story: [next_id] — [title]"
+   - Call **`start(next_id)`** to mark it doing
+   - Find the plan phase for the next story (or the next phase in the feature plan)
+   - Continue implementation without stopping
+4. **If no more stories:**
+   - Announce: "All stories for FEAT-NNN are complete."
+   - Present next steps: `/virtual-team:review`, `/virtual-team:pr`
+
 ### After All Phases
 
 1. **Run final verification** from the plan:
@@ -236,13 +282,11 @@ Beginning Phase 1: [Phase name]
    ```
 
    **If on a feature branch (not main/master/develop)** — PR flow:
-   - Call **`mark_implemented(id, branch)`** — this updates the item status from doing to implemented (pending PR) and commits the change
+   - Call **`mark_implemented(id)`** — this updates the item status from doing to implemented (pending PR) and commits the change
    - The implemented status means: code is done, tests pass, but it hasn't been committed/PR'd yet
-   - This prevents accidentally re-planning or re-implementing a completed story
-   - **Note:** The lock stays active until `/virtual-team:pr` calls **`complete()`** — the work is done but the branch still owns the item
 
    **If on main/master/develop** — direct completion (no PR coming):
-   - Call **`complete(id, 'completed on main')`** — this updates the status from doing directly to done (skipping implemented since there's no PR step), releases the lock, checks feature completion, and commits all changes together
+   - Call **`complete(id, 'completed on main')`** — this updates the status from doing directly to done (skipping implemented since there's no PR step), checks feature completion, and commits all changes together
 
 5. **Present completion (branch-aware):**
 
@@ -272,12 +316,11 @@ Beginning Phase 1: [Phase name]
    - [N] manual verification items remaining
    - Backlog updated: [>] Doing → [x] Done
    - Feature status: [updated status]
-   - Lock released: [yes/no lock existed]
 
    **Next steps:**
    - Run `/virtual-team:review` for a code review
    - Complete manual testing items above
-   - Run `/virtual-team:next` to pick up more work
+   - Run `/virtual-team:implement` to pick up more work
    ```
 
 ---
