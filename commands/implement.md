@@ -424,6 +424,8 @@ If a stack-specific skill conflicts with a generic skill, follow the stack-speci
 
 Layer 0 is always loaded. For Layers 1 and 2, only load the skill(s) relevant to the current phase — don't load all of them at once.
 
+> **Why this matters:** Each domain skill is ~150 lines (~2,000 tokens). Each stack skill can be 200+ lines (~2,600+ tokens). Loading all four domain skills upfront adds ~8,000 tokens of instructions irrelevant to the current phase. Load the one you need when you need it — your context budget is better spent on code.
+
 ---
 
 ## Important Guidelines

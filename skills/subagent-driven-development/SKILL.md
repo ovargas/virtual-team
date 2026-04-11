@@ -62,6 +62,8 @@ Present the wave grouping to the user before dispatching:
 | 3 | T6 | T3, T4, T5 |
 
 **File conflicts resolved:** [none | list]
+
+**Estimated subagent sessions:** [N tasks] implementers + [N tasks × 2] reviewers + 1 holistic review = [total] sessions
 ```
 
 ## Orchestration Protocol

@@ -379,6 +379,15 @@ If 10+ occurrences are found, the issue is flagged as systemic — requiring a f
 | One-liner rules ("never import from internal/legacy") | `CLAUDE.md` |
 | Factual stack definitions (what framework, what ORM) | `stack.md` |
 
+### Stack Skill Size
+
+Keep stack-specific skills under **~200 lines** (~2,600 tokens). Each stack skill loads into context alongside the generic domain skill during implementation. Larger skills consume context budget that's better spent on actual code.
+
+If your stack conventions exceed 200 lines:
+- Put the core rules (most-used patterns, critical conventions) in the skill
+- Link to external docs or a reference file for comprehensive examples
+- Split into focused skills by domain if needed (e.g., `go-gin-api` and `go-gorm-data` instead of one giant `go` skill)
+
 ---
 
 ## Agents

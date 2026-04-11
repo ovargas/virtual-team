@@ -3,11 +3,14 @@
 ## Doing
 
 ## Ready
-- [x] S-014: Strip lock infrastructure from backlog skills | feature:FEAT-014 | group:1 | order:1 | spec:docs/features/2026-04-10-remove-next-command.md
-- [x] S-015: Delete /next command and update /implement for FEAT/BUG selection | feature:FEAT-014 | group:1 | order:2 | spec:docs/features/2026-04-10-remove-next-command.md
-- [x] S-016: Update /flow pipeline and all cross-references | feature:FEAT-014 | group:1 | order:3 | spec:docs/features/2026-04-10-remove-next-command.md
 
 ## Done
+- [x] S-019: Add cost transparency and stack skill size guidance | feature:FEAT-015 — completed on main
+- [x] S-018: Reinforce lazy domain skill loading in /implement and subagent dispatch | feature:FEAT-015 — completed on main
+- [x] S-017: Extract bug-fix pipeline from flow.md into conditional file | feature:FEAT-015 — completed on main
+- [x] S-016: Update /flow pipeline and all cross-references | feature:FEAT-014 — completed on main
+- [x] S-015: Delete /next command and update /implement for FEAT/BUG selection | feature:FEAT-014 — completed on main
+- [x] S-014: Strip lock infrastructure from backlog skills | feature:FEAT-014 — completed on main
 - [x] S-013: Add auto-detection to bare /flow invocation — completed on main
 - [x] S-012: Add auto-fix cycle to quality gate — completed on main
 - [x] S-011: Add specialized parallel review dispatch — completed on main
