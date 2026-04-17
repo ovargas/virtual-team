@@ -79,7 +79,7 @@ I'll create a proposal based on:
 Anything to add or adjust before I draft the proposal?
 ```
 
-Wait for confirmation before proceeding. If `--auto` behavior is desired (e.g., during Ralph Wiggum loops), skip confirmation — but this command benefits from human review, so default is to ask.
+Wait for confirmation before proceeding. This command always asks — proposals shape pricing and commitments, so human review is required even in automated pipelines.
 
 ### Phase 2: Scope Analysis
 

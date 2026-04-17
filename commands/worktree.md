@@ -181,7 +181,7 @@ Shorthand:
    - Never create worktrees from inside another worktree
    - Worktrees are always at `../{repo}-worktrees/{branch}`
 
-6. **Ask before destructive actions:**
+5. **Ask before destructive actions:**
    - Removing worktrees with changes
    - Deleting branches
    - Cleaning up multiple worktrees

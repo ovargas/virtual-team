@@ -263,12 +263,7 @@ This step runs ONLY when `--remediate` was passed.
    - Change `status: needs-work` → `status: fix-planned`
    - Add `fix_stories: [list of story references]`
 
-7. **Commit the changes:**
-   ```bash
-   git add docs/validations/FEAT-NNN-validation.md
-   git commit -m "chore(backlog): add gap stories from FEAT-NNN validation"
-   ```
-   Note: The backlog skill handles staging its own files as part of the `create()` operation.
+7. **Commit the changes** following `skills/git-practices/SKILL.md` conventions. Suggested message: `chore(backlog): add gap stories from FEAT-NNN validation`. Note: The backlog skill handles staging its own files as part of the `create()` operation.
 
 8. **Present the result:**
 

@@ -228,12 +228,7 @@ Formulate and verify the root cause.
      - [=] BUG-003: Bug title — `fix/CTR-45` — investigated, root cause found
      ```
    - **If found in Ready or not in the backlog:** Leave it, just note it in the findings
-   - Commit backlog updates if any:
-     ```bash
-     git add docs/bugs/[bug-report]
-     git commit -m "chore(backlog): mark BUG-003 investigated [TICKET-ID]"
-     ```
-     Note: The backlog skill handles staging its own files as part of the status update operation.
+   - Commit backlog updates if any, following `skills/git-practices/SKILL.md` conventions. Suggested message: `chore(backlog): mark BUG-003 investigated [TICKET-ID]`. Note: The backlog skill handles staging its own files as part of the status update operation.
 
 4. **Present findings:**
 

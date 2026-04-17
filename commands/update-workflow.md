@@ -18,13 +18,9 @@ You are checking the current version of the virtual-team plugin and helping the 
 
 ### Step 1: Identify Current Version
 
-Read the plugin manifest to determine the current version:
+Read the plugin manifest to determine the current version. Use the Read tool on `.claude-plugin/plugin.json` (relative to the plugin root). If the file is not found, report "Plugin manifest not found" and stop.
 
-```bash
-cat "$(dirname "$(dirname "$0")")/.claude-plugin/plugin.json" 2>/dev/null || echo "Plugin manifest not found"
-```
-
-Also check `package.json` for the version field.
+Also use Read on `package.json` for the version field.
 
 ### Step 2: Show Current State
 

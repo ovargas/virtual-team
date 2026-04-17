@@ -1,6 +1,7 @@
 ---
 name: flow-fix-pipeline
 description: Bug fix pipeline for /flow --fix mode. Loaded conditionally by flow.md when --fix is passed.
+model: opus
 ---
 
 ## Bug Fix Pipeline (`--fix` mode)

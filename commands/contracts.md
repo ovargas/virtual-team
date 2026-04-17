@@ -327,7 +327,7 @@ Default format. Other formats follow equivalent structure.
 
 5. **Contract changes require the founder's awareness.** If during `/virtual-team:implement` you discover a contract needs to change, flag it — don't silently update the contract file.
 
-6. **Use the project's naming convention.** If `stack.md` or `virtual-team:go-practices` specifies `lowerCamelCase` for JSON, contracts MUST use `lowerCamelCase`. The contract files define the exact field names that appear in JSON payloads.
+6. **Use the project's naming convention.** If `stack.md` or the relevant stack-specific skill (scan `skills/*/SKILL.md` for matching `stack:` frontmatter) specifies a JSON naming convention (e.g., `lowerCamelCase`, `snake_case`), contracts MUST follow it. The contract files define the exact field names that appear in JSON payloads.
 
 ---
 

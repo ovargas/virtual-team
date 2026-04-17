@@ -156,7 +156,7 @@ Consider reviewing its docs/decisions/ manually before finalizing the epic.
 
 6. **Update idea status if this is the first epic:**
    - If idea status is `draft`, update to `status: active` in the idea document
-   - Commit: `git add docs/features/[idea-file] && git commit -m "chore: mark IDEA-001 active — first epic created"`
+   - Commit the change following `skills/git-practices/SKILL.md` conventions (commit message format and staging rules). Suggested message: `chore: mark IDEA-001 active — first epic created`
 
 7. **Proceed directly to Phase 2** — skip the interview questions (the idea already answered them).
 
