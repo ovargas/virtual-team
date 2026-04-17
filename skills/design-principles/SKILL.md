@@ -159,8 +159,8 @@ Before marking implementation steps complete:
 ## Integration
 
 This skill is loaded by:
-- `/virtual-team:implement` — Layer 0 (behavioral discipline), alongside TDD
-- `/virtual-team:flow` — inherited through `/virtual-team:implement`
+- `/virtual-team:vt-implement` — Layer 0 (behavioral discipline), alongside TDD
+- `/virtual-team:vt-flow` — inherited through `/virtual-team:vt-implement`
 - SDD implementer subagents — loaded when executing plan tasks
 
 The skill self-configures by reading `stack.md`. Consumers load it the same way regardless of mode.

@@ -1,7 +1,7 @@
 ---
 name: checkpoints
 description: Checkpoint protocol for resuming multi-phase commands after session interruptions
-loaded_when: /debug, /epic, /feature, /implement, /plan
+loaded_when: /vt-debug, /vt-epic, /vt-feature, /vt-implement, /vt-plan
 ---
 
 # Checkpoints Skill
@@ -13,7 +13,7 @@ Checkpoints let multi-phase commands survive session interruptions. When a phase
 Before starting a multi-phase command, check context usage:
 
 - **At 60% context:** Warn the user. Suggest running `/compact` to free space, or finishing the current phase, committing the checkpoint, and starting a fresh session.
-- **At 80% context:** Warn the user. Suggest running `/virtual-team:handoff` to generate a handoff document before context runs out, so the next session can resume cleanly.
+- **At 80% context:** Warn the user. Suggest running `/virtual-team:vt-handoff` to generate a handoff document before context runs out, so the next session can resume cleanly.
 
 Checkpoints exist precisely for this scenario — running out of context mid-work is expected, not exceptional. The command proceeds either way, but the user knows checkpoints will protect their progress.
 
@@ -116,11 +116,11 @@ Each command defines its own phases in its command file. The checkpoint tracks p
 
 | Command | Phases | Source of truth |
 |---|---|---|
-| `/virtual-team:debug` | 4 phases (Reproduce → Document) | `commands/debug.md` |
-| `/virtual-team:epic` | 6 phases (Decision Sync → Document) | `commands/epic.md` |
-| `/virtual-team:feature` | 6 phases (Understand → Stories) | `commands/feature.md` |
-| `/virtual-team:plan` | 5 phases (Arch Gate → Update Backlog) | `commands/plan.md` |
-| `/virtual-team:implement` | Dynamic (from plan document) | The plan file being implemented |
+| `/virtual-team:vt-debug` | 4 phases (Reproduce → Document) | `commands/vt-debug.md` |
+| `/virtual-team:vt-epic` | 6 phases (Decision Sync → Document) | `commands/vt-epic.md` |
+| `/virtual-team:vt-feature` | 6 phases (Understand → Stories) | `commands/vt-feature.md` |
+| `/virtual-team:vt-plan` | 5 phases (Arch Gate → Update Backlog) | `commands/vt-plan.md` |
+| `/virtual-team:vt-implement` | Dynamic (from plan document) | The plan file being implemented |
 
 When writing a checkpoint, copy the phase names from the command's definition. Do not invent or rename phases here.
 
@@ -173,7 +173,7 @@ Every checkpointed command runs this before anything else:
 When all phases are done:
 
 1. Delete the checkpoint file: `rm docs/checkpoints/<command>-<ID>.md`
-2. Bundle the deletion into the final commit (e.g., the backlog update commit in `/virtual-team:implement`)
+2. Bundle the deletion into the final commit (e.g., the backlog update commit in `/virtual-team:vt-implement`)
 3. If the command doesn't produce a final commit, use: `git rm` + `git commit -m "checkpoint: <command> <ID> — complete, removing checkpoint"`
 
 ### On Failure or Interruption
@@ -207,7 +207,7 @@ If the session is interrupted (context limit, user closes terminal):
 3. **Capture decisions, not discussion.** `Key Decisions` records what was decided, not the deliberation.
 4. **Always delete on success.** Stale checkpoints cause confusion. Clean up.
 5. **Checkpoints are committed.** Every checkpoint write is followed by a `git commit`. This is the reliability guarantee — without it, checkpoints don't survive session boundaries.
-6. **Don't checkpoint trivial commands.** Only the five multi-phase commands use checkpoints. Single-step commands like `/virtual-team:commit` or `/virtual-team:review` don't need them.
+6. **Don't checkpoint trivial commands.** Only the five multi-phase commands use checkpoints. Single-step commands like `/virtual-team:vt-commit` or `/virtual-team:vt-review` don't need them.
 7. **Sub-tasks are ephemeral.** `Current Phase Detail` tracks granular items within the active phase only. When the phase completes, sub-tasks are cleared — they've served their purpose.
 8. **Completed phases are trusted.** When resuming, do NOT re-verify or re-implement completed phases. Trust the checkpoint. If something is wrong, the user can `--fresh` to start over.
-9. **One checkpoint per command+ID pair.** If `/virtual-team:implement FEAT-007` is run, there's one checkpoint file. Running it again resumes. Running `/virtual-team:implement FEAT-008` creates a separate checkpoint.
+9. **One checkpoint per command+ID pair.** If `/virtual-team:vt-implement FEAT-007` is run, there's one checkpoint file. Running it again resumes. Running `/virtual-team:vt-implement FEAT-008` creates a separate checkpoint.

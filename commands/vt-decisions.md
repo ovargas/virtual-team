@@ -1,5 +1,5 @@
 ---
-name: decisions
+name: vt-decisions
 description: Query project conventions, architectural decisions, and design patterns — quick answers with source references
 model: sonnet
 ---
@@ -13,14 +13,14 @@ Your job: find the answer, present it concisely, and point to where it's documen
 ## Invocation
 
 **Usage patterns:**
-- `/virtual-team:decisions go practices` — what are the Go conventions for this project?
-- `/virtual-team:decisions dependency injection` — how do we handle DI?
-- `/virtual-team:decisions testing` — how do we test? what tools?
-- `/virtual-team:decisions json serialization` — what's the JSON naming convention?
-- `/virtual-team:decisions logging` — how does logging work?
-- `/virtual-team:decisions branching` — what are the git branch conventions?
-- `/virtual-team:decisions api error handling` — how do API errors work?
-- `/virtual-team:decisions` — no topic: list all available knowledge areas
+- `/virtual-team:vt-decisions go practices` — what are the Go conventions for this project?
+- `/virtual-team:vt-decisions dependency injection` — how do we handle DI?
+- `/virtual-team:vt-decisions testing` — how do we test? what tools?
+- `/virtual-team:vt-decisions json serialization` — what's the JSON naming convention?
+- `/virtual-team:vt-decisions logging` — how does logging work?
+- `/virtual-team:vt-decisions branching` — what are the git branch conventions?
+- `/virtual-team:vt-decisions api error handling` — how do API errors work?
+- `/virtual-team:vt-decisions` — no topic: list all available knowledge areas
 
 **Flags:**
 - `--verbose` — include code examples from the skill files (default: bullet points only)
@@ -60,8 +60,8 @@ Extract the topic from `$ARGUMENTS`. The topic can be:
 7. **`commands/`** — workflow commands (for process questions like "how does branching work?")
 
 **Hub sources (if `stack.md` has a Hub reference):**
-8. **`{hub-path}/docs/decisions/`** — cross-team decision records. API contracts, shared data formats, naming conventions, event schemas that ALL service repos must follow. These are binding constraints, not suggestions.
-9. **`{hub-path}/docs/epics/`** — epic documents. Contain cross-team routing decisions (why this repo handles X), agreements between repos, and the original context for features driven by epics.
+8. **`{hub-path}/vt-docs/decisions/`** — cross-team decision records. API contracts, shared data formats, naming conventions, event schemas that ALL service repos must follow. These are binding constraints, not suggestions.
+9. **`{hub-path}/vt-docs/epics/`** — epic documents. Contain cross-team routing decisions (why this repo handles X), agreements between repos, and the original context for features driven by epics.
 
 **When presenting results from the hub, label them clearly:**
 ```
@@ -131,7 +131,7 @@ Mark each convention as:
 
 ### Step 4: No-Topic Mode
 
-If no topic was provided (`/virtual-team:decisions` with no arguments), list the available knowledge areas:
+If no topic was provided (`/virtual-team:vt-decisions` with no arguments), list the available knowledge areas:
 
 ```
 ## Project Knowledge Areas
@@ -164,13 +164,13 @@ If no topic was provided (`/virtual-team:decisions` with no arguments), list the
 **Project directives** (CLAUDE.md):
 [brief summary of directives, or "No project-specific directives set"]
 
-Ask about anything: `/virtual-team:decisions [topic]`
+Ask about anything: `/virtual-team:vt-decisions [topic]`
 Examples:
-  /virtual-team:decisions database              ← why did we choose this database?
-  /virtual-team:decisions error handling        ← how do we handle errors?
-  /virtual-team:decisions why no websockets     ← why was something excluded?
-  /virtual-team:decisions FEAT-003 scope        ← what was cut from a feature and why?
-  /virtual-team:decisions authentication        ← how does auth work across the project?
+  /virtual-team:vt-decisions database              ← why did we choose this database?
+  /virtual-team:vt-decisions error handling        ← how do we handle errors?
+  /virtual-team:vt-decisions why no websockets     ← why was something excluded?
+  /virtual-team:vt-decisions FEAT-003 scope        ← what was cut from a feature and why?
+  /virtual-team:vt-decisions authentication        ← how does auth work across the project?
 ```
 
 ## Guidelines

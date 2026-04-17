@@ -1,5 +1,5 @@
 ---
-name: pr
+name: vt-pr
 description: Create a pull request with proper title, summary, and testing notes
 model: sonnet
 ---
@@ -26,15 +26,15 @@ The `virtual-team:git-practices` skill defines the PR format. Follow it precisel
 ## Invocation
 
 **Usage patterns:**
-- `/virtual-team:pr` — commit pending changes (if any), create and submit a PR without prompts
-- `/virtual-team:pr [TICKET-ID]` — create a PR with a specific ticket reference
-- `/virtual-team:pr --draft` — create a draft PR
-- `/virtual-team:pr --manual` — ask for confirmation before committing and before submitting the PR
-- `/virtual-team:pr --no-commit` — skip auto-committing pending changes (warn if uncommitted changes exist)
-- `/virtual-team:pr --rebase` — rebase the feature branch onto the latest target branch before creating the PR
-- `/virtual-team:pr --base=develop` — target a specific base branch (default: main)
+- `/virtual-team:vt-pr` — commit pending changes (if any), create and submit a PR without prompts
+- `/virtual-team:vt-pr [TICKET-ID]` — create a PR with a specific ticket reference
+- `/virtual-team:vt-pr --draft` — create a draft PR
+- `/virtual-team:vt-pr --manual` — ask for confirmation before committing and before submitting the PR
+- `/virtual-team:vt-pr --no-commit` — skip auto-committing pending changes (warn if uncommitted changes exist)
+- `/virtual-team:vt-pr --rebase` — rebase the feature branch onto the latest target branch before creating the PR
+- `/virtual-team:vt-pr --base=develop` — target a specific base branch (default: main)
 
-Flags combine freely: `/virtual-team:pr --rebase --draft` rebases and creates a draft PR. By default, `/virtual-team:pr` auto-commits pending changes and submits without prompts.
+Flags combine freely: `/virtual-team:vt-pr --rebase --draft` rebases and creates a draft PR. By default, `/virtual-team:vt-pr` auto-commits pending changes and submits without prompts.
 
 ## Process
 
@@ -45,12 +45,12 @@ Flags combine freely: `/virtual-team:pr --rebase --draft` rebases and creates a 
    - Extract the type and ticket ID (e.g., `feat/CTR-12` → type: `feat`, ticket: `CTR-12`)
    - **If on main/master/develop → STOP:**
      ```
-     ⚠️ You're on the main branch. `/virtual-team:pr` creates a pull request from a feature branch into main.
+     ⚠️ You're on the main branch. `/virtual-team:vt-pr` creates a pull request from a feature branch into main.
 
-     If you're working directly on main, there's no PR needed — `/virtual-team:implement` already
+     If you're working directly on main, there's no PR needed — `/virtual-team:vt-implement` already
      marked your stories as done ([x]) and updated the feature status.
 
-     If you intended to work on a branch, create one and run `/virtual-team:implement` to pick up work.
+     If you intended to work on a branch, create one and run `/virtual-team:vt-implement` to pick up work.
      ```
    - If the branch doesn't follow `<type>/<ticket-id>` format, ask for the ticket ID
 3. **Determine the base branch:**
@@ -72,8 +72,8 @@ This is critical — the PR describes ALL commits on the branch, not just the la
 ### Step 3: Check Branch State
 
 1. **Run `git status`** — check for uncommitted changes
-   - **If there are uncommitted changes and `--no-commit` was NOT passed (default):** Run the `/virtual-team:commit` flow inline — review changes, group them, write messages, and commit. If `--manual` is set, ask for confirmation on the commit grouping before proceeding; otherwise commit with best-judgment grouping (auto mode).
-   - **If there are uncommitted changes and `--no-commit` was passed:** Warn the founder: "You have uncommitted changes. Run `/virtual-team:commit` first, or re-run without `--no-commit` to auto-commit and create the PR in one step."
+   - **If there are uncommitted changes and `--no-commit` was NOT passed (default):** Run the `/virtual-team:vt-commit` flow inline — review changes, group them, write messages, and commit. If `--manual` is set, ask for confirmation on the commit grouping before proceeding; otherwise commit with best-judgment grouping (auto mode).
+   - **If there are uncommitted changes and `--no-commit` was passed:** Warn the founder: "You have uncommitted changes. Run `/virtual-team:vt-commit` first, or re-run without `--no-commit` to auto-commit and create the PR in one step."
 2. **Check if branch is pushed:**
    - Run `git rev-parse --abbrev-ref --symbolic-full-name @{u} 2>/dev/null` to check tracking
    - If not pushed, push with: `git push -u origin $(git branch --show-current)`
@@ -104,7 +104,7 @@ If `--rebase` was passed:
      Or abort with:
        git rebase --abort
 
-     Re-run `/virtual-team:pr` after resolving.
+     Re-run `/virtual-team:vt-pr` after resolving.
      ```
    - **STOP. Do NOT attempt to resolve conflicts automatically.** The founder must resolve them.
 
@@ -139,7 +139,7 @@ If `--rebase` was passed:
 **Strict mode (`"strict"`):** If the developer doesn't pass (< 60%), STOP:
 ```
 ⛔ Knowledge check not passed ([score]%). Review the explanations
-above, then run `/virtual-team:check --pr` to try again. The PR will not be
+above, then run `/virtual-team:vt-check --pr` to try again. The PR will not be
 created until the check passes.
 ```
 
@@ -326,8 +326,8 @@ gh pr create --base develop --title "<title>" --body "..."
 - These changes merge with the code when the PR lands
 
 **Cleanup (optional):**
-- Remove the worktree when PR is merged: `/virtual-team:worktree remove <branch-name>`
-- Or clean up all merged worktrees: `/virtual-team:worktree clean`
+- Remove the worktree when PR is merged: `/virtual-team:vt-worktree remove <branch-name>`
+- Or clean up all merged worktrees: `/virtual-team:vt-worktree clean`
 
 Next steps:
 - Review the PR in GitHub
@@ -346,7 +346,7 @@ Next steps:
 
 2. **HARD BOUNDARY — No implementation:**
    - This command commits and creates PRs, it does NOT write application code
-   - The inline `/virtual-team:commit` flow handles uncommitted changes automatically
+   - The inline `/virtual-team:vt-commit` flow handles uncommitted changes automatically
    - Do NOT modify any application source code
 
 3. **Review ALL commits:**

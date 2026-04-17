@@ -1,5 +1,5 @@
 ---
-name: status
+name: vt-status
 description: Morning standup — summarize project state, backlog health, and what to work on next
 model: sonnet
 ---
@@ -13,10 +13,10 @@ This command uses the `sonnet` model because it's a read-and-summarize operation
 ## Invocation
 
 **Usage patterns:**
-- `/virtual-team:status` — full project overview
-- `/virtual-team:status backlog` — backlog health only
-- `/virtual-team:status feature-name` — status of a specific feature
-- `/virtual-team:status FEAT-007` — status of a specific feature by ID
+- `/virtual-team:vt-status` — full project overview
+- `/virtual-team:vt-status backlog` — backlog health only
+- `/virtual-team:vt-status feature-name` — status of a specific feature
+- `/virtual-team:vt-status FEAT-007` — status of a specific feature by ID
 
 ## Context Detection
 
@@ -50,7 +50,7 @@ Plan: [docs/plans/... | not yet planned]
 
 **Stories:**
 - [x] [Story 1] — done
-- [=] [Story 2] — implemented, pending PR → run `/virtual-team:pr`
+- [=] [Story 2] — implemented, pending PR → run `/virtual-team:vt-pr`
 - [>] [Story 3] — in progress
 - [ ] [Story 4] — ready
 
@@ -71,7 +71,7 @@ Plan: [docs/plans/... | not yet planned]
 - Done: [N] items (total completed)
 
 **Currently in progress:**
-- [Story/virtual-team:feature name] — [brief status]
+- [Story/virtual-team:vt-feature name] — [brief status]
 
 **Next up (top 3 ready items):**
 1. [Item] — from [feature name]
@@ -82,7 +82,7 @@ Plan: [docs/plans/... | not yet planned]
 - [Item] — added [date], consider refining or removing
 ```
 
-### If bare `/virtual-team:status` (full overview):
+### If bare `/virtual-team:vt-status` (full overview):
 
 1. **Read all project documents based on context:**
 
@@ -179,7 +179,7 @@ Plan: [docs/plans/... | not yet planned]
    - Also load the hub's backlog skill and call **`list(status=ready)`** — check for epics in the Ready/Next pipeline
    - An epic is **incomplete** if ANY of these are true:
      - `status: draft` — epic exists but features haven't been created yet
-     - An `affected_repos` entry hasn't had `/virtual-team:feature` run for it (no matching feature in `docs/features/` referencing this epic)
+     - An `affected_repos` entry hasn't had `/virtual-team:vt-feature` run for it (no matching feature in `docs/features/` referencing this epic)
      - Features exist but have stories not yet Done in service repo backlogs
      - Features exist but have no plan yet
    - Present incomplete epics grouped by what's needed next:
@@ -187,23 +187,23 @@ Plan: [docs/plans/... | not yet planned]
    ```
    ## Incomplete Epics
 
-   **Needs /virtual-team:feature breakdown:**
-   - **EPIC-002** ([name]) — status: draft, no features created yet → run `/virtual-team:feature --epic=EPIC-002` in [affected repos]
+   **Needs /virtual-team:vt-feature breakdown:**
+   - **EPIC-002** ([name]) — status: draft, no features created yet → run `/virtual-team:vt-feature --epic=EPIC-002` in [affected repos]
 
    **Needs planning or implementation:**
-   - **EPIC-001** ([name]) — [repo-x] has 2/5 stories done, [repo-y] hasn't started `/virtual-team:feature` yet
+   - **EPIC-001** ([name]) — [repo-x] has 2/5 stories done, [repo-y] hasn't started `/virtual-team:vt-feature` yet
    - **EPIC-003** ([name]) — all features specced, but [repo-x] has 3 stories still in Ready (no plan yet)
 
    **Hub backlog says next:**
    - [Items from hub's backlog.md Ready/Next section]
 
-   **Suggested:** Continue EPIC-002 by running `/virtual-team:feature --epic=EPIC-002` in [repo],
-   or `/virtual-team:implement` in [repo-x] to pick up remaining EPIC-001 stories.
+   **Suggested:** Continue EPIC-002 by running `/virtual-team:vt-feature --epic=EPIC-002` in [repo],
+   or `/virtual-team:vt-implement` in [repo-x] to pick up remaining EPIC-001 stories.
    ```
 
    If ALL epics are fully complete (all stories Done across all repos), note it:
    ```
-   All epics complete. Time for a new initiative — run `/virtual-team:epic` in the hub.
+   All epics complete. Time for a new initiative — run `/virtual-team:vt-epic` in the hub.
    ```
 
    **In a service repo** — only when Ready and Doing are both empty:
@@ -213,8 +213,8 @@ Plan: [docs/plans/... | not yet planned]
    - If not accessible: suggest checking the hub manually
    ```
    Backlog is empty. Check the hub for available epics:
-   → Run `/virtual-team:status` in the hub to see incomplete epics
-   → Or run `/virtual-team:feature --epic=EPIC-NNN` if you know which epic to continue
+   → Run `/virtual-team:vt-status` in the hub to see incomplete epics
+   → Or run `/virtual-team:vt-feature --epic=EPIC-NNN` if you know which epic to continue
    ```
 
 6. **End with contextual suggestions:**
@@ -223,24 +223,24 @@ Plan: [docs/plans/... | not yet planned]
 
    | State | Suggestion |
    |-------|-----------|
-   | Items in Doing (`[>]`) | `→ Run /virtual-team:implement to continue [story name]` |
-   | Items marked Implemented (`[=]`) | `→ Run /virtual-team:pr to ship [story name]` |
-   | Items in Ready, none in Doing | `→ Run /virtual-team:implement FEAT-NNN to pick up [top ready item]` |
-   | Features specced but no plan | `→ Run /virtual-team:plan FEAT-NNN to plan [feature name]` |
-   | Backlog empty, hub accessible | `→ Run /virtual-team:status in the hub to find available epics` |
-   | Backlog empty, no hub | `→ Run /virtual-team:flow <description> to start a new feature` |
+   | Items in Doing (`[>]`) | `→ Run /virtual-team:vt-implement to continue [story name]` |
+   | Items marked Implemented (`[=]`) | `→ Run /virtual-team:vt-pr to ship [story name]` |
+   | Items in Ready, none in Doing | `→ Run /virtual-team:vt-implement FEAT-NNN to pick up [top ready item]` |
+   | Features specced but no plan | `→ Run /virtual-team:vt-plan FEAT-NNN to plan [feature name]` |
+   | Backlog empty, hub accessible | `→ Run /virtual-team:vt-status in the hub to find available epics` |
+   | Backlog empty, no hub | `→ Run /virtual-team:vt-flow <description> to start a new feature` |
    | Attention items found | `→ [Specific fix command for the highest priority anomaly]` |
 
    Format as a short list — max 3 suggestions, most relevant first:
 
    ```
    **What to do next:**
-   → Run `/virtual-team:implement` to continue S-015 (search endpoint — in progress)
-   → Or `/virtual-team:flow <description>` to start a new feature (3 items in Ready)
-   → Run `/virtual-team:refine FEAT-003` to resolve 2 open questions
+   → Run `/virtual-team:vt-implement` to continue S-015 (search endpoint — in progress)
+   → Or `/virtual-team:vt-flow <description>` to start a new feature (3 items in Ready)
+   → Run `/virtual-team:vt-refine FEAT-003` to resolve 2 open questions
    ```
 
-   This section is the onboarding entry point — a new user who runs `/virtual-team:status` should immediately know which command to run next without reading any other documentation.
+   This section is the onboarding entry point — a new user who runs `/virtual-team:vt-status` should immediately know which command to run next without reading any other documentation.
 
 ---
 
@@ -249,7 +249,7 @@ Plan: [docs/plans/... | not yet planned]
 While reading the project state, flag anything that looks off:
 
 - **Stuck work:** Something in Doing (`[>]`) for more than a few days with no handoff or progress
-- **Implemented but not PR'd:** Items marked `[=]` (implemented) — remind the founder to run `/virtual-team:pr` to ship them. **Note:** If the work was done on main (no feature branch), `[=]` should not appear — `/virtual-team:implement` goes directly to `[x]`. If you see `[=]` on main, flag it as a status inconsistency and suggest updating to `[x]`.
+- **Implemented but not PR'd:** Items marked `[=]` (implemented) — remind the founder to run `/virtual-team:vt-pr` to ship them. **Note:** If the work was done on main (no feature branch), `[=]` should not appear — `/virtual-team:vt-implement` goes directly to `[x]`. If you see `[=]` on main, flag it as a status inconsistency and suggest updating to `[x]`.
 - **Orphaned stories:** Stories in the backlog that don't link to a feature spec
 - **Missing plans:** Features with stories in Ready but no implementation plan
 - **Stale specs:** Feature specs in draft status for more than 2 weeks
@@ -263,7 +263,7 @@ While reading the project state, flag anything that looks off:
   - `status: draft` or `active` but ALL features across ALL affected repos are Done → should be `done`
   - `status: active` but no features exist yet → should still be `draft`
 - **Orphaned agreements:** Decision records referencing an epic that's been abandoned or completed
-- **Missing features:** Epic lists affected repos but some repos have no `/virtual-team:feature` created for it yet
+- **Missing features:** Epic lists affected repos but some repos have no `/virtual-team:vt-feature` created for it yet
 - **Stale drafts:** Epics in `draft` for more than 2 weeks with no progress
 
 For each stale epic status, suggest the fix directly:
@@ -286,7 +286,7 @@ Report these under "Attention Needed" — don't just flag them, suggest what to 
 2. **Be actionable:**
    - End with a clear suggestion of what to do next
    - Attention items should include what action to take, not just what's wrong
-   - "Feature X has 3 open questions" is less useful than "Feature X has 3 open questions — run `/virtual-team:refine FEAT-X` to resolve them"
+   - "Feature X has 3 open questions" is less useful than "Feature X has 3 open questions — run `/virtual-team:vt-refine FEAT-X` to resolve them"
 
 3. **Be honest:**
    - If the project is stuck, say so
@@ -299,6 +299,6 @@ Report these under "Attention Needed" — don't just flag them, suggest what to 
    - Suggest commands to run, but don't run them
 
 5. **Handle missing structure gracefully:**
-   - If the backlog skill's `list()` returns empty or no backlog is configured, say so and suggest running `/virtual-team:start` or `/virtual-team:feature`
+   - If the backlog skill's `list()` returns empty or no backlog is configured, say so and suggest running `/virtual-team:vt-start` or `/virtual-team:vt-feature`
    - If `docs/features/` is empty, note the project is in early stages
    - Don't error out — report what exists and what's missing

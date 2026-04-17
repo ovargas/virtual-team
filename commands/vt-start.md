@@ -1,5 +1,5 @@
 ---
-name: start
+name: vt-start
 description: Initialize a repository with stack definition, project structure, and team configuration
 model: opus
 ---
@@ -13,11 +13,11 @@ This command uses `opus` because it involves deep decisions about architecture a
 ## Invocation
 
 **Usage patterns:**
-- `/virtual-team:start  ` — full interactive initialization for a new project
-- `/virtual-team:start   --hub` — explicitly initialize as a hub repo
-- `/virtual-team:start   --service` — explicitly initialize as a service repo
-- `/virtual-team:start   --from=../other-repo` — bootstrap from another repo's stack.md as a starting point
-- `/virtual-team:start   --minimal` — create structure only, skip the interview (fill in stack.md manually later)
+- `/virtual-team:vt-start  ` — full interactive initialization for a new project
+- `/virtual-team:vt-start   --hub` — explicitly initialize as a hub repo
+- `/virtual-team:vt-start   --service` — explicitly initialize as a service repo
+- `/virtual-team:vt-start   --from=../other-repo` — bootstrap from another repo's stack.md as a starting point
+- `/virtual-team:vt-start   --minimal` — create structure only, skip the interview (fill in stack.md manually later)
 
 ## Process
 
@@ -62,22 +62,22 @@ Create the `docs/` directory tree based on repo type.
 **For Hub repos:**
 ```
 docs/
-├── epics/          # Product-level initiatives from /epic
-├── research/       # Research outputs from /research
+├── epics/          # Product-level initiatives from /vt-epic
+├── research/       # Research outputs from /vt-research
 ├── decisions/      # Cross-team agreements and ADRs
-└── reviews/        # Tech review outputs from /tech-review
+└── reviews/        # Tech review outputs from /vt-tech-review
 ```
 
 **For Service repos:**
 ```
 docs/
-├── features/       # Feature specs from /feature
-├── research/       # Research outputs from /research
-├── plans/          # Implementation plans from /plan
+├── features/       # Feature specs from /vt-feature
+├── research/       # Research outputs from /vt-research
+├── plans/          # Implementation plans from /vt-plan
 ├── decisions/      # Local architectural decision records (ADRs)
-├── handoffs/       # Session handoff notes from /handoff
-├── bugs/           # Bug reports from /bug
-└── reviews/        # Tech review outputs from /tech-review
+├── handoffs/       # Session handoff notes from /vt-handoff
+├── bugs/           # Bug reports from /vt-bug
+└── reviews/        # Tech review outputs from /vt-tech-review
 ```
 
 Create each directory with a `.gitkeep` file so they're tracked by git.
@@ -147,7 +147,7 @@ What product are we building?
 Gather:
 - **Product name** — what is the product called?
 - **One-line description** — what does it do?
-- **Target users** — who is this for? (Brief — the PO agent will dig deeper during `/virtual-team:idea` or `/virtual-team:epic`)
+- **Target users** — who is this for? (Brief — the PO agent will dig deeper during `/virtual-team:vt-idea` or `/virtual-team:vt-epic`)
 - **Product stage** — concept, MVP, growing, mature?
 
 #### Round 2: Teams Registry
@@ -166,7 +166,7 @@ Walk through each known service repo. For each one, gather:
 If not all repos exist yet:
 ```
 That's fine — add repos here as you create them. The teams registry is a
-living document. Run `/virtual-team:start   --update` later to add new teams.
+living document. Run `/virtual-team:vt-start   --update` later to add new teams.
 ```
 
 Repeat for each repo. Then move to Step 4 (Generate stack.md).
@@ -457,7 +457,7 @@ repos: [list of affected repos, omit for single-repo decisions]
 
 The `epic`, `type`, and `repos` fields are optional:
 - `epic` — links to an epic if the decision came from a cross-team initiative
-- `type` — categorizes the decision (see `/virtual-team:epic` command for type definitions)
+- `type` — categorizes the decision (see `/virtual-team:vt-epic` command for type definitions)
 - `repos` — lists affected repos for cross-team decisions (hub decisions only)
 
 ### Step 6: Summary
@@ -479,12 +479,12 @@ Created:
 - [repo-name] ([role]) — [responsibility]
 
 **Next steps:**
-- `/virtual-team:idea` — if this is a new product and you want to explore the concept
-- `/virtual-team:epic` — if you already know what to build first
-- Run `/virtual-team:start   --service` in each service repo to set up their stacks
+- `/virtual-team:vt-idea` — if this is a new product and you want to explore the concept
+- `/virtual-team:vt-epic` — if you already know what to build first
+- Run `/virtual-team:vt-start   --service` in each service repo to set up their stacks
 - Install the virtual-team plugin if not already active: `claude plugin add ovargas/virtual-team`
 
-Add new teams to the registry anytime with `/virtual-team:start   --update`.
+Add new teams to the registry anytime with `/virtual-team:vt-start   --update`.
 ```
 
 **For Service repos:**
@@ -504,9 +504,9 @@ Created:
 - [List each TBD with when it'll matter]
 
 **Next steps:**
-- `/virtual-team:feature` — if you already know what to build first
-- `/virtual-team:feature --epic=EPIC-NNN` — if the hub has an epic ready for this repo
-- `/virtual-team:plan` — when ready to build, the virtual-team:software-architect will validate the stack
+- `/virtual-team:vt-feature` — if you already know what to build first
+- `/virtual-team:vt-feature --epic=EPIC-NNN` — if the hub has an epic ready for this repo
+- `/virtual-team:vt-plan` — when ready to build, the virtual-team:software-architect will validate the stack
 - Install the virtual-team plugin if not already active: `claude plugin add ovargas/virtual-team`
 
 Don't worry about resolving all TBD items now. The virtual-team:software-architect agent
@@ -545,5 +545,5 @@ will catch them just-in-time when a feature actually needs them.
 
 6. **No opinions on stack choices:**
    - This command captures decisions, it doesn't make them
-   - If the founder asks for advice, suggest they run `/virtual-team:research` on the topic
+   - If the founder asks for advice, suggest they run `/virtual-team:vt-research` on the topic
    - The virtual-team:software-architect agent is the one who recommends — this command just documents
