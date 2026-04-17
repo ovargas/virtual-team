@@ -1,5 +1,5 @@
 ---
-name: contracts
+name: vt-contracts
 description: Extract, define, and validate API contracts (payloads, models, events) as concrete schema files
 model: opus
 ---
@@ -10,17 +10,17 @@ You are a contract engineer defining the precise API boundaries for a project. Y
 
 **Why this exists:** LLMs lose fidelity when translating prose descriptions into code. A paragraph saying "the registration endpoint accepts user details" gets reinterpreted differently by each command run. A JSON schema with explicit fields, types, and constraints cannot be reinterpreted — it either matches or it doesn't.
 
-**Core principle:** Contracts are files, not conversations. They persist across sessions, they're read by `/virtual-team:plan` and `/virtual-team:implement`, and they block implementation if missing.
+**Core principle:** Contracts are files, not conversations. They persist across sessions, they're read by `/virtual-team:vt-plan` and `/virtual-team:vt-implement`, and they block implementation if missing.
 
 ## Invocation
 
 **Usage patterns:**
-- `/virtual-team:contracts` — interactive mode, asks what to define
-- `/virtual-team:contracts extract SPEC.md` — extract all contracts from a spec document
-- `/virtual-team:contracts extract docs/features/FEAT-003.md` — extract contracts from a feature spec
-- `/virtual-team:contracts validate` — check all contract files for completeness
-- `/virtual-team:contracts sync` — compare contracts against implementation, flag drift
-- `/virtual-team:contracts list` — show all defined contracts and their status
+- `/virtual-team:vt-contracts` — interactive mode, asks what to define
+- `/virtual-team:vt-contracts extract SPEC.md` — extract all contracts from a spec document
+- `/virtual-team:vt-contracts extract docs/features/FEAT-003.md` — extract contracts from a feature spec
+- `/virtual-team:vt-contracts validate` — check all contract files for completeness
+- `/virtual-team:vt-contracts sync` — compare contracts against implementation, flag drift
+- `/virtual-team:vt-contracts list` — show all defined contracts and their status
 
 **Flags:**
 - `--format=json` — output contracts as JSON Schema (default)
@@ -58,7 +58,7 @@ contracts/
 
 ## Process
 
-### Mode: Extract (`/virtual-team:contracts extract [source]`)
+### Mode: Extract (`/virtual-team:vt-contracts extract [source]`)
 
 1. **Read the source document** (SPEC.md, feature spec, or hub decision)
 
@@ -113,10 +113,10 @@ contracts/
    Events:
    - contracts/events/user-registered.json — 5 fields
 
-   Total: [N] contracts defined. Run `/virtual-team:contracts validate` to check completeness.
+   Total: [N] contracts defined. Run `/virtual-team:vt-contracts validate` to check completeness.
    ```
 
-### Mode: Validate (`/virtual-team:contracts validate`)
+### Mode: Validate (`/virtual-team:vt-contracts validate`)
 
 1. **Read all contract files** in `contracts/`
 
@@ -145,7 +145,7 @@ contracts/
    [N] complete, [N] incomplete, [N] warnings
    ```
 
-### Mode: Sync (`/virtual-team:contracts sync`)
+### Mode: Sync (`/virtual-team:vt-contracts sync`)
 
 1. **Read all contract files**
 
@@ -172,7 +172,7 @@ contracts/
    [N] synced, [N] drifted
    ```
 
-### Mode: List (`/virtual-team:contracts list`)
+### Mode: List (`/virtual-team:vt-contracts list`)
 
 Show all contract files with a status summary:
 
@@ -325,7 +325,7 @@ Default format. Other formats follow equivalent structure.
 
 4. **Contracts evolve through explicit changes.** If implementation needs a field that's not in the contract, update the contract FIRST, then implement. Never add undocumented fields.
 
-5. **Contract changes require the founder's awareness.** If during `/virtual-team:implement` you discover a contract needs to change, flag it — don't silently update the contract file.
+5. **Contract changes require the founder's awareness.** If during `/virtual-team:vt-implement` you discover a contract needs to change, flag it — don't silently update the contract file.
 
 6. **Use the project's naming convention.** If `stack.md` or the relevant stack-specific skill (scan `skills/*/SKILL.md` for matching `stack:` frontmatter) specifies a JSON naming convention (e.g., `lowerCamelCase`, `snake_case`), contracts MUST follow it. The contract files define the exact field names that appear in JSON payloads.
 
@@ -333,9 +333,9 @@ Default format. Other formats follow equivalent structure.
 
 ## Connecting to the Workflow
 
-- **`/virtual-team:feature`** → defines contracts during Phase 4 (API Contract Definition). Creates inline definitions in the spec, or contract files if `contracts/` exists.
-- **`/virtual-team:contracts extract`** → extracts/generates contract files from a SPEC.md or feature spec that has inline definitions.
-- **`/virtual-team:plan`** → reads contracts as hard constraints. HARD STOP if contracts are missing.
-- **`/virtual-team:implement`** → reads contracts before writing code. HARD STOP if contracts are missing. References exact field names and types from contracts during implementation.
-- **`/virtual-team:validate`** → checks implementation against contracts (use `/virtual-team:contracts sync` for detailed drift analysis).
-- **`/virtual-team:contracts validate`** → checks contract files themselves for completeness.
+- **`/virtual-team:vt-feature`** → defines contracts during Phase 4 (API Contract Definition). Creates inline definitions in the spec, or contract files if `contracts/` exists.
+- **`/virtual-team:vt-contracts extract`** → extracts/generates contract files from a SPEC.md or feature spec that has inline definitions.
+- **`/virtual-team:vt-plan`** → reads contracts as hard constraints. HARD STOP if contracts are missing.
+- **`/virtual-team:vt-implement`** → reads contracts before writing code. HARD STOP if contracts are missing. References exact field names and types from contracts during implementation.
+- **`/virtual-team:vt-validate`** → checks implementation against contracts (use `/virtual-team:vt-contracts sync` for detailed drift analysis).
+- **`/virtual-team:vt-contracts validate`** → checks contract files themselves for completeness.

@@ -171,7 +171,7 @@ Create or update a parent issue/epic in the external service:
 
 ### push_stories(feature_id, items)
 
-Same as create(items) but specifically for syncing after `/virtual-team:feature` creates stories.
+Same as create(items) but specifically for syncing after `/virtual-team:vt-feature` creates stories.
 
 ### pull_comments(id)
 
@@ -182,7 +182,7 @@ Team feedback on {id}:
 - [{author}] ({date}): {comment text}
 ```
 
-**Called by `/virtual-team:implement` before starting a story** — ensures the AI sees any QA feedback, PO notes, or team discussion.
+**Called by `/virtual-team:vt-implement` before starting a story** — ensures the AI sees any QA feedback, PO notes, or team discussion.
 
 ### pull_priorities()
 
@@ -196,7 +196,7 @@ Retrieve the current issue ordering from the external service. This overrides an
 
 - **MCP connector not available:** STOP and report: "The {service} connector is not available. Install it or switch to `backlog: local` in stack.md."
 - **Authentication failure:** STOP and report: "Authentication failed for {service}. Re-authenticate the connector."
-- **Issue not found:** Report and suggest creating it: "Issue {id} not found in {service}. Run `/virtual-team:contracts sync` or create it manually."
+- **Issue not found:** Report and suggest creating it: "Issue {id} not found in {service}. Run `/virtual-team:vt-contracts sync` or create it manually."
 - **Rate limit:** Report and suggest waiting or switching to local temporarily.
 
 **Never fall back to local silently.** If the external service is unavailable, tell the user explicitly. Using local as a silent fallback would cause the two sources to diverge.

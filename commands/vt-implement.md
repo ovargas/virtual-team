@@ -1,5 +1,5 @@
 ---
-name: implement
+name: vt-implement
 description: Execute a technical implementation plan phase by phase, with verification at each step
 model: opus
 ---
@@ -13,13 +13,13 @@ This is the ONE command that writes code. Every other command in the pre-impleme
 ## Invocation
 
 **Usage patterns:**
-- `/virtual-team:implement FEAT-003` — implement all stories for this feature
-- `/virtual-team:implement BUG-005` — implement the fix for this bug
-- `/virtual-team:implement` — interactive selection of available FEATs/BUGs
-- `/virtual-team:implement docs/plans/2026-02-12-notifications.md` — implement a specific plan
-- `/virtual-team:implement --phase=2` — resume from a specific phase (after a session break)
-- `/virtual-team:implement --auto FEAT-003` — autonomous mode, skip manual pause points
-- `/virtual-team:implement --sdd FEAT-003` — subagent-driven development mode, dispatch fresh subagent per task with two-stage review
+- `/virtual-team:vt-implement FEAT-003` — implement all stories for this feature
+- `/virtual-team:vt-implement BUG-005` — implement the fix for this bug
+- `/virtual-team:vt-implement` — interactive selection of available FEATs/BUGs
+- `/virtual-team:vt-implement docs/plans/2026-02-12-notifications.md` — implement a specific plan
+- `/virtual-team:vt-implement --phase=2` — resume from a specific phase (after a session break)
+- `/virtual-team:vt-implement --auto FEAT-003` — autonomous mode, skip manual pause points
+- `/virtual-team:vt-implement --sdd FEAT-003` — subagent-driven development mode, dispatch fresh subagent per task with two-stage review
 
 **Flags:**
 - `--auto` — autonomous mode: skip manual pause/confirmation points between phases. Still runs all automated verification (tests, lint, typecheck) and still stops on failures. Only skips "pause for manual confirmation" gates. Use this for Ralph Wiggum loops or batch processing.
@@ -28,7 +28,7 @@ This is the ONE command that writes code. Every other command in the pre-impleme
 - `--phase=N` — resume from a specific phase
 - `--fresh` — delete any existing checkpoint and start from scratch
 - `--level=N` — override triage level. `--level=2` (standard) allows planless execution with inline analysis from the feature spec. `--level=3` (minimal) works from the description alone. Without this flag, the triage level is read from the feature spec's frontmatter or defaults to Level 1 (plan required).
-- Flags combine: `/virtual-team:implement --auto --deep --phase=2`
+- Flags combine: `/virtual-team:vt-implement --auto --deep --phase=2`
 
 ## Initial Response
 
@@ -58,7 +58,7 @@ When this command is invoked:
    - Read the plan directly
    - Use the plan's `feature:` frontmatter to identify the feature and its stories
 
-   **If no argument provided (bare `/virtual-team:implement`):**
+   **If no argument provided (bare `/virtual-team:vt-implement`):**
    - **For local backlog:**
      - Call **`list(status=doing)`** — check for in-progress work
      - If found: present the in-progress FEAT/BUG and offer to continue via `AskUserQuestion`:
@@ -80,17 +80,17 @@ When this command is invoked:
      - **If on a feature branch → STOP:**
        ```
        ✅ This story is already implemented (marked [=] in the backlog).
-       It's waiting for a PR. Run `/virtual-team:pr` to commit and create the pull request.
+       It's waiting for a PR. Run `/virtual-team:vt-pr` to commit and create the pull request.
        ```
      - **If on main/master/develop:** Fix stale status: update `[=]` to `[x]`, update the feature spec status if all stories are done, and commit. Then **STOP:**
        ```
        ✅ This story was already implemented. Fixed stale status: [=] → [x].
-       Nothing to implement. Run `/virtual-team:implement` to pick up more work.
+       Nothing to implement. Run `/virtual-team:vt-implement` to pick up more work.
        ```
    - If the item is marked as Done (`[x]`), **STOP:**
      ```
      ✅ This story is already done (marked [x] in the backlog).
-     Nothing to implement. Run `/virtual-team:implement` to pick up more work.
+     Nothing to implement. Run `/virtual-team:vt-implement` to pick up more work.
      ```
 
 2. **Determine triage level and check plan accordingly:**
@@ -98,7 +98,7 @@ When this command is invoked:
    **Triage level detection:** Check (in order):
    - If `--level=2` or `--level=3` was passed → use that level (2=standard, 3=minimal)
    - If the feature spec has `triage: standard` or `triage: minimal` in frontmatter → use that level
-   - If invoked from `/flow`, the flow passes the triage level → use it
+   - If invoked from `/vt-flow`, the flow passes the triage level → use it
    - Otherwise → default to Level 1 (full), which requires a plan
 
    **Level 1 (Full) — Plan required:**
@@ -111,7 +111,7 @@ When this command is invoked:
      The plan at [path] is still in draft status. Plans must be approved
      before implementation can begin.
 
-     Run `/virtual-team:plan [FEAT-NNN]` to review and approve the plan, or manually
+     Run `/virtual-team:vt-plan [FEAT-NNN]` to review and approve the plan, or manually
      update the plan's frontmatter to `status: approved` if you've already
      reviewed it.
      ```
@@ -152,7 +152,7 @@ When this command is invoked:
    **Action required:**
    - Define the missing payloads in contract files (`contracts/endpoints/`, `contracts/events/`)
    - Or add complete payload definitions to the feature spec
-   - Then re-run `/virtual-team:implement`
+   - Then re-run `/virtual-team:vt-implement`
 
    I will NOT guess payload shapes. Every field must be explicitly defined
    before implementation begins.
@@ -214,7 +214,7 @@ When this command is invoked:
 
 ## Inline Analysis (Level 2 and Level 3)
 
-When no formal plan exists, `/implement` does lightweight analysis before writing code. This replaces the plan document — it's "planning in your head," not "planning on paper."
+When no formal plan exists, `/vt-implement` does lightweight analysis before writing code. This replaces the plan document — it's "planning in your head," not "planning on paper."
 
 ### Level 2 Inline Analysis
 
@@ -330,7 +330,7 @@ After completing all phases for the current story within a multi-story feature:
    - Continue implementation without stopping
 4. **If no more stories:**
    - Announce: "All stories for FEAT-NNN are complete."
-   - Present next steps: `/virtual-team:review`, `/virtual-team:pr`
+   - Present next steps: `/virtual-team:vt-review`, `/virtual-team:vt-pr`
 
 ### After All Phases
 
@@ -385,9 +385,9 @@ After completing all phases for the current story within a multi-story feature:
    - Backlog updated: [>] Doing → [=] Implemented (pending PR)
 
    **Next steps:**
-   - Run `/virtual-team:review` for a code review before committing
+   - Run `/virtual-team:vt-review` for a code review before committing
    - Complete manual testing items above
-   - Run `/virtual-team:pr` when ready (auto-commits and creates the PR)
+   - Run `/virtual-team:vt-pr` when ready (auto-commits and creates the PR)
    ```
 
    **If on main/master/develop:**
@@ -402,9 +402,9 @@ After completing all phases for the current story within a multi-story feature:
    - Feature status: [updated status]
 
    **Next steps:**
-   - Run `/virtual-team:review` for a code review
+   - Run `/virtual-team:vt-review` for a code review
    - Complete manual testing items above
-   - Run `/virtual-team:implement` to pick up more work
+   - Run `/virtual-team:vt-implement` to pick up more work
    ```
 
 ---
@@ -531,7 +531,7 @@ Layer 0 is always loaded. For Layer 1, only load the skill(s) relevant to the cu
    - The founder needs to test manually before you build on top of potentially broken work
 
 4. **Handle session breaks gracefully:**
-   - If the session is ending mid-implementation, run `/virtual-team:handoff` to capture state
+   - If the session is ending mid-implementation, run `/virtual-team:vt-handoff` to capture state
    - Note which phase and step you're on
    - The `--phase=N` flag lets the next session resume cleanly
 

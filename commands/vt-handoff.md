@@ -1,5 +1,5 @@
 ---
-name: handoff
+name: vt-handoff
 description: Capture session state for clean context transfer between sessions
 model: sonnet
 ---
@@ -13,8 +13,8 @@ This command uses `sonnet` because it's a read-and-summarize operation.
 ## Invocation
 
 **Usage patterns:**
-- `/virtual-team:handoff` — capture full session state
-- `/virtual-team:handoff [brief context]` — include specific notes in the handoff
+- `/virtual-team:vt-handoff` — capture full session state
+- `/virtual-team:vt-handoff [brief context]` — include specific notes in the handoff
 
 ## Process
 
@@ -91,7 +91,7 @@ Or: "None."
 [Exact instructions for the next session to continue seamlessly:]
 
 ```
-1. Run `/virtual-team:implement FEAT-NNN` or `/virtual-team:implement --phase=N` to continue
+1. Run `/virtual-team:vt-implement FEAT-NNN` or `/virtual-team:vt-implement --phase=N` to continue
 2. [Any setup steps needed — e.g., "start the database first"]
 3. [Specific thing to check — e.g., "verify the migration from last session applied cleanly"]
 ```
@@ -148,5 +148,5 @@ Handoff saved to: `docs/handoffs/YYYY-MM-DD-HHMMSS-description.md`
 6. **HARD BOUNDARY — No implementation:**
    - This command captures state, it doesn't advance work
    - Do NOT "finish up" a step before writing the handoff
-   - Do NOT commit uncommitted changes (that's `/virtual-team:commit`'s job)
+   - Do NOT commit uncommitted changes (that's `/virtual-team:vt-commit`'s job)
    - Capture the state AS IT IS, then stop

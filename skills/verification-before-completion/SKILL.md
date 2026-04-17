@@ -101,9 +101,9 @@ If any of these are true, you are about to make an unverified claim:
 ## Integration
 
 This skill is loaded by:
-- `/virtual-team:implement` — Layer 0 (behavioral discipline), loaded alongside `virtual-team:test-driven-development`
-- `/virtual-team:commit` — Before committing, verify tests pass fresh
-- `/virtual-team:pr` — Before creating PR, full verification suite run fresh
-- `/virtual-team:debug` — Before claiming "root cause found", verify hypothesis with evidence
-- `/virtual-team:review` — Before issuing verdict, verify claims about code behavior
-- `/virtual-team:flow` — inherited through `/virtual-team:implement`
+- `/virtual-team:vt-implement` — Layer 0 (behavioral discipline), loaded alongside `virtual-team:test-driven-development`
+- `/virtual-team:vt-commit` — Before committing, verify tests pass fresh
+- `/virtual-team:vt-pr` — Before creating PR, full verification suite run fresh
+- `/virtual-team:vt-debug` — Before claiming "root cause found", verify hypothesis with evidence
+- `/virtual-team:vt-review` — Before issuing verdict, verify claims about code behavior
+- `/virtual-team:vt-flow` — inherited through `/virtual-team:vt-implement`

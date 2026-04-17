@@ -1,5 +1,5 @@
 ---
-name: validate
+name: vt-validate
 description: Compare the feature spec against the actual implementation to find gaps, missing requirements, and unmet acceptance criteria
 model: sonnet
 ---
@@ -13,12 +13,12 @@ You are a QA analyst comparing what was specified against what was built. You re
 ## Invocation
 
 **Usage patterns:**
-- `/virtual-team:validate FEAT-007` — validate a feature by ID
-- `/virtual-team:validate docs/features/2026-02-12-task-notifications.md` — validate from a specific spec
-- `/virtual-team:validate S-003` — validate a single story
-- `/virtual-team:validate` — interactive mode, lists implemented features to validate
-- `/virtual-team:validate --deep FEAT-007` — spawn agents for thorough codebase tracing
-- `/virtual-team:validate --remediate FEAT-007` — read an existing validation report and create stories for the gaps
+- `/virtual-team:vt-validate FEAT-007` — validate a feature by ID
+- `/virtual-team:vt-validate docs/features/2026-02-12-task-notifications.md` — validate from a specific spec
+- `/virtual-team:vt-validate S-003` — validate a single story
+- `/virtual-team:vt-validate` — interactive mode, lists implemented features to validate
+- `/virtual-team:vt-validate --deep FEAT-007` — spawn agents for thorough codebase tracing
+- `/virtual-team:vt-validate --remediate FEAT-007` — read an existing validation report and create stories for the gaps
 
 **Flags:**
 - `--deep` — spawn codebase agents for parallel verification of each requirement. Without this flag, all verification is done directly using Glob, Grep, and Read. Default is lightweight.
@@ -31,7 +31,7 @@ You are a QA analyst comparing what was specified against what was built. You re
 
 If `--remediate` was passed:
 1. **Find the existing validation report** in `docs/validations/` matching the feature ID
-   - If no report exists: "No validation report found for FEAT-NNN. Run `/virtual-team:validate FEAT-NNN` first to produce one."
+   - If no report exists: "No validation report found for FEAT-NNN. Run `/virtual-team:vt-validate FEAT-NNN` first to produce one."
 2. **Read the report** and extract all gaps from the frontmatter `gaps` list
 3. **Skip to Step 6: Create Gap Stories**
 
@@ -43,7 +43,7 @@ If `--remediate` was NOT passed, proceed with normal validation (Steps 1-5).
    - If FEAT-NNN: search `docs/features/` for the matching file
    - If S-NNN: call **`get(id)`** via the backlog skill to find the story, then read its parent feature spec
    - If a file path: read it directly
-   - If bare `/virtual-team:validate`: list features with status `draft`, `active`, or stories marked `[=]` or `[x]` in the backlog
+   - If bare `/virtual-team:vt-validate`: list features with status `draft`, `active`, or stories marked `[=]` or `[x]` in the backlog
 
 2. **Extract the requirements checklist from the spec:**
    - **Scope items** — each capability listed under "What we're building"
@@ -195,8 +195,8 @@ gaps:
 
 [One of:]
 - **Ready for PR** — all requirements met, tests in place
-- **Needs work** — [N] gaps to address before PR. Run `/virtual-team:validate --remediate FEAT-NNN` to create stories.
-- **Needs re-planning** — significant gaps suggest the plan was incomplete. Run `/virtual-team:plan FEAT-NNN` to revise.
+- **Needs work** — [N] gaps to address before PR. Run `/virtual-team:vt-validate --remediate FEAT-NNN` to create stories.
+- **Needs re-planning** — significant gaps suggest the plan was incomplete. Run `/virtual-team:vt-plan FEAT-NNN` to revise.
 - **Scope discussion needed** — deviations or scope creep found that the founder should review
 ```
 
@@ -213,10 +213,10 @@ Coverage: N/N requirements (X%)
 Gaps found: [N]
 
 [If gaps found:]
-**Next step:** Run `/virtual-team:validate --remediate FEAT-NNN` to create stories for the [N] gaps.
+**Next step:** Run `/virtual-team:vt-validate --remediate FEAT-NNN` to create stories for the [N] gaps.
 
 [If clean:]
-**Next step:** Run `/virtual-team:pr` to submit the work.
+**Next step:** Run `/virtual-team:vt-pr` to submit the work.
 ```
 
 ---
@@ -282,7 +282,7 @@ This step runs ONLY when `--remediate` was passed.
 
    Validation report updated: status → fix-planned
 
-   **Next step:** Run `/virtual-team:implement FEAT-NNN` to start picking up gap stories.
+   **Next step:** Run `/virtual-team:vt-implement FEAT-NNN` to start picking up gap stories.
    ```
 
 ---
@@ -292,7 +292,7 @@ This step runs ONLY when `--remediate` was passed.
 1. **HARD BOUNDARY — No fixing (in validate mode):**
    - This command VALIDATES, it does not FIX
    - Do NOT write code, modify files, or create patches
-   - Do NOT run `/virtual-team:implement` or suggest "let me fix that"
+   - Do NOT run `/virtual-team:vt-implement` or suggest "let me fix that"
    - Report the gaps and let the founder decide the next step
    - The `--remediate` flag creates STORIES, not code — it plans the fix, doesn't execute it
 

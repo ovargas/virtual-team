@@ -169,9 +169,9 @@ In `recommended` mode, this is strongly encouraged. In `strict` mode, it's manda
 ## Integration
 
 This skill is loaded by:
-- `/virtual-team:implement` — Layer 0 (behavioral discipline), loaded before domain skills
-- `/virtual-team:debug` — Phase 4, when creating regression tests for the root cause
-- `/virtual-team:flow` — inherited through `/virtual-team:implement`
+- `/virtual-team:vt-implement` — Layer 0 (behavioral discipline), loaded before domain skills
+- `/virtual-team:vt-debug` — Phase 4, when creating regression tests for the root cause
+- `/virtual-team:vt-flow` — inherited through `/virtual-team:vt-implement`
 - SDD implementer subagents — loaded when executing plan tasks
 
 The skill self-configures by reading `stack.md`. Consumers load it the same way regardless of mode.

@@ -1,5 +1,5 @@
 ---
-name: worktree
+name: vt-worktree
 description: Create, remove, or list git worktrees for branch-based parallel work
 model: sonnet
 ---
@@ -20,14 +20,14 @@ This command uses `sonnet` because it's a mechanical git operation.
 ## Invocation
 
 **Usage patterns:**
-- `/virtual-team:worktree create feat/CTR-12` — create a worktree for a branch
-- `/virtual-team:worktree remove feat/CTR-12` — remove a worktree and clean up
-- `/virtual-team:worktree list` — show all active worktrees with their status
-- `/virtual-team:worktree clean` — remove worktrees for branches that have been merged
+- `/virtual-team:vt-worktree create feat/CTR-12` — create a worktree for a branch
+- `/virtual-team:vt-worktree remove feat/CTR-12` — remove a worktree and clean up
+- `/virtual-team:vt-worktree list` — show all active worktrees with their status
+- `/virtual-team:vt-worktree clean` — remove worktrees for branches that have been merged
 
 Shorthand:
-- `/virtual-team:worktree feat/CTR-12` — same as `create` (default action)
-- `/virtual-team:worktree --rm feat/CTR-12` — same as `remove`
+- `/virtual-team:vt-worktree feat/CTR-12` — same as `create` (default action)
+- `/virtual-team:vt-worktree --rm feat/CTR-12` — same as `remove`
 
 ## Process
 
@@ -66,7 +66,7 @@ Shorthand:
 
    To work in this worktree:
    - Open a new Claude Code session in the worktree directory
-   - Run `/virtual-team:implement` to load context and start implementation
+   - Run `/virtual-team:vt-implement` to load context and start implementation
    ```
 
 ### Action: Remove

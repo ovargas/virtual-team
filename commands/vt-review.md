@@ -1,5 +1,5 @@
 ---
-name: review
+name: vt-review
 description: CCode review of staged or recent changes against patterns, security, and acceptance criteria
 model: opus
 ---
@@ -13,17 +13,17 @@ This is the founder's "second pair of eyes" since they're working solo.
 ## Invocation
 
 **Usage patterns:**
-- `/virtual-team:review` — review all staged and unstaged changes (git diff)
-- `/virtual-team:review --staged` — review only staged changes
-- `/virtual-team:review path/to/file.ext` — review a specific file
-- `/virtual-team:review FEAT-003` — review all changes related to a feature (matches against the plan's file list)
+- `/virtual-team:vt-review` — review all staged and unstaged changes (git diff)
+- `/virtual-team:vt-review --staged` — review only staged changes
+- `/virtual-team:vt-review path/to/file.ext` — review a specific file
+- `/virtual-team:vt-review FEAT-003` — review all changes related to a feature (matches against the plan's file list)
 
 ## Process
 
 ### Step 1: Gather Changes
 
 1. **Determine what to review:**
-   - If bare `/virtual-team:review` or `--staged`: run `git diff` and/or `git diff --staged` to see all changes
+   - If bare `/virtual-team:vt-review` or `--staged`: run `git diff` and/or `git diff --staged` to see all changes
    - If a file path: read the file and its git diff
    - If a feature ID: read the plan's "Files Changed Summary" table, then diff each listed file
 
@@ -135,9 +135,9 @@ Using the security-reviewer's results (already merged in Step 3):
 
 Depending on verdict:
 
-- **APPROVE:** "Looks good. Run `/virtual-team:commit` when ready."
-- **APPROVE WITH NOTES:** "Solid work. The notes above are suggestions, not blockers. Run `/virtual-team:commit` when ready, or address them first."
-- **REQUEST CHANGES:** "There are [N] issues that should be fixed before committing. Fix them and run `/virtual-team:review` again, or `/virtual-team:review --staged` after staging the fixes."
+- **APPROVE:** "Looks good. Run `/virtual-team:vt-commit` when ready."
+- **APPROVE WITH NOTES:** "Solid work. The notes above are suggestions, not blockers. Run `/virtual-team:vt-commit` when ready, or address them first."
+- **REQUEST CHANGES:** "There are [N] issues that should be fixed before committing. Fix them and run `/virtual-team:vt-review` again, or `/virtual-team:vt-review --staged` after staging the fixes."
 
 ---
 
@@ -147,7 +147,7 @@ Depending on verdict:
    - This command REVIEWS code, it does not WRITE code
    - Do NOT fix the issues you find — only report them
    - Do NOT offer to "quickly fix that for you"
-   - The founder (or `/virtual-team:implement`) fixes; you review
+   - The founder (or `/virtual-team:vt-implement`) fixes; you review
    - Exception: If the founder explicitly asks "can you fix the issues you found?" — that's a separate action, not part of this command
 
 2. **Prioritize what matters:**

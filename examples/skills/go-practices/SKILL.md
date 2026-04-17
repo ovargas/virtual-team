@@ -627,7 +627,7 @@ Each trace line carries enough context to identify the specific entity — you c
 
 ### What to Include in Trace Attributes
 
-**During `/implement`, the AI must select relevant attributes for each `aop.Trace` call.** This is not optional — bare `Trace(ctx, "OpName")` calls without attributes are incomplete.
+**During `/vt-implement`, the AI must select relevant attributes for each `aop.Trace` call.** This is not optional — bare `Trace(ctx, "OpName")` calls without attributes are incomplete.
 
 **Include (identifying attributes):**
 - Entity IDs: `user_id`, `task_id`, `invoice_id`, `order_id`

@@ -269,5 +269,5 @@ Stories within a feature can be grouped into execution tracks using backlog tags
 - Single-story work → branch: `feat/S-010` (story ID)
 
 **Group flow:**
-1. `/virtual-team:implement FEAT-005` picks the first ready story, implements all stories sequentially
-2. `/virtual-team:pr` marks all stories as Done in one commit
+1. `/virtual-team:vt-implement FEAT-005` picks the first ready story, implements all stories sequentially
+2. `/virtual-team:vt-pr` marks all stories as Done in one commit
