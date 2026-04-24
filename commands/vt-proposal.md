@@ -22,20 +22,28 @@ This command uses `opus` because it requires deep reasoning about cost estimatio
 ## Invocation
 
 **Usage patterns:**
-- `/virtual-team:vt-proposal IDEA-001` — generate a proposal from an idea brief
+- `/virtual-team:vt-proposal IDEA-001` — generate a proposal from an idea brief (prompts for role + length unless `--auto`)
 - `/virtual-team:vt-proposal FEAT-005` — generate a proposal from a feature spec
 - `/virtual-team:vt-proposal FEAT-005 FEAT-006 FEAT-007` — generate a proposal covering multiple features (bundled scope)
-- `/virtual-team:vt-proposal IDEA-001 --audience=client` — tailor language for an external client
+- `/virtual-team:vt-proposal IDEA-001 --target-role=client --length=medium` — warm, exploratory proposal for a non-technical client
+- `/virtual-team:vt-proposal FEAT-005 --target-role=cto --length=extended` — architecture-review-grade document for a technical reader
+- `/virtual-team:vt-proposal FEAT-005 --target-role=cfo --length=compact` — one-page, numbers-first proposal for an economic buyer
+- `/virtual-team:vt-proposal FEAT-005 --target-role=po --length=extended` — traceability-heavy scope document for a product owner
 - `/virtual-team:vt-proposal FEAT-005 --include=costs` — add detailed AI/infrastructure cost breakdown
 - `/virtual-team:vt-proposal FEAT-005 --include=risks` — add risk analysis section
 - `/virtual-team:vt-proposal FEAT-005 --include=phases` — add phased delivery roadmap
 - `/virtual-team:vt-proposal FEAT-005 --include=sla` — add SLA and support terms section
 - `/virtual-team:vt-proposal IDEA-001 --tier=mvp,growth,enterprise` — generate tiered pricing/scope comparison
+- `/virtual-team:vt-proposal FEAT-005 --voice-sample=path/to/sample.md` — match an existing writing sample (passed through to humanizer)
 
 **Flags:**
-- `--audience=[internal|client|investor]` — adjusts tone and detail level. Default: `internal` (technical, no fluff). `client` adds professional framing, executive summary, and terms. `investor` adds market context and growth projections.
+- `--target-role=[cto|cfo|client|po]` — selects the voice profile (see **Voice Profiles** section below). Determines vocabulary, section emphasis, and tone. No hard default — when omitted, the command asks via `AskUserQuestion` unless `--auto` is set (in which case it defaults to `client`).
+- `--length=[compact|medium|extended]` — controls how much detail survives (1-2 / 3-5 / 6+ pages). Orthogonal to `--target-role`. Each role has its own default length (see profiles); when both `--length` and `--auto` are omitted the command asks. With `--auto` the default is `medium`.
 - `--include=[costs|risks|phases|sla|alternatives]` — add optional sections. Can be combined: `--include=costs,risks,phases`
 - `--tier=[comma-separated tier names]` — generate a tier comparison table showing what's included at each level and estimated costs per tier. Useful for SaaS pricing decisions.
+- `--voice-sample=<path>` — passes a writing sample to the humanizer skill for voice calibration. Useful when building a consistent personal voice across multiple proposals.
+- `--lang=<code>` — explicit language override for the generated document (e.g., `--lang=es`, `--lang=fr`, `--lang=en`). When omitted, the language is inferred from `$ARGUMENTS` and the founder's conversation. With `--auto` and no signal, defaults to English. See **Language** in Important Guidelines for the translate-vs-preserve policy.
+- `--auto` — skip interactive prompts; use defaults (`--target-role=client`, `--length=medium`) when flags are missing. Forwarded here by `/vt-yolo` and `/vt-flow --auto`.
 - `--deep` — spawn agents for infrastructure cost research and competitive pricing analysis. Default is no agents.
 - `--currency=[USD|EUR|etc]` — currency for cost estimates. Default: USD.
 
@@ -45,8 +53,14 @@ This command uses `opus` because it requires deep reasoning about cost estimatio
 
 1. **Parse `$ARGUMENTS`** for document references, flags, and any additional context:
    - Identify all IDEA-NNN or FEAT-NNN references
-   - Extract flags: `--audience`, `--include`, `--tier`, `--deep`, `--currency`
+   - Extract flags: `--target-role`, `--length`, `--include`, `--tier`, `--voice-sample`, `--lang`, `--auto`, `--deep`, `--currency`
    - Any remaining text is additional context or instructions from the founder
+
+   **Determine document language:**
+   - If `--lang=<code>` was passed, use it.
+   - Otherwise, infer from the language of `$ARGUMENTS` and the founder's conversation. If the request was written in Spanish, the document is in Spanish.
+   - If `--auto` is set and no language signal is present, default to English.
+   - Store the resolved language code (e.g., `es`, `en`, `fr`) and apply the translate-vs-preserve policy from **Important Guidelines → Language** throughout Phases 2-6.
 
 2. **Load the source documents:**
    - For each IDEA-NNN: read `docs/features/` for the matching `id: IDEA-NNN` frontmatter
@@ -59,13 +73,37 @@ This command uses `opus` because it requires deep reasoning about cost estimatio
    - Check `docs/decisions/` for infrastructure-related decisions
    - Identify what's already in place vs. what's new
 
-4. **Confirm understanding with the founder:**
+4. **Resolve missing `--target-role` and `--length` flags:**
+
+   These two flags shape the entire proposal. They must be set before drafting begins.
+
+   - **If `--auto` was passed:** apply defaults — `--target-role=client`, `--length=medium`. Do not prompt. Log the defaults in the confirmation output so the founder sees what was assumed.
+   - **If `--auto` was NOT passed and either flag is missing:** use the `AskUserQuestion` tool to ask. Frame the choices using the short descriptions from the **Voice Profiles** section below. Present both questions at once when both are missing.
+
+   Question prompt for `--target-role`:
+   > Who is the primary reader of this proposal?
+   > - `cto` — Technical executive / engineering lead. Direct, architecture-focused, names risks openly.
+   > - `cfo` — Economic buyer / budget approver. Numbers-first, TL;DR from page 1, no jargon.
+   > - `client` — Non-technical client exploring an idea. Warm, plain language, restates their idea back to them.
+   > - `po` — Product owner / scope validator. Precise, contract-adjacent, with a Requirements Traceability table.
+
+   Question prompt for `--length`:
+   > How much detail should the proposal carry?
+   > - `compact` — 1-2 pages. Executive summary, scope one-liners, total cost. No appendices.
+   > - `medium` — 3-5 pages. Full scope, timeline phases, infrastructure table, Not Included.
+   > - `extended` — 6+ pages. Everything — per-task estimates, cost scenarios, traceability, assumptions.
+
+   Record the final values and use them throughout the rest of the command.
+
+5. **Confirm understanding with the founder:**
 
 ```
 I'll create a proposal based on:
 
 **Source:** [IDEA-001: Name] / [FEAT-005: Name, FEAT-006: Name]
-**Audience:** [internal/client/investor]
+**Target role:** [cto/cfo/client/po] — [one-line description of what this means for tone]
+**Length:** [compact/medium/extended] — [page target]
+**Language:** [code + name, e.g., "es — Español"] ([detected from input / explicit `--lang` / default])
 **Optional sections:** [costs, risks, phases — whatever was requested]
 
 **What I see in scope:**
@@ -79,7 +117,7 @@ I'll create a proposal based on:
 Anything to add or adjust before I draft the proposal?
 ```
 
-Wait for confirmation before proceeding. This command always asks — proposals shape pricing and commitments, so human review is required even in automated pipelines.
+Wait for confirmation before proceeding when run interactively. This command normally asks — proposals shape pricing and commitments, so human review is the default even in automated pipelines. When `--auto` is set, print this block as an informational record of assumptions and proceed directly to Phase 2 without waiting for input.
 
 ### Phase 2: Scope Analysis
 
@@ -251,7 +289,9 @@ If `--tier` was provided, generate a tier comparison:
 
 2. **Create `docs/proposals/` directory if it doesn't exist.**
 
-3. **Use this template** (adapt sections based on `--audience` and `--include` flags):
+3. **Use this template** (adapt sections based on `--target-role`, `--length`, and `--include` flags).
+
+   The template below is written in English for reference. **If the resolved document language is not English**, translate headings, column headers, placeholder labels, and narrative text into the target language per the **Language** guideline (Important Guidelines → rule 5). Preserve frontmatter keys, enum values, IDs, file paths, currency codes, and vendor names exactly as shown.
 
 ```markdown
 ---
@@ -259,14 +299,33 @@ id: PROP-[NNN]
 date: [YYYY-MM-DD]
 status: draft
 source: [IDEA-001 or FEAT-005, FEAT-006]
-audience: [internal|client|investor]
+target-role: [cto|cfo|client|po]
+length: [compact|medium|extended]
 currency: [USD]
 tags: [relevant, tags]
 ---
 
 # Proposal: [Project/Feature Name]
 
-[If audience=client or investor, add an Executive Summary here — 3-4 sentences covering the what, why, timeline, and investment.]
+[Executive Summary — required for `cfo`, `client`, and `po` roles; optional and compressed for `cto`. Length scales with `--length`: compact = 2-3 sentences, medium = one short paragraph, extended = half a page. For `client`, open by restating the idea back to them. For `cfo`, lead with cost, timeline, and ROI framing. For `po`, this becomes a summary of the Requirements Traceability table that follows.]
+
+[If `target-role=po`, insert a **Requirements Traceability** section here (see template below).]
+
+[If `target-role=po`, include this section:]
+## Requirements Traceability
+
+Requirements below were extracted from the source document ([source]). Each is assigned an internal ID for use within this proposal and mapped to one or more deliverables in the Scope of Work. This table is self-contained — it does not depend on requirement IDs from external systems.
+
+| Req ID | Requirement (as stated / paraphrased from source) | Origin in source | Mapped deliverable | Acceptance criteria |
+|---|---|---|---|---|
+| REQ-1 | [Concrete, checkable statement] | [Section / heading / quote] | [Deliverable name] | [How done is verified] |
+| REQ-2 | [...] | [...] | [...] | [...] |
+
+**Requirements explicitly out of scope** (cross-reference the Not Included section):
+
+| Req ID | Requirement | Reason for exclusion |
+|---|---|---|
+| REQ-OUT-1 | [Statement] | [Why — deferred phase, budget, technical constraint, etc.] |
 
 ## Scope of Work
 
@@ -363,7 +422,7 @@ The following items are explicitly outside the scope of this proposal. They may 
 | Maintenance window | [e.g., Sundays 2-6 AM UTC] |
 | Support channels | [e.g., Email, Discord] |
 
-[If audience=client:]
+[If target-role=client or po:]
 ## Terms
 
 - **Validity:** This proposal is valid for [30] days from the date above.
@@ -379,13 +438,46 @@ The following items are explicitly outside the scope of this proposal. They may 
 - Decisions: [links to relevant ADRs]
 ```
 
-4. **Present the proposal:**
+4. **Run the humanizer (scoped pass) on the drafted document.**
+
+   Invoke the `humanizer` skill to remove AI writing patterns from **narrative prose only**. The skill must be instructed to preserve the structural elements of a proposal.
+
+   Pass the humanizer the following guardrails along with the proposal file:
+
+   ```
+   Scope of humanization:
+   - DO humanize: Executive Summary, deliverable descriptions, assumptions,
+     Not Included rationales, phase narratives, risk descriptions, and any
+     paragraph-form prose.
+   - DO NOT alter: markdown tables, section headers, bullet lists of factual
+     items (infrastructure rows, cost breakdowns, requirement IDs), code
+     blocks, or frontmatter.
+
+   Voice constraint (match the `target-role` frontmatter of the document):
+   - `cto`: direct, slightly terse. Do not inject warmth or first-person
+     asides. Preserve technical specificity.
+   - `cfo`: numbers-first, neutral. Do not add voice or personality — a CFO
+     reader wants signal, not style. Preserve every dollar figure and date.
+   - `client`: warm but precise. Preserve "you" and "we". Remove sycophancy,
+     filler, and marketing adjectives.
+   - `po`: precise, contract-adjacent. Do not soften acceptance criteria or
+     requirement statements. Remove hedging from scope language.
+
+   If `--voice-sample` was passed, use that file for voice calibration per
+   the humanizer skill's sample-matching behavior.
+   ```
+
+   After the humanizer returns, verify that no tables or requirement IDs were altered. If any were, restore them from the pre-humanized draft.
+
+5. **Present the proposal:**
 
 ```
 Proposal created at:
 `docs/proposals/YYYY-MM-DD-description.md`
 
 **Summary:**
+- **Target role:** [cto/cfo/client/po]
+- **Length:** [compact/medium/extended]
 - **Scope:** [N] deliverables covering [brief description]
 - **Timeline:** [N] working days (~[N] weeks)
 - **Infrastructure:** [N] services, $[XX-XXX]/month estimated
@@ -394,7 +486,87 @@ Proposal created at:
 Review the proposal — especially the Not Included section and timeline estimates. These are the parts that prevent surprises later.
 ```
 
-5. **Iterate based on feedback.** Surgical edits.
+6. **Iterate based on feedback.** Surgical edits. Re-run the humanizer only if substantial narrative was rewritten.
+
+---
+
+## Voice Profiles
+
+The `--target-role` flag selects one of four voice profiles. Each profile shapes vocabulary, section emphasis, tone, and the default length. Profiles are authoritative — when any phase of this command references "the voice profile," it means this section.
+
+### `--target-role=cto` — Technical Executive
+
+**Reader:** CTO, engineering lead, technical founder.
+
+- **Opens with:** Problem statement + proposed architecture in 3-4 sentences. No "journey" language, no "excited to partner" framing.
+- **Vocabulary allowed:** Stack and service names, integration points, latency/throughput targets, specific libraries, migration strategy, SLOs.
+- **Words to avoid:** *seamless, leverage, synergy, transformative, journey, unlock, empower, robust, cutting-edge, best-in-class*.
+- **Section emphasis:** Expand *Infrastructure*, *Dependencies*, *Assumptions*, *Not Included* (especially security/compliance boundaries). Compress *Executive Summary*. Skip investor-style projections.
+- **Tone markers:** Direct, slightly terse. Names risks and unknowns openly ("this depends on how your auth system handles X — if it doesn't, add N days"). A CTO trusts a proposal that admits risks over one that hides them.
+- **Default length:** `medium`.
+
+### `--target-role=cfo` — Economic Buyer
+
+**Reader:** CEO, CFO, budget approver, economic decision-maker.
+
+- **Opens with:** One-paragraph TL;DR — what, how long, how much, ROI framing. Decision-ready from page 1.
+- **Vocabulary allowed:** Total cost, monthly burn, payback period, cost-to-serve per user, margin at scale, worst-case, break-even, unit economics.
+- **Words to avoid:** *microservices, refactor, technical debt, we'll explore, investigate, consider*. Move all technical detail to an appendix the reader can skip.
+- **Section emphasis:** Expand *Cost Projections*, *Pricing Tiers* (if applicable), *Timeline summary*. Compress deliverable descriptions to one-liners.
+- **AI cost handling:** Always include AI cost projections inline (do not wait for `--include=costs`). Show per-user cost at scale — this is the number they're solving for.
+- **Tone markers:** Numbers-first. Every claim has a dollar figure, percentage, or date. Zero marketing adjectives.
+- **Default length:** `compact`.
+
+### `--target-role=client` — Curious Client
+
+**Reader:** Non-technical client exploring an idea, first engagement, pre-scoping conversation.
+
+- **Opens with:** A short paragraph that *restates their idea back to them* in clear terms. This is the single most important move for this reader — it proves you listened and establishes shared vocabulary.
+- **Vocabulary allowed:** Plain language, occasional analogies, the client's own words from the intake conversation.
+- **Words to avoid:** Technical jargon and acronyms without definitions. Translate *stack, schema, API, deployment* into what they mean for the client.
+- **Section emphasis:** Expand *Scope of Work* descriptions (paint the picture), *Phased Delivery* (makes cost feel safer), *Not Included* (educates without deflating). Compress infrastructure details.
+- **Tone markers:** Warm but precise. Uses "you" and "we." Admits open questions and invites the client into the design conversation. The only profile where some warmth is earned — the humanizer still removes sycophancy.
+- **Default length:** `medium`.
+
+### `--target-role=po` — Scope Validator
+
+**Reader:** Product owner, requirements approver, scope gatekeeper.
+
+- **Opens with:** A brief executive summary that previews the *Requirements Traceability* table. Every scoped deliverable traces back to a requirement extracted from the source idea/feature doc.
+- **Vocabulary allowed:** Terminology from the source doc, acceptance-criteria language, concrete verbs (*ships, delivers, handles, returns, validates*).
+- **Words to avoid:** Ambiguous phrases — *"handle edge cases," "polish UX," "as needed," "etc."*. Every deliverable has a checkable definition of done.
+- **Section emphasis:** *Requirements Traceability* table is mandatory and extensive. *Scope of Work* expands into deliverable-level detail with mapped REQ IDs. *Not Included* maps explicitly to requirements excluded from scope. Timeline includes an *Acceptance Criteria* column.
+- **Tone markers:** Precise, unambiguous, contract-adjacent. A PO uses this document to defend the scope to their own stakeholders.
+- **Standalone requirements:** Requirements are extracted from the source document and given **internal** REQ IDs within this proposal. Do not depend on external requirement IDs — the proposal must stand alone. Cite the source section/heading as the **origin** for each requirement.
+- **Default length:** `extended`.
+
+## Length Variants
+
+The `--length` flag controls how much detail survives the final edit. It is orthogonal to `--target-role` — any role can be paired with any length, though each role has a default (see profiles above).
+
+| Length | Page target | What survives | What gets cut |
+|---|---|---|---|
+| `compact` | 1-2 pages | Executive summary, scope one-liners, timeline summary, total cost | Deliverable descriptions collapse to bullets; no cost breakdown tables; no appendices; no risk/SLA sections unless explicitly included |
+| `medium` | 3-5 pages | Full scope of work, timeline phases, infrastructure table, Not Included section, brief assumptions | Detailed cost modeling, risk tables, SLA language unless requested via `--include` |
+| `extended` | 6+ pages | Everything — per-task estimates, cost scenarios, tier comparison, full Requirements Traceability (for `po`), explicit assumptions/dependencies, risk tables | Nothing; this is the complete document |
+
+When `--length` is omitted and `--auto` is set, default to `medium`. When both are omitted, ask via `AskUserQuestion` in Phase 1 step 4.
+
+## Humanizer Integration
+
+This command uses the `humanizer` skill to strip AI writing patterns from narrative prose after the draft is complete. The integration is **scoped** rather than full-pass — tables, headers, and factual bullet lists are legitimate proposal structure and must not be altered.
+
+**When to invoke:** Phase 6, step 4 — after the document is written, before it is presented to the founder.
+
+**What to pass:**
+- The drafted proposal file path
+- The scope constraints (what to humanize, what to leave alone)
+- The voice constraint keyed to the `target-role` frontmatter value
+- The `--voice-sample` path if provided
+
+**What to verify after:** Tables, REQ IDs, cost figures, and dates must be identical to the pre-humanized draft. If any were altered, restore them from the draft before proceeding.
+
+**When NOT to re-humanize:** Iterative feedback edits that only touch existing prose do not need a re-run. Re-run only if a section was rewritten substantially or a new narrative section was added.
 
 ---
 
@@ -418,10 +590,36 @@ Review the proposal — especially the Not Included section and timeline estimat
    - Include cost mitigation strategies — caching, rate limits, model tiering
    - Show per-user cost at scale — this is what determines pricing viability
 
-4. **Audience determines tone:**
-   - `internal`: Direct, technical, no fluff. Focus on decisions to make.
-   - `client`: Professional, clear, non-technical language where possible. Include terms.
-   - `investor`: Include market context, growth projections, unit economics.
+4. **Target role determines voice and structure:**
+   - The authoritative reference is the **Voice Profiles** section below.
+   - Section expansion/compression must follow the profile (e.g., `cfo` compresses deliverable descriptions; `po` expands the Requirements Traceability table).
+   - The humanizer pass must receive the voice constraint for the selected role (Phase 6, step 4).
+   - Do not mix voices. If a proposal genuinely needs to serve two readers (e.g., CFO + CTO), generate two proposals rather than blending tones.
+
+5. **Language — translate content, preserve identifiers:**
+
+   The document's language is determined in Phase 1 (from `--lang` or inferred from input). Apply the following policy throughout the template and narrative:
+
+   **DO translate to the target language:**
+   - Section and subsection headings (`## Scope of Work` → `## Alcance del Trabajo`)
+   - Table column headers (`Phase | Deliverables | Duration` → `Fase | Entregables | Duración`)
+   - Template placeholder labels inside brackets (`[Deliverable 1: Name]` → `[Entregable 1: Nombre]`)
+   - All narrative prose — executive summary, descriptions, assumptions, rationales, Not Included explanations
+   - Natural-language date formats within prose (e.g., "April 23, 2026" → "23 de abril de 2026")
+   - Number formatting conventions within prose (e.g., `1,000.00` → `1.000,00` for locales that use comma as decimal separator)
+
+   **DO NOT translate (preserve as-is):**
+   - Frontmatter **keys**: `id`, `date`, `status`, `source`, `target-role`, `length`, `currency`, `tags`
+   - Frontmatter **enum values**: `cto`, `cfo`, `client`, `po`, `compact`, `medium`, `extended`, `draft`
+   - IDs: `PROP-001`, `REQ-1`, `REQ-OUT-1`, `FEAT-005`, `IDEA-001`
+   - File paths: `docs/proposals/...`, `stack.md`, any markdown link target
+   - Flag names: `--target-role`, `--length`, `--lang`, etc.
+   - Currency codes in frontmatter and table columns: `USD`, `EUR`, `MXN` (the symbol `$`, `€` travels naturally with the value in prose)
+   - ISO dates in the frontmatter `date:` field and in the filename (`2026-04-23-...`) — these are machine-readable identifiers
+   - Service and vendor names: AWS, Vercel, Stripe, OpenAI, Anthropic, SendGrid, etc.
+   - Code blocks, inline code, and technical terms that have no established translation in the target language (leave as English with a brief gloss if needed)
+
+   **When in doubt:** if the item is reader-facing content, translate. If it's a machine identifier, cross-reference, or a proper noun, preserve.
 
 5. **Infrastructure costs must be current:**
    - Use WebSearch to verify current pricing for services you're recommending
