@@ -3,9 +3,10 @@
 ## Doing
 
 ## Ready
-- [ ] S-020: Add horizontal slicing anti-pattern and split TDD skill into reference files | feature:FEAT-016 group:1 order:1 service:plugin
 
 ## Done
+- [x] S-021: Insert hypothesize-before-trace phase into vt-debug | feature:FEAT-017 — completed on main
+- [x] S-020: Add horizontal slicing anti-pattern and split TDD skill into reference files | feature:FEAT-016 — completed on main
 - [x] S-019: Add cost transparency and stack skill size guidance | feature:FEAT-015 — completed on main
 - [x] S-018: Reinforce lazy domain skill loading in /implement and subagent dispatch | feature:FEAT-015 — completed on main
 - [x] S-017: Extract bug-fix pipeline from flow.md into conditional file | feature:FEAT-015 — completed on main

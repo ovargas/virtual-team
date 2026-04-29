@@ -33,7 +33,7 @@ When this command is invoked:
    - If `--fresh` was passed, delete `docs/checkpoints/debug-*.md` matching this item and proceed fresh
    - Check `docs/checkpoints/debug-<ID>.md` — if it exists, read it, show the resume summary, and skip to the first incomplete phase
    - If no checkpoint, proceed normally
-   - After each phase completes (Reproduce, Trace, Root Cause, Document), write/update the checkpoint file
+   - After each phase completes (Reproduce, Hypothesize, Trace, Root Cause, Document), write/update the checkpoint file
    - **On successful completion:** delete the checkpoint file (bundle deletion into the final commit)
 
 1. **Parse $ARGUMENTS for a bug reference or symptom description:**
@@ -95,9 +95,41 @@ Possible reasons: [why it might not reproduce — environment, data state, timin
    - Check if it's data-dependent (specific input values, edge cases in data)
    - Check git history — did a recent change introduce this?
 
-### Phase 2: Trace
+### Phase 2: Hypothesize
 
-Once reproduced (or with enough information to investigate), trace through the code to find where things go wrong.
+Before tracing, commit to multiple candidate explanations. This prevents anchoring on the first plausible cause.
+
+1. **Generate 3-5 hypotheses.** Based on the reproduction results and the code area, list ranked root-cause candidates. Each must have a falsifiable prediction — a specific test, observation, or output that would confirm or rule it out.
+
+   **If you cannot state the prediction, the hypothesis is a vibe — discard or sharpen it.**
+
+2. **Present the ranked list:**
+
+```
+**Hypotheses** (ranked by likelihood):
+
+| Rank | Hypothesis | Prediction (falsifiable) | Disproves if... |
+|---|---|---|---|
+| 1 | [most likely cause] | [specific observable check] | [what would rule it out] |
+| 2 | [second candidate] | [specific observable check] | [what would rule it out] |
+| 3 | [third candidate] | [specific observable check] | [what would rule it out] |
+```
+
+3. **Wait for acknowledgment before proceeding.**
+
+```
+Review the hypotheses above. You can:
+- **Re-rank** if your domain knowledge suggests a different order
+- **Add** a hypothesis I missed
+- **Drop** any that don't make sense
+- **Proceed** to trace from the top-ranked hypothesis
+
+Confirm or adjust before I start tracing.
+```
+
+### Phase 3: Trace
+
+Starting from the **top-ranked hypothesis** from Phase 2, trace through the code to find where things go wrong.
 
 1. **Locate and trace the affected code:**
 
@@ -117,31 +149,33 @@ Once reproduced (or with enough information to investigate), trace through the c
    - Check if the same pattern works correctly elsewhere (is this a unique bug or a pattern bug?)
    - Check edge cases: null values, empty arrays, type coercion, off-by-one, async timing
 
-### Phase 3: Root Cause
+### Phase 4: Root Cause
 
 Formulate and verify the root cause.
 
-1. **State the hypothesis clearly:**
+1. **Confirm the surviving hypothesis.** Compare your trace findings against the Phase 2 hypothesis list. Which hypothesis(es) survived? Which were eliminated?
 
 ```
-**Root Cause Hypothesis:**
-[Specific description of what's wrong and why]
+**Surviving Hypothesis:** [which one from the Phase 2 ranked list, or new if none matched]
 
 **Evidence:**
 - `file.ext:line` — [what this code does wrong]
 - [Reproduction output that confirms this]
 - [How this explains the reported symptoms]
+
+**Eliminated hypotheses:**
+- Hypothesis [N]: [one-line reason it was ruled out]
 ```
 
 2. **Verify the hypothesis:**
    - Can you explain ALL reported symptoms with this root cause?
    - Would fixing this specific thing (and nothing else) resolve the bug?
 
-3. **If the hypothesis doesn't fully explain the symptoms,** go back to Phase 2 and trace deeper. Don't settle for a partial explanation.
+3. **If the hypothesis doesn't fully explain the symptoms,** go back to Phase 3 and trace deeper. If ALL hypotheses from Phase 2 were eliminated, return to Phase 2 to generate new candidates. Don't settle for a partial explanation.
 
 4. **Mandatory: Scan for all occurrences (pattern sweep).**
 
-   This is NOT optional. A root cause that exists in one place almost always exists in others. Before moving to Phase 4, you MUST search the entire codebase for every instance of the same pattern.
+   This is NOT optional. A root cause that exists in one place almost always exists in others. Before moving to Phase 5, you MUST search the entire codebase for every instance of the same pattern.
 
    - **Identify the pattern:** What is the underlying mistake? (e.g., "missing nil check before accessing user.Profile", "raw SQL concatenation without parameterization", "no error return check after service call")
    - **Build search queries:** Create Grep patterns that would catch this and similar variations. Use multiple queries — the pattern might appear with different variable names, types, or contexts.
@@ -173,7 +207,7 @@ Formulate and verify the root cause.
      This is not a single bug — it's a codebase-wide pattern that needs a systematic fix.
      ```
 
-### Phase 4: Document Findings
+### Phase 5: Document Findings
 
 1. **Update the bug report** (if one exists) with investigation findings. Use the `Edit` tool to add a section:
 
@@ -274,7 +308,7 @@ including all occurrences found.
    - Find the WHY, not just the WHERE
 
 4. **HARD BOUNDARY — Pattern sweep is mandatory:**
-   - Phase 3 Step 4 (pattern sweep) is NOT optional and CANNOT be skipped
+   - Phase 4 Step 4 (pattern sweep) is NOT optional and CANNOT be skipped
    - A bug investigation that finds the root cause in one place but doesn't scan the full codebase is INCOMPLETE
    - The investigation status cannot be set to `investigated` until the pattern sweep is done
    - Every confirmed and likely occurrence must appear in the bug report's occurrence table
