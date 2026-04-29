@@ -15,40 +15,37 @@ Read `stack.md` and check the `tdd:` field. If the field is missing, default to 
 | `recommended` | TDD is the expected workflow. Warn when skipped, log the skip, but proceed. |
 | `off` | No TDD enforcement. Tests are encouraged but not gated. Skip the rest of this skill. |
 
-**If `tdd: off`** — stop reading. Do not enforce any TDD discipline. Write tests when appropriate but don't gate implementation on them.
+**If `tdd: off`** — stop reading. Do not enforce any TDD discipline.
 
-## Overview
+## Anti-Pattern: Horizontal Slicing
 
-Write the test first. Watch it fail. Write minimal code to pass.
+<Bad>
+Horizontal slicing — write all tests first, then all implementation:
+  test1, test2, test3, test4, test5 → impl1, impl2, impl3, impl4, impl5
+  Tests describe imagined behavior. Discovery comes too late.
+</Bad>
+
+<Good>
+Vertical slicing (tracer bullets) — one test, one impl, repeat:
+  test1 → impl1 → test2 → impl2 → test3 → impl3
+  Each test responds to what the previous cycle taught you.
+</Good>
+
+**The rule:** ONE test, ONE implementation, then the next test. Never batch. Each RED-GREEN cycle is a learning step — the next test is informed by what you just discovered.
 
 ## The Cycle
 
-### RED — Write Failing Test
+### RED — Write one failing test
 
-Write one minimal test showing what should happen.
-
-**Requirements:**
-- One behavior per test
-- Clear name describing expected behavior (e.g., `'rejects empty email with validation error'`)
+- One behavior per test, clear name (e.g., `'rejects empty email with validation error'`)
 - Real code preferred over mocks (mocks only if unavoidable)
-- Test must be runnable
+- Run the test. Confirm it **fails** for the expected reason (feature missing, not typo/error)
 
-### Verify RED — Watch It Fail
-
-Run the test command. Confirm:
-- Test **fails** (not errors — a test error means setup is broken)
-- Failure message matches what you expect
-- Fails because the feature is **missing**, not because of a typo
-
-**Test passes immediately?** You're testing existing behavior. Fix the test.
-**Test errors?** Fix the error, re-run until it fails correctly.
-
-### GREEN — Write Minimal Code
+### GREEN — Write minimal code to pass
 
 Write the simplest code to make the test pass. Nothing more.
 
 <Good>
-```
 // Just enough to pass
 async function retryOperation(fn, maxRetries = 3) {
   for (let i = 0; i < maxRetries; i++) {
@@ -56,122 +53,46 @@ async function retryOperation(fn, maxRetries = 3) {
     catch (e) { if (i === maxRetries - 1) throw e; }
   }
 }
-```
 </Good>
 
 <Bad>
-```
-// YAGNI — over-engineered
+// YAGNI — over-engineered beyond what the test requires
 async function retryOperation(fn, options?: {
-  maxRetries?: number;
-  backoff?: 'linear' | 'exponential';
-  onRetry?: (attempt: number) => void;
-  timeout?: number;
+  maxRetries?: number; backoff?: 'linear' | 'exponential';
+  onRetry?: (attempt: number) => void; timeout?: number;
 }) { ... }
-```
 </Bad>
 
-Don't add features, refactor other code, or "improve" beyond the test.
+Run the test. Confirm it passes. Confirm all other tests still pass.
 
-### Verify GREEN — Watch It Pass
+### REFACTOR — Then repeat
 
-Run the test command. Confirm:
-- New test passes
-- All other tests still pass
-- Output clean (no errors, warnings)
-
-**Test fails?** Fix code, not test.
-**Other tests fail?** Fix now.
-
-### REFACTOR — Clean Up
-
-Only after green:
-- Remove duplication
-- Improve names
-- Extract helpers
-
-Keep tests green. Don't add behavior.
-
-### REPEAT
-
-Next failing test for next behavior.
+Only after green: remove duplication, improve names, extract helpers. Keep tests green. Don't add behavior. Then write the next failing test for the next behavior.
 
 ## When TDD Is Skipped (recommended mode only)
 
-In `recommended` mode, if you write production code before a test, **do not delete it**. Instead:
+In `recommended` mode, if you write production code before a test:
+1. **Log the skip** — note which function/method was written without test-first
+2. **Write the test immediately after** — cover the code before moving on
+3. **Flag it** in phase verification as a TDD skip with a brief reason
 
-1. **Log the skip** — note which function/method was written without a test-first approach
-2. **Write the test immediately after** — cover the code you just wrote before moving on
-3. **Flag it** in the phase verification:
-   ```
-   ⚠️ TDD skip: wrote `handleTimeout()` before test. Test added after. Reason: [brief reason].
-   ```
+**In `strict` mode**, skips are not allowed. Delete the code and start over.
 
-This keeps the team aware of where discipline slipped without blocking progress. Over time, the skip log reveals patterns — if the same developer or area skips repeatedly, it's a signal to address.
+## Reference Material
 
-**In `strict` mode**, skips are not allowed. Delete the code and start over with TDD.
-
-## Good Tests vs Bad Tests
-
-| Quality | Good | Bad |
-|---------|------|-----|
-| **Minimal** | One thing. "and" in name? Split it. | `test('validates email and domain and whitespace')` |
-| **Clear** | Name describes behavior being tested | `test('test1')`, `test('it works')` |
-| **Real** | Tests actual code behavior | Tests mock behavior instead of real code |
-| **Focused** | Tests through the public interface | Tests private implementation details |
-| **Intent** | Shows the API you wish existed | Obscures what the code should do |
-
-## Rationalization Prevention (strict mode only)
-
-These thoughts mean STOP — you're about to skip TDD:
-
-| Thought | Reality |
-|---------|---------|
-| "Too simple to test" | Simple code breaks. Test takes 30 seconds. |
-| "I'll write tests after" | Tests passing immediately prove nothing. |
-| "Tests after achieve the same goals" | Tests-after verify what you built. Tests-first verify what's required. Different. |
-| "Deleting X hours of work is wasteful" | Sunk cost fallacy. Keeping unverified code is technical debt. |
-| "Test is hard to write = skip it" | Hard to test = hard to use. Listen to the test. Simplify the interface. |
-| "TDD will slow me down" | TDD is faster than debugging. Measure start-to-production, not start-to-first-draft. |
-| "This is different because..." | No it isn't. Write the test. |
-
-**Red flags — delete code and restart (strict mode):**
-- Code written before test
-- Test written after implementation
-- Test passes immediately on first run
-- Rationalizing "just this once"
+- **Test quality:** See [skills/test-driven-development/references/test-quality.md](references/test-quality.md) — load when reviewing test quality
+- **Rationalization prevention:** See [skills/test-driven-development/references/rationalizations.md](references/rationalizations.md) — load in strict mode when tempted to skip TDD
 
 ## Verification Checklist
 
 Before marking any implementation step complete:
-
-**All modes:**
-- [ ] All tests pass
-- [ ] Output clean (no errors, warnings)
+- [ ] All tests pass, output clean (no errors, warnings)
 - [ ] Tests use real code (mocks only if unavoidable)
 - [ ] Edge cases and error paths covered
-
-**Strict and recommended additionally:**
-- [ ] Every new function/method has a test
-- [ ] Tests were written before implementation (or skip logged in recommended mode)
-
-**Strict only:**
-- [ ] Watched each test fail before implementing
-- [ ] Each test failed for the expected reason (feature missing, not typo)
-- [ ] Wrote minimal code to pass each test
+- [ ] Every new function/method has a test (strict + recommended)
+- [ ] Tests written before implementation, or skip logged (recommended) / code deleted (strict)
+- [ ] Each test failed for the expected reason before implementation (strict)
 
 ## Debugging Integration
 
-Bug found? Write a failing test reproducing it first. The test proves the fix works and prevents regression.
-
-In `recommended` mode, this is strongly encouraged. In `strict` mode, it's mandatory — never fix bugs without a test.
-
-## Integration
-
-This skill is loaded by:
-- `/virtual-team:vt-implement` — Layer 0 (behavioral discipline), loaded before domain skills
-- `/virtual-team:vt-debug` — Phase 4, when creating regression tests for the root cause
-- `/virtual-team:vt-flow` — inherited through `/virtual-team:vt-implement`
-- SDD implementer subagents — loaded when executing plan tasks
-
-The skill self-configures by reading `stack.md`. Consumers load it the same way regardless of mode.
+Bug found? Write a failing test reproducing it first. In `recommended` mode, strongly encouraged. In `strict` mode, mandatory.

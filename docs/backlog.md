@@ -3,6 +3,7 @@
 ## Doing
 
 ## Ready
+- [ ] S-020: Add horizontal slicing anti-pattern and split TDD skill into reference files | feature:FEAT-016 group:1 order:1 service:plugin
 
 ## Done
 - [x] S-019: Add cost transparency and stack skill size guidance | feature:FEAT-015 — completed on main
