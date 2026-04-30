@@ -33,7 +33,7 @@ When this command is invoked:
    - If `--fresh` was passed, delete `docs/checkpoints/debug-*.md` matching this item and proceed fresh
    - Check `docs/checkpoints/debug-<ID>.md` — if it exists, read it, show the resume summary, and skip to the first incomplete phase
    - If no checkpoint, proceed normally
-   - After each phase completes (Reproduce, Hypothesize, Trace, Root Cause, Document), write/update the checkpoint file
+   - After each phase completes (Build feedback loop, Hypothesize, Trace, Root Cause, Document), write/update the checkpoint file
    - **On successful completion:** delete the checkpoint file (bundle deletion into the final commit)
 
 1. **Parse $ARGUMENTS for a bug reference or symptom description:**
@@ -60,40 +60,70 @@ Starting investigation.
 
 ## Process
 
-### Phase 1: Reproduce
+### Phase 1: Build a feedback loop
 
-You can't fix what you can't see. First, confirm the bug exists and understand its boundaries.
+You can't fix what you can't probe. Before any hypothesizing or tracing, build a fast, deterministic, repeatable signal that confirms the bug exists and lets you test fixes against it.
 
-1. **Follow the reproduction steps** from the bug report (if available):
-   - Run the application or test commands
-   - Execute the steps exactly as described
-   - Capture the actual output — error messages, logs, responses
+#### 1a. Choose a strategy from the ranked menu
 
-2. **If no reproduction steps exist,** try to trigger the symptom:
-   - Read the code path that the bug description implies
-   - Write a minimal reproduction — a test case, a curl command, or a specific sequence
-   - Try variations to understand the boundaries: does it always happen? Only with certain input?
+Pick one strategy from the table below. The table is ordered best→worst by signal quality. If you skip to a lower-ranked strategy, explain why the higher-ranked ones don't fit this bug.
 
-3. **Document reproduction result:**
+| Rank | Strategy | When it fits | Signal type |
+|---|---|---|---|
+| 1 | Failing test | Reproducible logic bug, regression | Test framework output |
+| 2 | Curl / HTTP script | API/server bug | HTTP response, status code |
+| 3 | CLI invocation | Command/tool bug | Exit code, stderr |
+| 4 | Headless browser | UI/integration bug | DOM state, console errors |
+| 5 | Replay trace | Production crash, deferred bug | Recorded execution |
+| 6 | Throwaway harness | No clean entry point | Custom script output |
+| 7 | Fuzz loop | Edge case, intermittent | Crash on input class |
+| 8 | Bisection | Recently introduced regression | Last-good commit |
+| 9 | Differential loop | "Was working, now broken" | Output diff vs known-good |
+| 10 | HITL bash script | No automation possible | Manual checklist gating |
+
+For strategy #10, use the template at `scripts/hitl-loop.template.sh` as a starting point.
+
+**If none of the 10 strategies fits** this bug and you genuinely cannot build an automated or semi-automated feedback loop, **stop and say so explicitly:**
 
 ```
-**Reproduction:** [Confirmed | Could not reproduce | Intermittent]
+⚠️ Cannot build a feedback loop for this bug.
 
-[If confirmed:]
-Reproduced with: [exact command, input, or steps]
-Error output: [what was observed]
+Tried/considered: [what was attempted or why strategies don't apply]
+Reason: [why no loop is possible — e.g., requires physical hardware, production-only state, etc.]
 
-[If not reproduced:]
-Tried: [what was attempted]
-Result: [what happened instead]
-Possible reasons: [why it might not reproduce — environment, data state, timing]
+Proceeding to Phase 2 (Hypothesize) with degraded confidence.
+The founder may override this decision.
 ```
 
-4. **If you can't reproduce, investigate further before giving up:**
-   - Check if it's environment-specific (database state, config, feature flags)
-   - Check if it's timing-dependent (race condition, async ordering)
-   - Check if it's data-dependent (specific input values, edge cases in data)
-   - Check git history — did a recent change introduce this?
+Do NOT silently skip to code-reading. The stop must be visible.
+
+#### 1b. Build the loop
+
+Write the chosen probe inline — a test, curl command, CLI invocation, throwaway harness, or whatever the strategy calls for. Run it. Capture the output. Confirm a non-zero signal: a failing test, error response, non-zero exit code, or divergent output.
+
+```
+**Feedback loop:** [strategy name]
+**Probe:** [what was written/executed]
+**Signal:** [captured output — error, diff, exit code, etc.]
+**Verdict:** [signal confirms the bug exists | signal is ambiguous — refine]
+```
+
+#### 1c. Iterate on the loop itself
+
+Evaluate the loop on three dimensions. If any dimension is weak, refine the loop before proceeding to Phase 2.
+
+- **Fast** — sub-second to a few seconds? If slow, narrow the input or skip setup.
+- **Deterministic** — same input → same output every time? If flaky, isolate the non-determinism.
+- **Sharp** — signal isolates the symptom, not adjacent noise? If noisy, tighten the assertion or filter.
+
+```
+**Loop quality:**
+- Fast: [yes/no — explanation]
+- Deterministic: [yes/no — explanation]
+- Sharp: [yes/no — explanation]
+
+[If refined:] Refined from [original] → [improved version]. Signal is now [description].
+```
 
 ### Phase 2: Hypothesize
 
@@ -297,10 +327,10 @@ including all occurrences found.
    - Suggest what to fix and how, but don't do it
    - The fix goes through the normal flow: spec → plan → implement → review → commit
 
-2. **Reproduce before you trace:**
-   - Don't jump to reading code and guessing. Reproduce first.
-   - A reproduction proves the bug exists and gives you a concrete test case
-   - If you can't reproduce, say so — don't pretend you found the root cause by reading code alone
+2. **Build a feedback loop before you trace:**
+   - Don't jump to reading code and guessing. Build a probe first.
+   - A feedback loop proves the bug exists and gives you a runnable, repeatable signal
+   - If you can't build a loop, say so explicitly — don't silently fall back to code-reading
 
 3. **Root cause, not surface fix:**
    - "The null check is missing on line 42" is a surface fix
@@ -320,7 +350,7 @@ including all occurrences found.
    - Suggest what additional investigation would resolve the uncertainty
 
 6. **Track progress with TodoWrite:**
-   - Create todos for: reproduce, trace (per component), hypothesize, verify, document
+   - Create todos for: build feedback loop, hypothesize, trace (per component), verify, document
    - This is often a multi-step investigation — tracking helps
 
 7. **Diagnostic commands are OK:**
