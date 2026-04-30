@@ -37,6 +37,7 @@ When this command is invoked:
    - `stack.md` — understand the stack and conventions
    - Existing decision records in `docs/decisions/` — understand past choices
    - Load `skills/adr-convention/SKILL.md` — understand the three-gate threshold for recommending new ADRs
+   - Load `skills/architecture-vocabulary/SKILL.md` — use formal vocabulary (Depth, Seam, Leverage, Locality, Adapter, Pass-through) when evaluating architecture
    - Load the backlog skill and call **`list(status=ready)`** — understand what's planned (to avoid flagging things already on the roadmap)
    - Recent git history — understand the pace and pattern of changes
    - `CONTEXT.md` if present — check that code uses defined domain vocabulary consistently. Flag terminology drift in findings.
@@ -73,6 +74,8 @@ Map the territory before judging it.
 Evaluate each relevant dimension. For a full review, cover all of them. For a focused review, dive deep on the requested dimension.
 
 #### Architecture & Structure
+
+Use the architecture vocabulary skill terms when forming findings. Replace generic language ("poor separation of concerns") with precise vocabulary ("shallow module," "low leverage," "poor locality"). Every architecture finding should reference at least one vocabulary term.
 
 - **Is there a clear separation of concerns?** Can you identify the layers (UI, API, business logic, data access)?
 - **Do dependencies flow in the right direction?** (Inward — UI depends on services, services depend on data layer, not the reverse)
