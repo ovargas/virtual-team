@@ -192,3 +192,25 @@ describe('ADR reference integrity', () => {
     ).toEqual([]);
   });
 });
+
+describe('out-of-scope frontmatter', () => {
+  const oosDir = join(ROOT, 'docs', 'out-of-scope');
+  let files: string[] = [];
+  try {
+    files = readdirSync(oosDir).filter(f => f.endsWith('.md') && f !== 'README.md');
+  } catch {
+    // docs/out-of-scope/ doesn't exist yet — no OOS records to validate
+  }
+
+  const validStatuses = ['deferred', 'rejected', 'superseded'];
+
+  it.each(files)('%s has valid OOS frontmatter (id, date, status)', (file) => {
+    const content = readFileSync(join(oosDir, file), 'utf-8');
+    const fm = parseFrontmatter(content);
+
+    expect(fm, `${file} is missing frontmatter`).not.toBeNull();
+    expect(fm!.id, `${file} is missing 'id' field`).toMatch(/^OOS-\d+$/);
+    expect(fm!.date, `${file} is missing 'date' field`).toMatch(/^\d{4}-\d{2}-\d{2}$/);
+    expect(validStatuses, `${file} has invalid status '${fm!.status}'`).toContain(fm!.status);
+  });
+});

@@ -35,7 +35,10 @@ When this command is invoked:
    - Skip directly to Round 1 (Capture the Spark) using the provided text
    - Do NOT ask the user to describe the idea again — they already did
 
-3. **If no idea was provided (bare `/virtual-team:vt-idea`)**, respond with:
+3. **Check for prior rejections:**
+   - If `docs/out-of-scope/` exists, list all files (excluding `README.md`) and read their frontmatter (`id`, `original_request`, `tags`, `status`). Evaluate whether any are plausibly related to the idea being proposed. If matches are found, surface them before Round 1's mirror-back: show the file path, title, status, and a one-line summary of the rejection reasoning. Ask whether this changes direction. If the founder says "continue" or the match is unrelated, proceed normally. If no matches are found or the directory doesn't exist, proceed silently — produce no output about out-of-scope.
+
+4. **If no idea was provided (bare `/virtual-team:vt-idea`)**, respond with:
 
 ```
 I'll help you capture and shape a product idea. Think of this as a conversation — you don't need a polished pitch. Just tell me what's rattling around in your head.

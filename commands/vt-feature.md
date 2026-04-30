@@ -48,6 +48,7 @@ When this command is invoked:
    - Load the backlog skill (read `stack.md` → backlog interface → implementation) and call **`list(status=ready)`** to see current priorities
    - Read any existing PRD or architecture docs
    - Read `CONTEXT.md` if present — use its domain vocabulary in the feature spec. Prefer defined terms over synonyms.
+   - Check `docs/out-of-scope/` if the directory exists — list all files (excluding `README.md`), read their frontmatter (`id`, `original_request`, `tags`, `status`), and evaluate whether any are plausibly related to the feature being requested. If matches are found, surface them before Phase 1's mirror-back: show the file path, title, status, and a one-line summary of the rejection reasoning. Ask whether this affects the request. If the founder says "continue" or the match is unrelated, proceed normally. If no matches are found or the directory doesn't exist, proceed silently — produce no output about out-of-scope.
    - This context shapes every question you ask and every recommendation you make
 
 3. **If an epic reference was provided (`--epic=EPIC-003`):**
