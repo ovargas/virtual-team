@@ -1,7 +1,7 @@
 ---
 id: FEAT-025
 date: 2026-04-30
-status: draft
+status: done
 type: feature
 triage: full
 epic: EPIC-001

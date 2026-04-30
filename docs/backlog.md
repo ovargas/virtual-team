@@ -3,11 +3,11 @@
 ## Doing
 
 ## Ready
-- [ ] S-032: Add Phase 1.5 Design Alternatives to vt-plan with parallel architect dispatch | feature:FEAT-025 | group:1 | order:1 | spec:docs/features/2026-04-30-design-twice-parallel-subagents.md | plan:docs/plans/2026-04-30-design-twice-parallel-subagents.md
-- [ ] S-033: Add convergence detection and graceful skip for design alternatives | feature:FEAT-025 | group:1 | order:2 | spec:docs/features/2026-04-30-design-twice-parallel-subagents.md | plan:docs/plans/2026-04-30-design-twice-parallel-subagents.md
-- [ ] S-034: Pre-fill ADR Alternatives Considered from rejected design proposals | feature:FEAT-025 | group:1 | order:3 | spec:docs/features/2026-04-30-design-twice-parallel-subagents.md | plan:docs/plans/2026-04-30-design-twice-parallel-subagents.md
 
 ## Done
+- [x] S-034: Pre-fill ADR Alternatives Considered from rejected design proposals | feature:FEAT-025 — completed on main
+- [x] S-033: Add convergence detection and graceful skip for design alternatives | feature:FEAT-025 — completed on main
+- [x] S-032: Add Phase 1.5 Design Alternatives to vt-plan with parallel architect dispatch | feature:FEAT-025 — completed on main
 - [x] S-031: Create architecture-vocabulary skill and integrate into vt-tech-review | feature:FEAT-024 — completed on main
 - [x] S-030: Create token-efficient skill and register in skill-awareness | feature:FEAT-023 — completed on main
 - [x] S-029: Unify inline ADR templates in vt-start and vt-epic by replacing with skill references | feature:FEAT-022 — completed on main
