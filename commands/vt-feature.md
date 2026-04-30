@@ -610,6 +610,8 @@ Key things to check:
 
 4. **Iterate based on feedback.** Surgical edits, not rewrites.
 
+5. **Optional:** Run `/virtual-team:vt-grill FEAT-NNN` to stress-test the spec for untested assumptions before breaking into stories.
+
 ---
 
 ## Phase 6: Story Breakdown

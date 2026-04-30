@@ -61,4 +61,4 @@ Commands that read `CONTEXT.md`:
 
 - ADR-002 defines this convention: `docs/decisions/2026-04-29-domain-glossary-convention.md`
 - `vt-start` scaffolds CONTEXT.md when the user opts in during repo initialization
-- The grilling skill (future) will maintain CONTEXT.md inline during interviews
+- The `/virtual-team:vt-grill` command maintains CONTEXT.md inline during grilling sessions

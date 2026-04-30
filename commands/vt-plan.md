@@ -434,6 +434,8 @@ The plan is ready. Do you approve it for implementation?
 
 This is a hard gate. The plan must be `approved` before `/virtual-team:vt-implement` will execute it.
 
+**Optional:** Run `/virtual-team:vt-grill` on the approved plan to stress-test technical assumptions before implementation.
+
 ### Phase 3.5: Knowledge Check (after approval)
 
 **Skip this phase entirely if:**
