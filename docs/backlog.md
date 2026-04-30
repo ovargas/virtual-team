@@ -5,6 +5,7 @@
 ## Ready
 
 ## Done
+- [x] S-023: Create skill-authoring meta-skill and update CLAUDE.md | feature:FEAT-019 — completed on main
 - [x] S-022: Rewrite vt-debug Phase 1 as feedback-loop-first | feature:FEAT-018 — completed on main
 - [x] S-021: Insert hypothesize-before-trace phase into vt-debug | feature:FEAT-017 — completed on main
 - [x] S-020: Add horizontal slicing anti-pattern and split TDD skill into reference files | feature:FEAT-016 — completed on main

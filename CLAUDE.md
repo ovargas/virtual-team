@@ -24,6 +24,7 @@ tests/          — Static validation tests (frontmatter, refs, commands)
 - Skills live in `skills/<name>/SKILL.md`
 - Cross-references use root-relative paths (e.g., `skills/git-practices/SKILL.md`, not `.claude/skills/...`)
 - The bootstrap skill is `virtual-team:skill-awareness` — it loads via SessionStart hook
+- For detailed skill authoring rules (size budget, descriptions, reference files, review checklist), see `skills/skill-authoring/SKILL.md`
 
 ## Testing
 
