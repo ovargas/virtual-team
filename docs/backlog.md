@@ -5,6 +5,7 @@
 ## Ready
 
 ## Done
+- [x] S-031: Create architecture-vocabulary skill and integrate into vt-tech-review | feature:FEAT-024 — completed on main
 - [x] S-030: Create token-efficient skill and register in skill-awareness | feature:FEAT-023 — completed on main
 - [x] S-029: Unify inline ADR templates in vt-start and vt-epic by replacing with skill references | feature:FEAT-022 — completed on main
 - [x] S-028: Add light ADR prompt to vt-feature and passive ADR tagging to vt-tech-review | feature:FEAT-022 — completed on main
