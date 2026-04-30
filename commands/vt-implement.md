@@ -511,6 +511,8 @@ Layer 0 is always loaded. For Layer 1, only load the skill(s) relevant to the cu
 
 > **Why this matters:** Each project skill can be 150–250 lines (~2,000–3,000 tokens). Loading all of them upfront wastes context on instructions irrelevant to the current phase. Load the one you need when you need it — your context budget is better spent on code.
 
+**Domain vocabulary.** If `CONTEXT.md` exists at the project root, read it before writing code. Use the defined terms in variable names, function names, comments, and commit messages. If a term has an "Avoid" column entry, don't use those synonyms.
+
 ---
 
 ## Important Guidelines

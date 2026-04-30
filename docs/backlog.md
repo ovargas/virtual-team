@@ -3,9 +3,9 @@
 ## Doing
 
 ## Ready
-- [ ] S-024: Create domain-glossary skill and integrate into pipeline commands | feature:FEAT-020 | group:1 | order:1 | spec:docs/features/2026-04-29-domain-glossary-convention.md
 
 ## Done
+- [x] S-024: Create domain-glossary skill and integrate into pipeline commands | feature:FEAT-020 — completed on main
 - [x] S-023: Create skill-authoring meta-skill and update CLAUDE.md | feature:FEAT-019 — completed on main
 - [x] S-022: Rewrite vt-debug Phase 1 as feedback-loop-first | feature:FEAT-018 — completed on main
 - [x] S-021: Insert hypothesize-before-trace phase into vt-debug | feature:FEAT-017 — completed on main

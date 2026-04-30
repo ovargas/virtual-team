@@ -38,6 +38,7 @@ When this command is invoked:
    - Existing decision records in `docs/decisions/` — understand past choices
    - Load the backlog skill and call **`list(status=ready)`** — understand what's planned (to avoid flagging things already on the roadmap)
    - Recent git history — understand the pace and pattern of changes
+   - `CONTEXT.md` if present — check that code uses defined domain vocabulary consistently. Flag terminology drift in findings.
 
 3. **Announce the review:**
 

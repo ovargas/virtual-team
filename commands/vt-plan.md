@@ -48,6 +48,7 @@ When this command is invoked:
    - Any research docs referenced in the spec
    - Any decision records that affect this feature
    - The relevant parts of the codebase — at minimum, the files that will be touched
+   - `CONTEXT.md` if present — use its domain vocabulary in the plan. Reference defined terms when naming phases, steps, and components.
 
 3. **Verify the spec is ready for planning:**
    - Does it have a clear definition of done?

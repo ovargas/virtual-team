@@ -124,6 +124,23 @@ Maps local story IDs to external service issues. Managed by the `backlog-externa
 
 The external service is the backlog — no local `docs/backlog.md` is needed.
 
+**If the user opted for domain modeling in Round 1:**
+Create `CONTEXT.md` at the repo root with the template from ADR-002 (empty sections ready to fill):
+```markdown
+# Domain Context
+
+## Language
+
+| Term | Definition | Avoid |
+|------|-----------|-------|
+
+## Relationships
+
+## Example Dialogue
+
+## Flagged Ambiguities
+```
+
 ### Step 3: Interview
 
 The interview differs by repo type. Hub repos focus on product identity and team structure. Service repos focus on the technical stack.
@@ -201,6 +218,7 @@ Gather:
 - **Service name** — what do you call this repo?
 - **One-line description** — what does it do?
 - **Service role** — backend, frontend, API, mobile, shared library, CLI tool?
+- **Domain modeling** — does this project have domain-specific terminology that should be consistent across specs, plans, and code? If yes, note that `CONTEXT.md` will be scaffolded in Step 2. If no or unsure, skip — it can always be added later.
 
 #### Round 2: Language and Runtime
 

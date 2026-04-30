@@ -47,6 +47,7 @@ When this command is invoked:
    - Check `docs/features/` for existing feature briefs — understand what's already been built
    - Load the backlog skill (read `stack.md` → backlog interface → implementation) and call **`list(status=ready)`** to see current priorities
    - Read any existing PRD or architecture docs
+   - Read `CONTEXT.md` if present — use its domain vocabulary in the feature spec. Prefer defined terms over synonyms.
    - This context shapes every question you ask and every recommendation you make
 
 3. **If an epic reference was provided (`--epic=EPIC-003`):**

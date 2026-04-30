@@ -1,7 +1,7 @@
 ---
 id: FEAT-020
 date: 2026-04-29
-status: draft
+status: implemented
 type: feature
 triage: full
 epic: EPIC-001
