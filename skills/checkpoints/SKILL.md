@@ -88,7 +88,7 @@ total_phases: 5
 <!-- Capture decisions made during completed phases that affect later phases.
      This prevents re-asking the user questions they already answered. -->
 
-- [Phase 0] Synced with hub decisions ADR-005 and ADR-008
+- [Phase 0] Synced with hub decisions ADR-NNN and ADR-NNN
 - [Phase 1] Scope confirmed: notifications for orders only, not marketing
 
 ## Artifacts Produced
