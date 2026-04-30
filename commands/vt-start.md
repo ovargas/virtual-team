@@ -447,31 +447,7 @@ If the founder made non-obvious choices during the interview (e.g., chose gRPC o
 
 File: `docs/decisions/YYYY-MM-DD-[decision].md`
 
-```markdown
----
-id: ADR-001
-date: YYYY-MM-DD
-status: accepted
-epic: [EPIC-NNN if related to an epic, omit otherwise]
-type: [technical | contract | convention | infrastructure | data]
-repos: [list of affected repos, omit for single-repo decisions]
----
-
-# [Decision Title]
-
-## Context
-[Why this decision was needed]
-
-## Decision
-[What was decided]
-
-## Alternatives Considered
-- [Alternative 1] — [why not]
-- [Alternative 2] — [why not]
-
-## Consequences
-- [What this means for future development]
-```
+Use the ADR format defined in `skills/adr-convention/SKILL.md` (local flavor — omit `repos:` field for single-repo decisions). Apply the three-gate threshold: only create a record when the decision is (a) hard to reverse, (b) surprising without context, AND (c) a real trade-off.
 
 The `epic`, `type`, and `repos` fields are optional:
 - `epic` — links to an epic if the decision came from a cross-team initiative

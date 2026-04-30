@@ -36,6 +36,7 @@ When this command is invoked:
 2. **Read context:**
    - `stack.md` — understand the stack and conventions
    - Existing decision records in `docs/decisions/` — understand past choices
+   - Load `skills/adr-convention/SKILL.md` — understand the three-gate threshold for recommending new ADRs
    - Load the backlog skill and call **`list(status=ready)`** — understand what's planned (to avoid flagging things already on the roadmap)
    - Recent git history — understand the pace and pattern of changes
    - `CONTEXT.md` if present — check that code uses defined domain vocabulary consistently. Flag terminology drift in findings.
@@ -78,6 +79,7 @@ Evaluate each relevant dimension. For a full review, cover all of them. For a fo
 - **Is the folder structure consistent and predictable?** Can a new developer find things?
 - **Are there circular dependencies?** Modules that import each other?
 - **Are there god files/modules?** (Files over 500 lines that do too many things)
+- **Are architectural decisions documented?** Check `docs/decisions/` for existing ADRs. Reference ADRs by ID in findings when relevant (e.g., "This violates ADR-001's size budget"). For any finding that is (a) hard to reverse, (b) surprising without context, and (c) a real trade-off — tag the finding with "Consider recording an ADR for the chosen remediation." Never auto-create ADRs from reviews.
 - **Is there a clear boundary between components?** Or does everything reach into everything?
 
 #### Technical Debt
@@ -153,6 +155,7 @@ What's done well — acknowledge good patterns so they're preserved:
 - **Where:** [file:line references]
 - **Risk:** [What could go wrong if not addressed]
 - **Suggested action:** [Brief, actionable recommendation]
+- **ADR candidate:** [yes/no — if the suggested remediation itself passes the three-gate threshold]
 
 ### Important (address within the next few iterations)
 
@@ -161,6 +164,7 @@ What's done well — acknowledge good patterns so they're preserved:
 - **Where:** [file:line references]
 - **Risk:** [What could go wrong]
 - **Suggested action:** [Recommendation]
+- **ADR candidate:** [yes/no — if the suggested remediation itself passes the three-gate threshold]
 
 ### Informational (good to know, address when convenient)
 

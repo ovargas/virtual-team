@@ -111,7 +111,7 @@ that must be resolved before this feature can be planned:
 
 Please make these decisions, then:
 1. Update `stack.md` with your choices
-2. Create decision records in `docs/decisions/` for non-obvious choices
+2. Create decision records in `docs/decisions/` for non-obvious choices (see ADR Capture in Phase 3)
 3. Re-run `/virtual-team:vt-plan` for this feature
 ```
 
@@ -409,7 +409,40 @@ Please review. Key things to check:
 
 3. **Iterate based on feedback.** Surgical edits to the plan.
 
-4. **Request approval:**
+4. **ADR Capture** (after plan review, before approval)
+
+**Load `skills/adr-convention/SKILL.md`** for the three-gate threshold and ADR format.
+
+After the plan is reviewed but before requesting approval, check whether any decisions made during planning are ADR-worthy. For each decision that resolved an ambiguity or chose between alternatives:
+
+**Three-gate check:**
+1. Hard to reverse? — Would changing this decision later require significant rework?
+2. Surprising without context? — Would a future reader wonder "why did they do it this way?"
+3. Real trade-off? — Were there genuine alternatives with different pros/cons?
+
+**If all three gates pass for a decision:**
+
+**If `--auto` was NOT passed:**
+```
+This decision looks ADR-worthy:
+  Topic: [decision topic]
+  Gates: hard-to-reverse ✓ / surprising ✓ / real trade-off ✓
+
+Record an ADR? [y/n]
+```
+
+If accepted: create `docs/decisions/YYYY-MM-DD-<slug>.md` using the format from `skills/adr-convention/SKILL.md`. Pre-fill Context and Decision from the planning conversation. Draft Alternatives Considered and Consequences.
+
+If declined: note in the plan: "ADR declined: [topic] — revisit if approach changes."
+
+**If `--auto` was passed:**
+Skip the prompt. Append to the plan document:
+```
+## ADR-Worthy Decisions (flagged for review)
+- [Topic]: [brief description] — gates: hard-to-reverse ✓ / surprising ✓ / real trade-off ✓
+```
+
+5. **Request approval:**
 
 **If `--auto` was passed:**
 - Skip the approval prompt

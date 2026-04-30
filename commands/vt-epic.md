@@ -270,43 +270,7 @@ For each agreement identified in Phase 3, create a decision record.
 
 File: `docs/decisions/YYYY-MM-DD-[agreement-name].md`
 
-```markdown
----
-id: ADR-[NNN]
-date: YYYY-MM-DD
-status: accepted
-epic: EPIC-[NNN]
-type: contract
-repos: [awesome-app-api, awesome-app-fe]
----
-
-# [Agreement Title]
-
-## Context
-[Why this agreement is needed — what the epic requires and why the teams need to align]
-
-## Agreement
-[The specific contract — endpoint shape, data format, shared convention, etc.]
-
-### Details
-[Concrete specification:]
-- [Endpoint: `GET /api/v1/documents/search?q={query}&lang={code}`]
-- [Response shape with field descriptions]
-- [Error format]
-- [Auth requirements]
-
-## Affected Repos
-- **[repo-name]:** [What this repo implements — the provider side or consumer side]
-- **[repo-name]:** [What this repo implements]
-
-## Alternatives Considered
-- [Alternative 1] — [why not]
-- [Alternative 2] — [why not]
-
-## Consequences
-- [What this means for each affected repo]
-- [Migration needs if this changes existing behavior]
-```
+Use the ADR format defined in `skills/adr-convention/SKILL.md` (hub flavor — include `repos:` field, add `## Affected Repos` section and `### Details` sub-section under Decision). Hub agreements are always `type: contract` unless the agreement is a convention or infrastructure decision.
 
 ### Types of Agreements
 

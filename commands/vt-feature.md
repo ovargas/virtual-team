@@ -188,6 +188,8 @@ If the verdict is DEFER or SKIP, discuss it with the founder. They may have cont
 
 If the founder overrides a SKIP/DEFER recommendation, note it in the spec: "YAGNI flag: Founder chose to proceed despite [concern]. Revisit if [condition]."
 
+**ADR check on overrides:** If the founder overrode a SKIP or DEFER recommendation, this is often an ADR-worthy moment — the decision to proceed despite a YAGNI concern is hard to reverse (work gets done), surprising without context (future sessions will question why it was built), and a real trade-off (speed vs. discipline). Load `skills/adr-convention/SKILL.md` and offer an ADR if all three gates pass. With `--auto`, skip the prompt.
+
 After presenting the YAGNI assessment:
 
 ```
@@ -390,6 +392,8 @@ to get it right now than to refine later.
 ```
 
 If the founder adds context here, incorporate it into the spec. If they say "looks good" or similar, proceed.
+
+**ADR check on approach decisions:** If the specification process resolved a non-obvious approach choice (e.g., chose polling over webhooks, chose flat file over database), check the three gates from `skills/adr-convention/SKILL.md`. If all three pass and `--auto` is not set, offer an ADR. Keep this light — most feature-level decisions are captured in the spec itself and don't need a separate ADR.
 
 ---
 
