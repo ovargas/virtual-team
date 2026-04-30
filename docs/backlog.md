@@ -5,6 +5,10 @@
 ## Ready
 
 ## Done
+- [x] S-029: Unify inline ADR templates in vt-start and vt-epic by replacing with skill references | feature:FEAT-022 — completed on main
+- [x] S-028: Add light ADR prompt to vt-feature and passive ADR tagging to vt-tech-review | feature:FEAT-022 — completed on main
+- [x] S-027: Add active ADR prompt to vt-plan with --auto suppression | feature:FEAT-022 — completed on main
+- [x] S-026: Create adr-convention skill and backfill ADR-001/002/003 | feature:FEAT-022 — completed on main
 - [x] S-025: Create vt-grill command with decision-tree walking and CONTEXT.md integration | feature:FEAT-021 — completed on main
 - [x] S-024: Create domain-glossary skill and integrate into pipeline commands | feature:FEAT-020 — completed on main
 - [x] S-023: Create skill-authoring meta-skill and update CLAUDE.md | feature:FEAT-019 — completed on main
