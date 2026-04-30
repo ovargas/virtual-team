@@ -4,7 +4,10 @@
 
 ## Ready
 
+## Doing
+
 ## Done
+- [x] S-035: Add out-of-scope convention with vt-feature/vt-idea pre-check | feature:FEAT-026 — completed on main
 - [x] S-034: Pre-fill ADR Alternatives Considered from rejected design proposals | feature:FEAT-025 — completed on main
 - [x] S-033: Add convergence detection and graceful skip for design alternatives | feature:FEAT-025 — completed on main
 - [x] S-032: Add Phase 1.5 Design Alternatives to vt-plan with parallel architect dispatch | feature:FEAT-025 — completed on main
