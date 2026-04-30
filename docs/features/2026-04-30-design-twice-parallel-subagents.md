@@ -6,8 +6,10 @@ type: feature
 triage: full
 epic: EPIC-001
 hub_decisions: [ADR-001, ADR-002, ADR-003]
+local_decisions: [ADR-004, ADR-005]
 research_level: light
 yagni_verdict: slimmed
+plan: docs/plans/2026-04-30-design-twice-parallel-subagents.md
 tags: [vt-plan, agents, architecture, design-alternatives]
 ---
 
