@@ -21,7 +21,7 @@ You think in files, functions, and data flows — not features and user stories.
 
 **Flags:**
 - `--auto` — autonomous mode: skip founder confirmations at Phase 1 analysis acknowledgment and Phase 3 approval. The plan is auto-approved (`status: approved`) without asking. Use this for Ralph Wiggum loops or batch processing.
-- `--deep` — full agent mode: spawn agents for Phase 0 (architectural gate) and Phase 1 (codebase analysis). Use for complex features that touch multiple modules, introduce new stack dependencies, or require deep codebase tracing. Without this flag, the plan command does all analysis directly (Glob, Grep, Read) — faster and cheaper.
+- `--deep` — full agent mode: spawn agents for Phase 0 (architectural gate), Phase 1 (codebase analysis), and Phase 1.5 (design alternatives — 3 parallel architects propose distinct designs, founder picks). Use for complex features that touch multiple modules, introduce new stack dependencies, or require deep codebase tracing. Without this flag, the plan command does all analysis directly — faster and cheaper.
 - `--fresh` — delete any existing checkpoint and start from scratch
 - Flags combine: `/virtual-team:vt-plan --auto --deep FEAT-007`
 
@@ -33,7 +33,7 @@ When this command is invoked:
    - If `--fresh` was passed, delete `docs/checkpoints/plan-*.md` matching this item and proceed fresh
    - Check `docs/checkpoints/plan-<ID>.md` — if it exists, read it, show the resume summary, and skip to the first incomplete phase
    - If no checkpoint, proceed normally
-   - After each phase completes (Arch Gate, Codebase Analysis, Write Plan, Review/Validate, Backlog Update), write/update the checkpoint file
+   - After each phase completes (Arch Gate, Codebase Analysis, Design Alternatives, Write Plan, Review/Validate, Backlog Update), write/update the checkpoint file
    - **On successful completion:** delete the checkpoint file (bundle deletion into the final commit)
 
 1. **Parse $ARGUMENTS for a spec path, feature ID, or story reference:**
@@ -218,6 +218,84 @@ Any concerns before I write the plan?
 ```
 
 Wait for acknowledgment before proceeding. **If `--auto` was passed, skip this wait — proceed directly to Phase 2.**
+
+### Phase 1.5: Design Alternatives
+
+**Skip this phase entirely if `--deep` was NOT passed.** When `--deep` is absent, proceed directly to Phase 2.
+
+**When `--deep` is active**, before writing the plan, dispatch 3 parallel `software-architect` agents to produce architecturally distinct design proposals. The founder picks one, which becomes the input to Phase 2.
+
+**Why this exists:** Planning sessions anchor on the first plausible design. Forcing exploration of distinct alternatives — framed in architecture-vocabulary terms — surfaces real trade-offs the founder can evaluate.
+
+#### Step 1: Build constraint-archetype prompts
+
+Use the same feature spec + Phase 1 codebase analysis findings as input to all 3 agents. Differentiate them only by constraint archetype:
+
+- **Archetype A — Minimize indirection:** "Propose a design that maximizes Locality and avoids Pass-throughs. Co-locate related changes. Prefer flat structure over layered abstractions. Frame your trade-offs using terms from `skills/architecture-vocabulary/SKILL.md`."
+- **Archetype B — Maximize seams:** "Propose a design that introduces Adapters at boundaries that may need swapping later. Optimize for testability and replaceability. Frame your trade-offs using terms from `skills/architecture-vocabulary/SKILL.md`."
+- **Archetype C — Minimize new surface area:** "Propose a design that extends existing modules rather than introducing new ones. Keep modules Deep. Avoid new abstractions where current ones can be stretched. Frame your trade-offs using terms from `skills/architecture-vocabulary/SKILL.md`."
+
+Every agent receives the same scene-setting context: feature spec path, Phase 1 codebase analysis summary, and the constraint instruction.
+
+#### Step 2: Dispatch 3 architects in parallel
+
+Spawn 3 `virtual-team:software-architect` agents simultaneously using a single message with 3 Agent tool calls. Each runs in Recommendation Mode (see `agents/software-architect.md:108-173`) and returns its standard structured output.
+
+**Wait for all 3 agents to return before proceeding.**
+
+If any agent returns a HALT (this should not normally happen since Phase 0 already passed, but treat defensively), stop and present the halt — do not silently continue with 2 designs.
+
+#### Step 3: Detect divergence
+
+Once all 3 designs are returned, compute a divergence signal by comparing their structural fingerprints:
+
+**Convergence rule:** Convergence is declared when ALL of the following are true:
+
+1. **Same created-files set** — the three designs propose creating the same files (set equality on file paths, ignoring order).
+2. **Same modified-files set** — the three designs propose modifying the same files.
+3. **Same top-level module structure** — the three designs put primary responsibilities in the same modules. (One-line structural fingerprint: list each architect's "Where things live" top-level entries; if the three lists are identical as sets, the structures match.)
+
+If any of the three checks fails, declare divergence. This is a textual comparison only — no LLM judgment, no scoring rubric, no synthesis agent.
+
+#### Step 4: Present results
+
+**If converged**, print this note and proceed to Phase 2 with the consensus design (taken from Archetype A's output):
+
+```
+🔀 Design Alternatives: explored A/B/C — all converge.
+   Same created files: [N]. Same modified files: [M]. Same top-level structure.
+   No meaningful divergence; proceeding with consensus design.
+```
+
+Do not present a comparison table when converged. The convergence message is the entire output for this phase.
+
+**If diverged**, present a comparison table and wait for founder selection:
+
+```
+🔀 Design Alternatives (--deep mode)
+
+Divergence: meaningful (modules differ; data flow differs)
+
+| # | Constraint        | Structure                                | Trade-off                              |
+|---|-------------------|------------------------------------------|----------------------------------------|
+| A | Indirection ↓     | [structure summary from architect A]     | [trade-offs in vocabulary terms]       |
+| B | Seams ↑           | [structure summary from architect B]     | [trade-offs in vocabulary terms]       |
+| C | Surface ↓         | [structure summary from architect C]     | [trade-offs in vocabulary terms]       |
+
+Pick design (A/B/C):
+```
+
+The orchestrator extracts each row's "Structure" from the architect's "Where things live" tree (truncate to one line if needed), and "Trade-off" from the architect's "Trade-offs" section (one line: dominant pro and dominant con, framed in vocabulary terms).
+
+**If `--auto` was passed:** skip the prompt; auto-select Archetype A and append to the plan a note: "Design alternatives explored under --auto: A selected by default. Alternatives B/C noted for review."
+
+#### Step 5: Carry the chosen design forward
+
+The chosen architect's full output becomes the architectural baseline for Phase 2 plan writing. The orchestrator should reference it explicitly when constructing the plan's "Reference Implementation" and "Phase N — Step N.N — File:" annotations.
+
+If divergence occurred and a design was chosen, **retain the rejected designs in session state** for use in Phase 3 ADR Capture.
+
+---
 
 ### Phase 2: Write the Plan
 
@@ -420,6 +498,8 @@ After the plan is reviewed but before requesting approval, check whether any dec
 2. Surprising without context? — Would a future reader wonder "why did they do it this way?"
 3. Real trade-off? — Were there genuine alternatives with different pros/cons?
 
+**Auto-pass on Gate 3 from Phase 1.5 divergence:** If Phase 1.5 was active (i.e., `--deep` was passed) and divergence was detected (founder picked between A/B/C), the third gate ("real trade-off") is automatically met for the design-choice decision. The session state retains the rejected design proposals — use them below to pre-fill Alternatives Considered. If Phase 1.5 did not run, or convergence was detected, evaluate Gate 3 normally.
+
 **If all three gates pass for a decision:**
 
 **If `--auto` was NOT passed:**
@@ -431,7 +511,18 @@ This decision looks ADR-worthy:
 Record an ADR? [y/n]
 ```
 
-If accepted: create `docs/decisions/YYYY-MM-DD-<slug>.md` using the format from `skills/adr-convention/SKILL.md`. Pre-fill Context and Decision from the planning conversation. Draft Alternatives Considered and Consequences.
+If accepted: create `docs/decisions/YYYY-MM-DD-<slug>.md` using the format from `skills/adr-convention/SKILL.md`. Pre-fill Context and Decision from the planning conversation.
+
+**For the Alternatives Considered section:**
+- **If Phase 1.5 ran AND divergence was detected:** populate from the rejected design proposals retained in session state. Use one bullet per rejected archetype, each one line: the constraint name, a one-phrase structure summary, and the dominant trade-off (in architecture-vocabulary terms). Example:
+  ```
+  ## Alternatives Considered
+  - **Archetype A (Minimize indirection):** Single co-located module under [path]. Rejected: lacked a Seam for swapping the [boundary] later.
+  - **Archetype C (Minimize new surface area):** Extended `[existing module]`. Rejected: pushed the existing module past its Depth threshold; would have hurt Locality.
+  ```
+- **If Phase 1.5 did not run, or convergence was detected:** draft Alternatives Considered from the planning conversation as before.
+
+Draft Consequences in both cases.
 
 If declined: note in the plan: "ADR declined: [topic] — revisit if approach changes."
 
@@ -561,3 +652,9 @@ If the architect passes → continue to Phase 1.
 The virtual-team:codebase-locator and virtual-team:pattern-finder roles are merged into a single virtual-team:codebase-analyzer call. This halves the agent cost with minimal quality loss — the analyzer can do both jobs in one pass.
 
 Wait for agents to return before writing the plan.
+
+**Phase 1.5 (Design Alternatives) — only when `--deep` is passed:**
+- Spawn 3 **virtual-team:software-architect** agents in parallel, each with a different constraint archetype prompt (see Phase 1.5 above for archetype A/B/C details).
+- All 3 run in Recommendation Mode (`agents/software-architect.md:108-173`) — same input (feature spec + Phase 1 analysis), different constraint instruction.
+- Cap is fixed at 3 (matches `skills/subagent-driven-development/SKILL.md:111` parallel dispatch ceiling).
+- Wait for all 3 to return before computing divergence.
