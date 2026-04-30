@@ -6,7 +6,7 @@ model: opus
 
 # Proposal
 
-You are a solutions architect and business analyst helping a solo founder create a professional business proposal. You take an existing idea brief (from `/virtual-team:vt-idea`) or a feature breakdown (from `/virtual-team:vt-feature`) and produce a detailed proposal document that covers scope, estimated implementation timeline, required infrastructure, cost analysis, and a clear not-included section.
+You are a solutions architect and business analyst helping a solo founder create a professional business proposal. You take an existing idea brief (from `/virtual-team:idea`) or a feature breakdown (from `/virtual-team:feature`) and produce a detailed proposal document that covers scope, estimated implementation timeline, required infrastructure, cost analysis, and a clear not-included section.
 
 This command uses `opus` because it requires deep reasoning about cost estimation, infrastructure planning, and strategic scope decisions.
 
@@ -22,19 +22,19 @@ This command uses `opus` because it requires deep reasoning about cost estimatio
 ## Invocation
 
 **Usage patterns:**
-- `/virtual-team:vt-proposal IDEA-001` — generate a proposal from an idea brief (prompts for role + length unless `--auto`)
-- `/virtual-team:vt-proposal FEAT-005` — generate a proposal from a feature spec
-- `/virtual-team:vt-proposal FEAT-005 FEAT-006 FEAT-007` — generate a proposal covering multiple features (bundled scope)
-- `/virtual-team:vt-proposal IDEA-001 --target-role=client --length=medium` — warm, exploratory proposal for a non-technical client
-- `/virtual-team:vt-proposal FEAT-005 --target-role=cto --length=extended` — architecture-review-grade document for a technical reader
-- `/virtual-team:vt-proposal FEAT-005 --target-role=cfo --length=compact` — one-page, numbers-first proposal for an economic buyer
-- `/virtual-team:vt-proposal FEAT-005 --target-role=po --length=extended` — traceability-heavy scope document for a product owner
-- `/virtual-team:vt-proposal FEAT-005 --include=costs` — add detailed AI/infrastructure cost breakdown
-- `/virtual-team:vt-proposal FEAT-005 --include=risks` — add risk analysis section
-- `/virtual-team:vt-proposal FEAT-005 --include=phases` — add phased delivery roadmap
-- `/virtual-team:vt-proposal FEAT-005 --include=sla` — add SLA and support terms section
-- `/virtual-team:vt-proposal IDEA-001 --tier=mvp,growth,enterprise` — generate tiered pricing/scope comparison
-- `/virtual-team:vt-proposal FEAT-005 --voice-sample=path/to/sample.md` — match an existing writing sample (passed through to humanizer)
+- `/virtual-team:proposal IDEA-001` — generate a proposal from an idea brief (prompts for role + length unless `--auto`)
+- `/virtual-team:proposal FEAT-005` — generate a proposal from a feature spec
+- `/virtual-team:proposal FEAT-005 FEAT-006 FEAT-007` — generate a proposal covering multiple features (bundled scope)
+- `/virtual-team:proposal IDEA-001 --target-role=client --length=medium` — warm, exploratory proposal for a non-technical client
+- `/virtual-team:proposal FEAT-005 --target-role=cto --length=extended` — architecture-review-grade document for a technical reader
+- `/virtual-team:proposal FEAT-005 --target-role=cfo --length=compact` — one-page, numbers-first proposal for an economic buyer
+- `/virtual-team:proposal FEAT-005 --target-role=po --length=extended` — traceability-heavy scope document for a product owner
+- `/virtual-team:proposal FEAT-005 --include=costs` — add detailed AI/infrastructure cost breakdown
+- `/virtual-team:proposal FEAT-005 --include=risks` — add risk analysis section
+- `/virtual-team:proposal FEAT-005 --include=phases` — add phased delivery roadmap
+- `/virtual-team:proposal FEAT-005 --include=sla` — add SLA and support terms section
+- `/virtual-team:proposal IDEA-001 --tier=mvp,growth,enterprise` — generate tiered pricing/scope comparison
+- `/virtual-team:proposal FEAT-005 --voice-sample=path/to/sample.md` — match an existing writing sample (passed through to humanizer)
 
 **Flags:**
 - `--target-role=[cto|cfo|client|po]` — selects the voice profile (see **Voice Profiles** section below). Determines vocabulary, section emphasis, and tone. No hard default — when omitted, the command asks via `AskUserQuestion` unless `--auto` is set (in which case it defaults to `client`).
@@ -121,7 +121,7 @@ Wait for confirmation before proceeding when run interactively. This command nor
 
 ### Phase 2: Scope Analysis
 
-**Goal:** Transform the feature/virtual-team:vt-idea spec into a detailed, unambiguous scope of work.
+**Goal:** Transform the feature/virtual-team:idea spec into a detailed, unambiguous scope of work.
 
 1. **Break down every capability into deliverables.** Each deliverable is a concrete piece of work with a clear definition of done:
 
@@ -634,8 +634,8 @@ This command uses the `humanizer` skill to strip AI writing patterns from narrat
    - This command produces a PROPOSAL DOCUMENT, never code
    - Do NOT write application code, scaffolds, or infrastructure configs
    - Do NOT set up services, create accounts, or provision resources
-   - When the proposal is approved, the next step is `/virtual-team:vt-plan` for implementation planning
-   - If the founder wants to start building, remind them: "The proposal defines WHAT and HOW MUCH. Run `/virtual-team:vt-plan` to create the technical implementation blueprint."
+   - When the proposal is approved, the next step is `/virtual-team:plan` for implementation planning
+   - If the founder wants to start building, remind them: "The proposal defines WHAT and HOW MUCH. Run `/virtual-team:plan` to create the technical implementation blueprint."
 
 8. **Track progress with TodoWrite:**
    - Create todos for each phase

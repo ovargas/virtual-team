@@ -19,11 +19,11 @@ This command uses `sonnet` because it's a read-evaluate-respond operation.
 ## Invocation
 
 **Usage patterns:**
-- `/virtual-team:vt-check` — quiz on whatever is currently in progress (auto-detects context)
-- `/virtual-team:vt-check docs/plans/2026-02-12-notifications.md` — quiz on a specific plan
-- `/virtual-team:vt-check --pr` — quiz with implementation/PR focus (reads the branch diff)
-- `/virtual-team:vt-check --plan` — quiz with architectural/virtual-team:vt-plan focus
-- `/virtual-team:vt-check FEAT-007` — quiz on a specific feature's plan and implementation
+- `/virtual-team:check` — quiz on whatever is currently in progress (auto-detects context)
+- `/virtual-team:check docs/plans/2026-02-12-notifications.md` — quiz on a specific plan
+- `/virtual-team:check --pr` — quiz with implementation/PR focus (reads the branch diff)
+- `/virtual-team:check --plan` — quiz with architectural/virtual-team:plan focus
+- `/virtual-team:check FEAT-007` — quiz on a specific feature's plan and implementation
 
 **Flags:**
 - `--plan` — focus questions on architectural decisions (post-plan style)
@@ -36,7 +36,7 @@ This command uses `sonnet` because it's a read-evaluate-respond operation.
 ### Step 1: Determine Context
 
 1. **Parse `$ARGUMENTS`** for plan path, feature ID, or flags
-2. **If bare `/virtual-team:vt-check`**, auto-detect:
+2. **If bare `/virtual-team:check`**, auto-detect:
    - Load the backlog skill and call **`list(status=doing)`** and **`list(status=implemented)`** to find items in progress
    - Find the associated plan in `docs/plans/`
    - Check the current branch and diff
@@ -141,7 +141,7 @@ Results logged to: docs/knowledge-checks/[filename]
 ⚠️ Knowledge gaps detected ([score]%, 60% required to pass).
 
 Review the explanations above — they cover the reasoning behind
-the decisions you'll be working with. You can run `/virtual-team:vt-check` again
+the decisions you'll be working with. You can run `/virtual-team:check` again
 after reviewing.
 
 Results logged to: docs/knowledge-checks/[filename]

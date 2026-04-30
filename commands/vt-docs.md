@@ -13,20 +13,20 @@ This command reads the codebase, decision records, stack definition, and existin
 ## Invocation
 
 **Usage patterns:**
-- `/virtual-team:vt-docs` — interactive mode, will ask what to document
-- `/virtual-team:vt-docs setup` — generate a setup/onboarding guide for the project
-- `/virtual-team:vt-docs config` — document all configuration options, env vars, and feature flags
-- `/virtual-team:vt-docs runbook [feature-name]` — operational runbook for a specific feature (how to configure, troubleshoot, maintain)
-- `/virtual-team:vt-docs architecture` — high-level architecture overview with diagrams (mermaid)
-- `/virtual-team:vt-docs api` — API reference from the codebase (endpoints, params, responses)
-- `/virtual-team:vt-docs --update docs/documentation/setup-guide.md` — update an existing doc to match current codebase state
+- `/virtual-team:docs` — interactive mode, will ask what to document
+- `/virtual-team:docs setup` — generate a setup/onboarding guide for the project
+- `/virtual-team:docs config` — document all configuration options, env vars, and feature flags
+- `/virtual-team:docs runbook [feature-name]` — operational runbook for a specific feature (how to configure, troubleshoot, maintain)
+- `/virtual-team:docs architecture` — high-level architecture overview with diagrams (mermaid)
+- `/virtual-team:docs api` — API reference from the codebase (endpoints, params, responses)
+- `/virtual-team:docs --update docs/documentation/setup-guide.md` — update an existing doc to match current codebase state
 
 ## Process
 
 ### Step 1: Determine What to Document
 
 1. **Parse $ARGUMENTS** for a doc type or existing doc path.
-2. **If bare `/virtual-team:vt-docs`**, ask:
+2. **If bare `/virtual-team:docs`**, ask:
    ```
    What do you need documented? Common options:
    - **setup** — How to get the project running from scratch

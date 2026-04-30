@@ -11,8 +11,8 @@ You are checking the current version of the virtual-team plugin and helping the 
 ## Invocation
 
 **Usage patterns:**
-- `/virtual-team:vt-update-workflow` — check current version and show update instructions
-- `/virtual-team:vt-update-workflow --check` — check if updates are available (compare local vs remote)
+- `/virtual-team:update-workflow` — check current version and show update instructions
+- `/virtual-team:update-workflow --check` — check if updates are available (compare local vs remote)
 
 ## Process
 

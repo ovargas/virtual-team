@@ -1,6 +1,6 @@
 ---
 name: knowledge-check
-description: Protocol for validating developer understanding of AI-generated technical decisions. Loaded by /vt-plan, /vt-pr, and the standalone /virtual-team:vt-check command.
+description: Protocol for validating developer understanding of AI-generated technical decisions. Loaded by /vt-plan, /vt-pr, and the standalone /virtual-team:check command.
 ---
 
 # Knowledge Check Skill
@@ -9,9 +9,9 @@ Protocol for validating that developers understand the technical decisions the A
 
 ## When This Skill Is Loaded
 
-- **After `/virtual-team:vt-plan` approval** — quiz on architectural decisions and technical approach
-- **Before `/virtual-team:vt-pr` submission** — quiz on implementation patterns and code decisions
-- **Standalone `/virtual-team:vt-check`** — developer-initiated quiz on any current work
+- **After `/virtual-team:plan` approval** — quiz on architectural decisions and technical approach
+- **Before `/virtual-team:pr` submission** — quiz on implementation patterns and code decisions
+- **Standalone `/virtual-team:check`** — developer-initiated quiz on any current work
 
 ## Developer Settings
 
@@ -35,8 +35,8 @@ The knowledge check triggers automatically based on the developer's home setting
 1. Read `~/.claude/settings.json` at the start of the check step
 2. If `knowledgeCheck` is `"on"` or `"strict"`, run the check
 3. If `knowledgeCheck` is `"off"`, absent, or the file doesn't exist, skip silently
-4. The standalone `/virtual-team:vt-check` command always runs regardless of settings (developer chose to invoke it)
-5. `--auto` mode on `/virtual-team:vt-plan` and `/virtual-team:vt-pr` always skips the check (nobody is there to answer)
+4. The standalone `/virtual-team:check` command always runs regardless of settings (developer chose to invoke it)
+5. `--auto` mode on `/virtual-team:plan` and `/virtual-team:pr` always skips the check (nobody is there to answer)
 
 ---
 
@@ -66,7 +66,7 @@ Read the branch diff and the implementation plan, then generate questions target
 
 **Source material:** `git diff <base>...HEAD`, the implementation plan, the feature spec, the test files.
 
-### Standalone /virtual-team:vt-check Questions
+### Standalone /virtual-team:check Questions
 
 Determine what the developer is currently working on:
 1. Load the backlog skill and call **`list(status=doing)`** and **`list(status=implemented)`** to find items in progress
@@ -204,12 +204,12 @@ Log the gaps and continue.
 ⛔ Knowledge check not passed ([X]% score, 60% required).
 
 Review the explanations above, then re-run the check:
-- `/virtual-team:vt-check` to try again
+- `/virtual-team:check` to try again
 - Or ask questions about any concepts that are unclear
 
 The workflow is paused until the check passes.
 ```
-Do NOT proceed. The developer must run `/virtual-team:vt-check` and pass.
+Do NOT proceed. The developer must run `/virtual-team:check` and pass.
 
 ---
 

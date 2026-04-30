@@ -99,7 +99,7 @@ Push back when ANY of these are true:
 ## Integration
 
 This skill is loaded by:
-- `/virtual-team:vt-implement` — Layer 0 (behavioral discipline), loaded alongside `virtual-team:test-driven-development` and `virtual-team:verification-before-completion`
-- `/virtual-team:vt-review` — When processing review results (receiving side)
-- `/virtual-team:vt-flow` — inherited through `/virtual-team:vt-implement`
+- `/virtual-team:implement` — Layer 0 (behavioral discipline), loaded alongside `virtual-team:test-driven-development` and `virtual-team:verification-before-completion`
+- `/virtual-team:review` — When processing review results (receiving side)
+- `/virtual-team:flow` — inherited through `/virtual-team:implement`
 - SDD implementer subagents — loaded when receiving reviewer feedback during SDD review loops

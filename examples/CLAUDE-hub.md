@@ -7,12 +7,12 @@ This is a **hub repository** — the product brain. It holds epics, cross-team d
 The hub captures WHAT to build and WHY. Service repos figure out HOW. Work flows like this:
 
 ```
-/virtual-team:vt-idea → /virtual-team:vt-epic --idea=IDEA-NNN (repeat until all MVP items covered) → service repos run /virtual-team:vt-feature --epic=EPIC-NNN → /virtual-team:vt-plan → /virtual-team:vt-implement → /virtual-team:vt-review + /virtual-team:vt-validate  → /vt-pr
+/virtual-team:idea → /virtual-team:epic --idea=IDEA-NNN (repeat until all MVP items covered) → service repos run /virtual-team:feature --epic=EPIC-NNN → /virtual-team:plan → /virtual-team:implement → /virtual-team:review + /virtual-team:validate  → /vt-pr
 ```
 
-For bug fixes, service repos use `/virtual-team:vt-flow --fix` which runs a compressed pipeline: `/vt-bug` → `/vt-debug` → implement fix → `/vt-review` + `/vt-validate` → `/vt-pr`.
+For bug fixes, service repos use `/virtual-team:flow --fix` which runs a compressed pipeline: `/vt-bug` → `/vt-debug` → implement fix → `/vt-review` + `/vt-validate` → `/vt-pr`.
 
-An idea's MVP scope usually requires multiple epics. Run `/virtual-team:vt-epic --idea=IDEA-NNN` repeatedly — each run reads the idea, checks which MVP items already have epics, and proposes the next one. The idea status tracks progress: `draft` → `active` (first epic) → `fulfilled` (all items covered).
+An idea's MVP scope usually requires multiple epics. Run `/virtual-team:epic --idea=IDEA-NNN` repeatedly — each run reads the idea, checks which MVP items already have epics, and proposes the next one. The idea status tracks progress: `draft` → `active` (first epic) → `fulfilled` (all items covered).
 
 The hub's job is done when an epic is documented and agreements are written. Each service repo takes it from there independently.
 
@@ -43,8 +43,8 @@ Eight specialized agents live in `agents/`. They are read-only sub-agents spawne
 ## Quick Start
 
 Most of the time, you only need three commands:
-- **`/virtual-team:vt-idea <concept>`** — capture and shape a new product concept
-- **`/virtual-team:vt-epic --idea=IDEA-NNN`** — break an idea into epics for service repos
+- **`/virtual-team:idea <concept>`** — capture and shape a new product concept
+- **`/virtual-team:epic --idea=IDEA-NNN`** — break an idea into epics for service repos
 - **`/vt-status`** — see what's happening and what to do next
 
 Everything else is available when you need it. See the full command reference below.
@@ -84,10 +84,10 @@ Commands are the workflow. Each one has a specific job and a hard boundary: pre-
 - `/vt-handoff` — Create a session handoff note for continuity
 
 ### Project Knowledge
-- `/vt-decisions` — Query project conventions and design patterns. `/virtual-team:vt-decisions branching`, `/virtual-team:vt-decisions api error handling`. Use `--verbose` for code examples.
+- `/vt-decisions` — Query project conventions and design patterns. `/virtual-team:decisions branching`, `/virtual-team:decisions api error handling`. Use `--verbose` for code examples.
 
 ### Setup & Sync
-- `/virtual-team:vt-start` — Initialize a new project with stack definition and structure
+- `/virtual-team:start` — Initialize a new project with stack definition and structure
 - `/vt-update-workflow` — Update generic workflow files (commands, agents, skills) from the template repo
 
 ## Skills
@@ -113,7 +113,7 @@ Domain and stack skills are project-provided — each service repo defines its o
 
 This hub coordinates service repos. Each service repo:
 - Has its own `stack.md` with a `Hub` reference pointing back here
-- Runs `/virtual-team:vt-feature --epic=EPIC-NNN` to break down epics into repo-specific work
+- Runs `/virtual-team:feature --epic=EPIC-NNN` to break down epics into repo-specific work
 - Reads decisions from this hub's `docs/decisions/` as constraints
 - Has its own backlog, plans, and implementation cycle
 - Is autonomous — the hub doesn't dictate HOW to build, only WHAT and the cross-team contracts

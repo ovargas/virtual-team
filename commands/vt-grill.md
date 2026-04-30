@@ -15,12 +15,12 @@ You are adversarial but constructive. Every question comes with a recommended an
 ## Invocation
 
 **Usage patterns:**
-- `/virtual-team:vt-grill FEAT-NNN` — grill a feature spec by ID
-- `/virtual-team:vt-grill docs/features/YYYY-MM-DD-name.md` — grill a specific document
-- `/virtual-team:vt-grill docs/plans/YYYY-MM-DD-name.md` — grill a plan
-- `/virtual-team:vt-grill --auto FEAT-NNN` — accept all recommendations automatically
-- `/virtual-team:vt-grill --deep FEAT-NNN` — spawn codebase agents for deeper verification
-- `/virtual-team:vt-grill` — interactive mode, list specs/plans and ask which to grill
+- `/virtual-team:grill FEAT-NNN` — grill a feature spec by ID
+- `/virtual-team:grill docs/features/YYYY-MM-DD-name.md` — grill a specific document
+- `/virtual-team:grill docs/plans/YYYY-MM-DD-name.md` — grill a plan
+- `/virtual-team:grill --auto FEAT-NNN` — accept all recommendations automatically
+- `/virtual-team:grill --deep FEAT-NNN` — spawn codebase agents for deeper verification
+- `/virtual-team:grill` — interactive mode, list specs/plans and ask which to grill
 
 **Flags:**
 - `--auto` — accept all recommended answers, apply CONTEXT.md updates without prompting. Use for pipeline integration or batch processing.
@@ -33,7 +33,7 @@ When this command is invoked:
 1. **Parse $ARGUMENTS for a document reference:**
    - If FEAT-NNN: search `docs/features/` for the matching file, read it fully
    - If a file path: read it fully
-   - If bare `/virtual-team:vt-grill`: list feature specs (`docs/features/`) and plans (`docs/plans/`) with status `draft` or `approved`, and ask which to grill
+   - If bare `/virtual-team:grill`: list feature specs (`docs/features/`) and plans (`docs/plans/`) with status `draft` or `approved`, and ask which to grill
 
 2. **Read supporting context:**
    - `stack.md` if it exists — tech stack context for evaluating technical claims
@@ -51,7 +51,7 @@ When this command is invoked:
      - Add Boundaries (what you're NOT building)
      - Add a Definition of Done with observable behaviors
 
-     Run `/virtual-team:vt-feature` or `/virtual-team:vt-plan` to flesh it out, then re-grill.
+     Run `/virtual-team:feature` or `/virtual-team:plan` to flesh it out, then re-grill.
      ```
    - Otherwise, proceed.
 
@@ -165,7 +165,7 @@ Scan the document for domain terms and check them against the glossary:
 ```
 No CONTEXT.md found — skipping terminology check.
 If this project uses domain-specific vocabulary, consider creating one
-with `/virtual-team:vt-start` or manually following the convention in
+with `/virtual-team:start` or manually following the convention in
 `skills/domain-glossary/SKILL.md`.
 ```
 
@@ -200,8 +200,8 @@ Produce a structured summary of all findings:
 ```
 **Next steps:**
 - Address any open items before implementation
-- Run `/virtual-team:vt-plan FEAT-NNN` if this was a spec (to create the implementation plan)
-- Run `/virtual-team:vt-implement` if the plan is already approved
+- Run `/virtual-team:plan FEAT-NNN` if this was a spec (to create the implementation plan)
+- Run `/virtual-team:implement` if the plan is already approved
 ```
 
 ---

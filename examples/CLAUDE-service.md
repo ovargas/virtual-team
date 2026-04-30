@@ -7,7 +7,7 @@ This is a **service repository** — an implementation repo. It has its own code
 Work flows through a deliberate pipeline. Each step produces a specific artifact. No step is skipped.
 
 ```
-/virtual-team:vt-feature → /virtual-team:vt-contracts → /virtual-team:vt-plan → /virtual-team:vt-implement → /virtual-team:vt-review + /virtual-team:vt-validate  → /vt-pr
+/virtual-team:feature → /virtual-team:contracts → /virtual-team:plan → /virtual-team:implement → /virtual-team:review + /virtual-team:validate  → /vt-pr
 ```
 
 Or run the full pipeline in one command with `/vt-flow`, which chains all steps and resolves gaps interactively at gates between each step.
@@ -19,7 +19,7 @@ Or run the full pipeline in one command with `/vt-flow`, which chains all steps 
 - `/vt-pr` auto-commits and creates the PR — backlog: `[=]` → `[x]`
 - `/vt-flow` orchestrates the entire pipeline with interactive gates — patch TBDs, resolve decisions, and continue without leaving the session
 
-If this service is part of a multi-repo product, features can be driven by hub epics (`/virtual-team:vt-feature --epic=EPIC-NNN`), which brings in cross-team decisions as constraints.
+If this service is part of a multi-repo product, features can be driven by hub epics (`/virtual-team:feature --epic=EPIC-NNN`), which brings in cross-team decisions as constraints.
 
 ## Key Files
 
@@ -57,8 +57,8 @@ The software-architect agent has a special role: it runs a **dependency check** 
 ## Quick Start
 
 Most of the time, you only need three commands:
-- **`/virtual-team:vt-flow <description>`** — build a feature end-to-end (spec → contracts → plan → implement → review → PR)
-- **`/virtual-team:vt-flow --fix "description"`** — fix a bug end-to-end (report → investigate → fix → review → PR)
+- **`/virtual-team:flow <description>`** — build a feature end-to-end (spec → contracts → plan → implement → review → PR)
+- **`/virtual-team:flow --fix "description"`** — fix a bug end-to-end (report → investigate → fix → review → PR)
 - **`/vt-status`** — see what's happening and what to do next
 
 Everything else is available when you need it. See the full command reference below.
@@ -68,12 +68,12 @@ Everything else is available when you need it. See the full command reference be
 Commands are the workflow. Pre-implementation commands produce documents, never code. Only `/vt-implement` writes code.
 
 ### Pipeline Orchestrator
-- `/virtual-team:vt-flow <description>` — Run the full pipeline (feature → contracts → plan → next → implement → review + validate → pr) with interactive gates. Use `--fix` for the bug fix pipeline (bug → debug → next → implement fix → review + validate → pr). Use `--to=plan` to stop early, `--from=next` to resume mid-pipeline. Bare `/vt-flow` auto-detects and resumes interrupted flows.
+- `/virtual-team:flow <description>` — Run the full pipeline (feature → contracts → plan → next → implement → review + validate → pr) with interactive gates. Use `--fix` for the bug fix pipeline (bug → debug → next → implement fix → review + validate → pr). Use `--to=plan` to stop early, `--from=next` to resume mid-pipeline. Bare `/vt-flow` auto-detects and resumes interrupted flows.
 
 ### Feature Intake
 - `/vt-idea` — Capture a new product concept (for standalone repos without a hub)
 - `/vt-feature` — Spec a feature with YAGNI challenge, research, and story breakdown
-- `/virtual-team:vt-feature --epic=EPIC-NNN` — Spec a feature driven by a hub epic (reads epic + decisions as constraints)
+- `/virtual-team:feature --epic=EPIC-NNN` — Spec a feature driven by a hub epic (reads epic + decisions as constraints)
 
 ### Planning & Analysis
 - `/vt-plan` — Create a technical implementation plan. Phase 0 runs the architect gate automatically. HARD STOP if API payloads are undefined.
@@ -102,10 +102,10 @@ Commands are the workflow. Pre-implementation commands produce documents, never 
 - `/vt-handoff` — Create a session handoff note for continuity
 
 ### Project Knowledge
-- `/vt-decisions` — Query project conventions and design patterns. `/virtual-team:vt-decisions go practices`, `/virtual-team:vt-decisions testing`, `/virtual-team:vt-decisions DI`. Use `--verbose` for code examples, `--diff` to see what's customized vs template defaults.
+- `/vt-decisions` — Query project conventions and design patterns. `/virtual-team:decisions go practices`, `/virtual-team:decisions testing`, `/virtual-team:decisions DI`. Use `--verbose` for code examples, `--diff` to see what's customized vs template defaults.
 
 ### Setup & Sync
-- `/virtual-team:vt-start` — Initialize a new project with stack definition and structure
+- `/virtual-team:start` — Initialize a new project with stack definition and structure
 - `/vt-update-workflow` — Update generic workflow files (commands, agents, skills) from the template repo
 
 ## Skills
@@ -186,7 +186,7 @@ These are defined in the `git-practices` skill. Summary:
 If `stack.md` has a `Hub` field pointing to a sibling hub repository:
 
 - The hub holds epics (`docs/epics/`) and cross-team decisions (`docs/decisions/`)
-- When running `/virtual-team:vt-feature --epic=EPIC-NNN`, the command reads the hub's epic and its decision records
+- When running `/virtual-team:feature --epic=EPIC-NNN`, the command reads the hub's epic and its decision records
 - Hub decisions (API contracts, data conventions) are **constraints** — they're the agreed interface, not suggestions
 - This repo tracks which hub decisions affect its features via frontmatter: `epic` and `hub_decisions` fields in feature specs
 - This repo's own `docs/decisions/` holds local technical decisions. Hub decisions live in the hub.

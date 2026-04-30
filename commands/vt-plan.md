@@ -13,17 +13,17 @@ You think in files, functions, and data flows — not features and user stories.
 ## Invocation
 
 **Usage patterns:**
-- `/virtual-team:vt-plan docs/features/2026-02-12-task-notifications.md` — plan from a specific feature spec
-- `/virtual-team:vt-plan FEAT-007` — find the spec by ID and plan it
-- `/virtual-team:vt-plan --story=S-003` — plan a specific story from the backlog (not the whole feature)
-- `/virtual-team:vt-plan` — interactive mode, will list specs that are ready for planning
-- `/virtual-team:vt-plan --auto FEAT-007` — skip confirmations, auto-approve the plan
+- `/virtual-team:plan docs/features/2026-02-12-task-notifications.md` — plan from a specific feature spec
+- `/virtual-team:plan FEAT-007` — find the spec by ID and plan it
+- `/virtual-team:plan --story=S-003` — plan a specific story from the backlog (not the whole feature)
+- `/virtual-team:plan` — interactive mode, will list specs that are ready for planning
+- `/virtual-team:plan --auto FEAT-007` — skip confirmations, auto-approve the plan
 
 **Flags:**
 - `--auto` — autonomous mode: skip founder confirmations at Phase 1 analysis acknowledgment and Phase 3 approval. The plan is auto-approved (`status: approved`) without asking. Use this for Ralph Wiggum loops or batch processing.
 - `--deep` — full agent mode: spawn agents for Phase 0 (architectural gate), Phase 1 (codebase analysis), and Phase 1.5 (design alternatives — 3 parallel architects propose distinct designs, founder picks). Use for complex features that touch multiple modules, introduce new stack dependencies, or require deep codebase tracing. Without this flag, the plan command does all analysis directly — faster and cheaper.
 - `--fresh` — delete any existing checkpoint and start from scratch
-- Flags combine: `/virtual-team:vt-plan --auto --deep FEAT-007`
+- Flags combine: `/virtual-team:plan --auto --deep FEAT-007`
 
 ## Initial Response
 
@@ -74,7 +74,7 @@ When this command is invoked:
        - POST /api/[endpoint] — [what's missing]
        - event: [event.name] — [what's missing]
 
-       Define these in `contracts/` or in the feature spec, then re-run `/virtual-team:vt-plan`.
+       Define these in `contracts/` or in the feature spec, then re-run `/virtual-team:plan`.
        I will not plan implementation around undefined payloads — this leads
        to the API and app diverging from agreed contracts.
        ```
@@ -112,7 +112,7 @@ that must be resolved before this feature can be planned:
 Please make these decisions, then:
 1. Update `stack.md` with your choices
 2. Create decision records in `docs/decisions/` for non-obvious choices (see ADR Capture in Phase 3)
-3. Re-run `/virtual-team:vt-plan` for this feature
+3. Re-run `/virtual-team:plan` for this feature
 ```
 
 **STOP HERE. Do not proceed to Phase 1.** The plan cannot be written with unresolved technical decisions. This is not optional.
@@ -556,9 +556,9 @@ The plan is ready. Do you approve it for implementation?
 - Iterate further based on feedback
 - Ask again when changes are applied
 
-This is a hard gate. The plan must be `approved` before `/virtual-team:vt-implement` will execute it.
+This is a hard gate. The plan must be `approved` before `/virtual-team:implement` will execute it.
 
-**Optional:** Run `/virtual-team:vt-grill` on the approved plan to stress-test technical assumptions before implementation.
+**Optional:** Run `/virtual-team:grill` on the approved plan to stress-test technical assumptions before implementation.
 
 ### Phase 3.5: Knowledge Check (after approval)
 
@@ -579,8 +579,8 @@ This is a hard gate. The plan must be `approved` before `/virtual-team:vt-implem
 **Strict mode (`"strict"`):** If the developer doesn't pass (< 60%), STOP:
 ```
 ⛔ Knowledge check not passed ([score]%). Review the explanations
-above, then run `/virtual-team:vt-check` to try again. The plan is approved but
-implementation is blocked until the check passes. Run `/virtual-team:vt-check` to retry.
+above, then run `/virtual-team:check` to try again. The plan is approved but
+implementation is blocked until the check passes. Run `/virtual-team:check` to retry.
 ```
 
 ### Phase 4: Update Backlog
@@ -589,7 +589,7 @@ After the plan is approved:
 
 1. **Update the feature spec** frontmatter to add `plan: docs/plans/YYYY-MM-DD-feature-name.md`
 2. **Update the backlog** via the backlog skill — move the feature's stories to a clear "ready for implementation" state, now that the plan exists
-3. **Note the plan in each story's reference** so `/virtual-team:vt-implement` can find it later
+3. **Note the plan in each story's reference** so `/virtual-team:implement` can find it later
 
 ---
 
@@ -629,8 +629,8 @@ After the plan is approved:
    - Do NOT write application code, create source files, or run build commands
    - Do NOT suggest "let me start implementing" or "I can code this now"
    - Do NOT create project directories, install packages, or modify the codebase
-   - When the plan is approved, STOP. The next step is `/virtual-team:vt-implement`, not this command continuing into code.
-   - If the founder asks to start building, remind them: "The plan is ready. Run `/virtual-team:vt-implement` to execute it step by step with proper verification."
+   - When the plan is approved, STOP. The next step is `/virtual-team:implement`, not this command continuing into code.
+   - If the founder asks to start building, remind them: "The plan is ready. Run `/virtual-team:implement` to execute it step by step with proper verification."
 
 ## Agent Usage
 
@@ -642,7 +642,7 @@ After the plan is approved:
 - Spawn **virtual-team:software-architect** agent: "Run a dependency check for [feature]. Read stack.md and the feature spec at [path]. Identify TBD items or missing decisions this feature requires. If gaps exist, HALT. If no gaps, provide architectural guidance."
 - **Skip this agent** if the feature is a straightforward addition following existing patterns (e.g., new CRUD endpoint, new UI page using existing components). You can do a quick TBD check yourself by reading stack.md.
 
-If the architect HALTs → stop the entire `/virtual-team:vt-plan` command and present the halt to the founder.
+If the architect HALTs → stop the entire `/virtual-team:plan` command and present the halt to the founder.
 If the architect passes → continue to Phase 1.
 
 **Phase 1 (Codebase Analysis) — spawn 2 agents max, not 4:**

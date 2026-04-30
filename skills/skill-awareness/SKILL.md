@@ -16,13 +16,13 @@ Behavioral skills must be active when relevant, even in ad-hoc sessions without 
 | Writing production code | `virtual-team:design-principles` | Before writing function signatures, constructors, or service boundaries (reads `stack.md` `design:` field for mode: strict, recommended, off) |
 | Claiming completion | `virtual-team:verification-before-completion` | Before saying "done", "complete", "passes" |
 | Receiving review feedback | `virtual-team:receiving-code-review` | When processing review comments |
-| Executing multi-task plan with `--sdd` | `virtual-team:subagent-driven-development` | When `/virtual-team:vt-implement --sdd` is active |
+| Executing multi-task plan with `--sdd` | `virtual-team:subagent-driven-development` | When `/virtual-team:implement --sdd` is active |
 | User requests compressed output | `virtual-team:token-efficient` | User says "caveman mode", "terse", "compress", or similar activation phrase |
 
-Project-provided domain and stack skills are NOT auto-triggered. They are discovered and loaded by `/virtual-team:vt-implement` Layer 1 based on `domain` and `stack` frontmatter fields matching the current work.
+Project-provided domain and stack skills are NOT auto-triggered. They are discovered and loaded by `/virtual-team:implement` Layer 1 based on `domain` and `stack` frontmatter fields matching the current work.
 
 ## Integration
 
 - **Loaded by:** `SessionStart` hook in `hooks/hooks.json`
 - **Reinforced by:** `PreToolUse` hook on `Edit|Write` calls (TDD + verification check)
-- **Does NOT replace:** command-level skill loading in `/virtual-team:vt-implement` (Layer 0, 1, 2)
+- **Does NOT replace:** command-level skill loading in `/virtual-team:implement` (Layer 0, 1, 2)

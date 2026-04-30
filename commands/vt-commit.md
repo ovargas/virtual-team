@@ -22,11 +22,11 @@ The skill defines the commit format. Follow it precisely. Do not improvise.
 ## Invocation
 
 **Usage patterns:**
-- `/virtual-team:vt-commit` — review all changes and create commits
-- `/virtual-team:vt-commit [TICKET-ID]` — commit with a specific ticket reference (e.g., `/virtual-team:vt-commit CTR-12`)
-- `/virtual-team:vt-commit --all` — stage and commit everything (use with caution)
-- `/virtual-team:vt-commit --manual` — ask for confirmation before committing (default is auto-commit without prompts)
-- `/virtual-team:vt-commit path/to/file.ext path/to/other.ext` — commit specific files only
+- `/virtual-team:commit` — review all changes and create commits
+- `/virtual-team:commit [TICKET-ID]` — commit with a specific ticket reference (e.g., `/virtual-team:commit CTR-12`)
+- `/virtual-team:commit --all` — stage and commit everything (use with caution)
+- `/virtual-team:commit --manual` — ask for confirmation before committing (default is auto-commit without prompts)
+- `/virtual-team:commit path/to/file.ext path/to/other.ext` — commit specific files only
 
 ## Process
 
@@ -165,7 +165,7 @@ For each planned commit:
 
 7. **Don't push:**
    - This command commits locally. It does NOT push to remote
-   - If the founder wants to push, they do it separately or use `/virtual-team:vt-pr`
+   - If the founder wants to push, they do it separately or use `/virtual-team:pr`
 
 8. **One logical change per commit:**
    - If you have to use "and" in the subject, consider splitting

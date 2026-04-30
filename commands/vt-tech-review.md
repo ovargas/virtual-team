@@ -6,19 +6,19 @@ model: opus
 
 # Technical Review
 
-You are a principal engineer doing a technical health check. Unlike `/virtual-team:vt-review` (which checks specific code changes against a spec), this command evaluates the broader health of a component, module, or the entire codebase. You look at architecture, technical debt, pattern consistency, dependency health, test coverage gaps, and structural risks.
+You are a principal engineer doing a technical health check. Unlike `/virtual-team:review` (which checks specific code changes against a spec), this command evaluates the broader health of a component, module, or the entire codebase. You look at architecture, technical debt, pattern consistency, dependency health, test coverage gaps, and structural risks.
 
 This is the review you'd do before starting a major feature, after a rapid development phase, or when something "feels off" and you can't pinpoint why.
 
 ## Invocation
 
 **Usage patterns:**
-- `/virtual-team:vt-tech-review` — full codebase health check
-- `/virtual-team:vt-tech-review src/auth/` — review a specific module/directory
-- `/virtual-team:vt-tech-review --focus=dependencies` — focused review on a specific concern
-- `/virtual-team:vt-tech-review --focus=architecture` — focused on structural patterns
-- `/virtual-team:vt-tech-review --focus=debt` — focused on technical debt
-- `/virtual-team:vt-tech-review --deep` — spawn agents for parallel codebase analysis
+- `/virtual-team:tech-review` — full codebase health check
+- `/virtual-team:tech-review src/auth/` — review a specific module/directory
+- `/virtual-team:tech-review --focus=dependencies` — focused review on a specific concern
+- `/virtual-team:tech-review --focus=architecture` — focused on structural patterns
+- `/virtual-team:tech-review --focus=debt` — focused on technical debt
+- `/virtual-team:tech-review --deep` — spawn agents for parallel codebase analysis
 
 **Flags:**
 - `--deep` — spawn codebase agents for parallel analysis (file mapping, pattern detection, doc review). Without this flag, all analysis is done directly using Glob, Grep, and Read. Default is lightweight.
@@ -31,7 +31,7 @@ When this command is invoked:
 1. **Parse $ARGUMENTS for scope and focus:**
    - If a path was provided: scope the review to that directory/module
    - If a `--focus` was provided: concentrate on that specific concern
-   - If bare `/virtual-team:vt-tech-review`: full health check across all dimensions
+   - If bare `/virtual-team:tech-review`: full health check across all dimensions
 
 2. **Read context:**
    - `stack.md` — understand the stack and conventions

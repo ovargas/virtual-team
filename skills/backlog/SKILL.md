@@ -83,7 +83,7 @@ Add new items to the backlog in ready status.
 **Behavior:**
 - Items are created in **ready** status
 - Items are placed in the Ready section/state, ordered by group then order number
-- This is called by `/virtual-team:vt-feature` during story breakdown
+- This is called by `/virtual-team:feature` during story breakdown
 
 ### start(id)
 
@@ -136,25 +136,25 @@ Update the item's status in the external service.
 
 Create or update a feature-level entry in the external service with a link to the local spec.
 
-**Called after:** `/virtual-team:vt-feature` creates a feature spec.
+**Called after:** `/virtual-team:feature` creates a feature spec.
 
 ### push_stories(feature_id, items)
 
 Create or update story-level entries in the external service for all stories in a feature.
 
-**Called after:** `/virtual-team:vt-feature` story breakdown.
+**Called after:** `/virtual-team:feature` story breakdown.
 
 ### pull_comments(id)
 
 Retrieve comments/feedback from the external service for an item.
 
-**Called before:** `/virtual-team:vt-implement` starts a story (to check for team feedback).
+**Called before:** `/virtual-team:implement` starts a story (to check for team feedback).
 
 ### pull_priorities()
 
 Retrieve the current priority ordering from the external service.
 
-**Called by:** `/virtual-team:vt-implement` when picking the next item (external ordering overrides local ordering).
+**Called by:** `/virtual-team:implement` when picking the next item (external ordering overrides local ordering).
 
 ---
 

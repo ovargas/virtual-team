@@ -15,9 +15,9 @@ You are a documentarian of the founder's vision. You don't impose your preferenc
 This command accepts an inline idea description and an optional research level flag.
 
 **Usage patterns:**
-- `/virtual-team:vt-idea` — interactive mode, will ask for the idea
-- `/virtual-team:vt-idea Build a meal planning app for busy parents` — starts with the provided idea
-- `/virtual-team:vt-idea --deep Build a meal planning app` — spawn agents for full product and market analysis
+- `/virtual-team:idea` — interactive mode, will ask for the idea
+- `/virtual-team:idea Build a meal planning app for busy parents` — starts with the provided idea
+- `/virtual-team:idea --deep Build a meal planning app` — spawn agents for full product and market analysis
 
 **Flags:**
 - `--deep` — spawn `virtual-team:product-owner` and `virtual-team:web-researcher` agents for thorough market analysis, competitive landscape, and user research. Without this flag, all research is done directly using WebSearch. Default is lightweight — no agents spawned.
@@ -38,7 +38,7 @@ When this command is invoked:
 3. **Check for prior rejections:**
    - If `docs/out-of-scope/` exists, list all files (excluding `README.md`) and read their frontmatter (`id`, `original_request`, `tags`, `status`). Evaluate whether any are plausibly related to the idea being proposed. If matches are found, surface them before Round 1's mirror-back: show the file path, title, status, and a one-line summary of the rejection reasoning. Ask whether this changes direction. If the founder says "continue" or the match is unrelated, proceed normally. If no matches are found or the directory doesn't exist, proceed silently — produce no output about out-of-scope.
 
-4. **If no idea was provided (bare `/virtual-team:vt-idea`)**, respond with:
+4. **If no idea was provided (bare `/virtual-team:idea`)**, respond with:
 
 ```
 I'll help you capture and shape a product idea. Think of this as a conversation — you don't need a polished pitch. Just tell me what's rattling around in your head.
@@ -252,7 +252,7 @@ The appetite constrains the scope. If they say 2 weeks but the scope is 6 weeks 
 ---
 id: IDEA-[NNN]
 date: [YYYY-MM-DD]
-status: draft              # draft → active (first epic/virtual-team:vt-feature created) → fulfilled (all MVP items covered)
+status: draft              # draft → active (first epic/virtual-team:feature created) → fulfilled (all MVP items covered)
 research_level: [skip|light|deep]
 appetite: [time budget chosen]
 ---
@@ -335,9 +335,9 @@ The founder's original description: "[Original idea text as first provided]"
 
 3. **Determine the next step based on repo type:**
    - Read `stack.md` and check for a `Hub` field or the presence of `examples/CLAUDE-hub.md`
-   - **If this is a hub repo:** The next step is `/virtual-team:vt-epic` (coordinate across service repos)
-   - **If this is a service repo (single or multi-repo):** The next step is `/virtual-team:vt-feature` (break down into stories)
-   - **If this is a standalone project (no hub, single repo):** The next step is `/virtual-team:vt-feature`
+   - **If this is a hub repo:** The next step is `/virtual-team:epic` (coordinate across service repos)
+   - **If this is a service repo (single or multi-repo):** The next step is `/virtual-team:feature` (break down into stories)
+   - **If this is a standalone project (no hub, single repo):** The next step is `/virtual-team:feature`
 
 4. **Present the document to the user for review:**
 
@@ -346,14 +346,14 @@ The founder's original description: "[Original idea text as first provided]"
 I've created the idea brief at:
 `docs/features/YYYY-MM-DD-description.md`
 
-Please review it. This is a living document — we can refine it now or come back to it later with `/virtual-team:vt-refine`.
+Please review it. This is a living document — we can refine it now or come back to it later with `/virtual-team:refine`.
 
 Key things to check:
 - Does the problem statement ring true?
 - Is the MVP scope right — nothing missing, nothing that should be cut?
 - Are the risks and assumptions accurate?
 
-**Next step:** This is a hub repo with service repos. Run `/virtual-team:vt-epic --idea=IDEA-[NNN]` to create epics from the MVP items. Keep running it until all items are covered — the command tracks which items already have epics.
+**Next step:** This is a hub repo with service repos. Run `/virtual-team:epic --idea=IDEA-[NNN]` to create epics from the MVP items. Keep running it until all items are covered — the command tracks which items already have epics.
 ```
 
 **If service repo or standalone:**
@@ -361,14 +361,14 @@ Key things to check:
 I've created the idea brief at:
 `docs/features/YYYY-MM-DD-description.md`
 
-Please review it. This is a living document — we can refine it now or come back to it later with `/virtual-team:vt-refine`.
+Please review it. This is a living document — we can refine it now or come back to it later with `/virtual-team:refine`.
 
 Key things to check:
 - Does the problem statement ring true?
 - Is the MVP scope right — nothing missing, nothing that should be cut?
 - Are the risks and assumptions accurate?
 
-**Next step:** Run `/virtual-team:vt-feature` to break this idea into a detailed spec with stories for the backlog.
+**Next step:** Run `/virtual-team:feature` to break this idea into a detailed spec with stories for the backlog.
 ```
 
 4. **Iterate based on feedback.** If the founder wants changes, edit the document in place. Don't rewrite from scratch — make surgical edits.
@@ -436,8 +436,8 @@ After the feature brief is finalized:
    - Do NOT write application code, scripts, scaffolds, or prototypes
    - Do NOT suggest "let me start building this" or "I can implement this now"
    - Do NOT create project directories, install packages, or set up environments
-   - When the document is done, STOP. The next step depends on the repo type: `/virtual-team:vt-epic` for hub repos, `/virtual-team:vt-feature` for service repos.
-   - If the founder asks you to start building during this command, remind them: "Let's finish the brief first. When it's approved, the next step is [/virtual-team:vt-epic or /virtual-team:vt-feature depending on repo type] to break it down into actionable work."
+   - When the document is done, STOP. The next step depends on the repo type: `/virtual-team:epic` for hub repos, `/virtual-team:feature` for service repos.
+   - If the founder asks you to start building during this command, remind them: "Let's finish the brief first. When it's approved, the next step is [/virtual-team:epic or /virtual-team:feature depending on repo type] to break it down into actionable work."
 
 ## Agent Usage
 
