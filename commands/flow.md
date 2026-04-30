@@ -1,5 +1,5 @@
 ---
-name: vt-flow
+name: flow
 description: Run the full pipeline (feature → contracts → plan → implement → review + validate → pr) with interactive gates between steps. Use --fix for the bug fix pipeline (bug → debug → fix → review + validate → pr).
 model: opus
 ---
@@ -83,7 +83,7 @@ Call `list(status=doing)` using the backlog skill.
     **Plan:** [plan path] (approved)
     **Branch:** [branch name from backlog]
 
-    Resuming from /vt-implement...
+    Resuming from /implement...
     ```
   - **No plan** → announce and resume from `/virtual-team:plan`:
     ```
@@ -92,7 +92,7 @@ Call `list(status=doing)` using the backlog skill.
     **Backlog:** [story ID] is in Doing status (FEAT-NNN)
     **Plan:** not yet created
 
-    Resuming from /vt-plan...
+    Resuming from /plan...
     ```
 
 ### Level 3: Approved but unstarted plans exist
@@ -108,7 +108,7 @@ Scan `docs/plans/*.md` for plans with `status: approved`. Cross-reference with t
   **Plan:** [plan path] (approved, stories not yet started)
   **Feature:** FEAT-NNN — [feature name]
 
-  Resuming from /vt-implement...
+  Resuming from /implement...
   ```
 
 ### Level 4: Draft feature specs without plans
@@ -176,34 +176,34 @@ The pipeline adapts based on the triage level:
 
 **Level 1 — Full:**
 ```
-/vt-feature → /vt-contracts → /vt-plan → /vt-implement → /vt-review + /vt-validate → /vt-pr
+/feature → /contracts → /plan → /implement → /review + /validate → /pr
 ```
 
 **Level 2 — Standard:**
 ```
-/vt-feature (compact) → /vt-implement (inline analysis) → /vt-review → /vt-pr
+/feature (compact) → /implement (inline analysis) → /review → /pr
 ```
 
 **Level 3 — Minimal:**
 ```
-/vt-implement → /vt-review (single-pass) → /vt-pr
+/implement → /review (single-pass) → /pr
 ```
 
 **Bug fix pipelines:**
 
 **Level 1 — Full:**
 ```
-/vt-bug → /vt-debug → /vt-plan → /vt-implement → /vt-review + /vt-validate → /vt-pr
+/bug → /debug → /plan → /implement → /review + /validate → /pr
 ```
 
 **Level 2 — Standard:**
 ```
-/vt-bug → /vt-implement → /vt-review → /vt-pr
+/bug → /implement → /review → /pr
 ```
 
 **Level 3 — Minimal:**
 ```
-/vt-implement → /vt-review (single-pass) → /vt-pr
+/implement → /review (single-pass) → /pr
 ```
 
 Each step is executed by invoking the actual command's logic (not by literally running a slash command — you ARE the orchestrator, you execute each step's full process inline).
@@ -229,7 +229,7 @@ After each step completes, write a checkpoint to `docs/checkpoints/flow-checkpoi
 ---
 started: YYYY-MM-DD HH:MM
 feature_description: "<original description>"
-flags: [--deep, --here]  # flags passed to /vt-flow
+flags: [--deep, --here]  # flags passed to /flow
 triage_level: 2  # 1=full, 2=standard, 3=minimal — assessed by triage skill
 ---
 
@@ -239,17 +239,17 @@ triage_level: 2  # 1=full, 2=standard, 3=minimal — assessed by triage skill
 - [x] /virtual-team:feature → docs/features/YYYY-MM-DD-search-capability.md (FEAT-012) [inline]
 - [x] /virtual-team:contracts → contracts/endpoints/POST-search.json, contracts/models/search-result.json [inline]
 - [x] /virtual-team:plan → docs/plans/YYYY-MM-DD-search-capability.md [inline]
-- [ ] /vt-implement
-- [ ] /virtual-team:review + /vt-validate
-- [ ] /vt-pr
+- [ ] /implement
+- [ ] /virtual-team:review + /validate
+- [ ] /pr
 
 ## Resolved Gates
-- Gate after /vt-feature: "Database engine: TBD" → Resolved: MySQL 8.x (updated stack.md + spec)
-- Gate after /vt-contracts: Clean — no issues
+- Gate after /feature: "Database engine: TBD" → Resolved: MySQL 8.x (updated stack.md + spec)
+- Gate after /contracts: Clean — no issues
 
 ## Current State
-Last completed: /vt-plan
-Next step: /vt-implement
+Last completed: /plan
+Next step: /implement
 Feature target: FEAT-012
 
 ## Auto-Fix Tracking
@@ -279,7 +279,7 @@ For architectural or scope questions that could reshape the work. The flow:
 3. On answer: if the decision changes prior work, re-run the affected step with the new direction (don't just patch — restart that step)
 4. Log the decision in the flow checkpoint and create a decision record in `docs/decisions/`
 
-### Gate: After /vt-feature
+### Gate: After /feature
 
 **Check for:**
 - TBDs in the spec — technology choices, data model decisions, integration points left undefined
@@ -300,11 +300,11 @@ For architectural or scope questions that could reshape the work. The flow:
 
 **Auto mode:** Skip soft TBDs that don't affect contracts (e.g., "UI copy: TBD" is fine, "API endpoint path: TBD" is not). Stop only on technology gaps and architectural concerns.
 
-**On clean pass:** Report "Feature spec complete — proceeding to /vt-contracts" and continue.
+**On clean pass:** Report "Feature spec complete — proceeding to /contracts" and continue.
 
-### Gate: After /vt-contracts (Level 1 only)
+### Gate: After /contracts (Level 1 only)
 
-**Skip this gate for Level 2 and Level 3** — `/vt-contracts` is not executed at those levels.
+**Skip this gate for Level 2 and Level 3** — `/contracts` is not executed at those levels.
 
 **Check for:**
 - Schema files with placeholder types (`"type": "TBD"`, `"type": "object"` without properties)
@@ -324,11 +324,11 @@ For architectural or scope questions that could reshape the work. The flow:
 
 **Auto mode:** Stop only on missing schemas or placeholder types. Allow minor naming inconsistencies.
 
-**On clean pass:** Report "All contracts defined and complete — proceeding to /vt-plan" and continue.
+**On clean pass:** Report "All contracts defined and complete — proceeding to /plan" and continue.
 
-### Gate: After /vt-plan (Level 1 only)
+### Gate: After /plan (Level 1 only)
 
-**Skip this gate for Level 2 and Level 3** — `/vt-plan` is not executed at those levels.
+**Skip this gate for Level 2 and Level 3** — `/plan` is not executed at those levels.
 
 **Check for:**
 - Plan references files/modules that don't exist in the codebase
@@ -348,9 +348,9 @@ For architectural or scope questions that could reshape the work. The flow:
 
 **Auto mode:** Auto-approve the plan if no hard conflicts. Stop on architectural conflicts or missing dependencies.
 
-**On clean pass:** Report "Plan approved — proceeding to /vt-implement" and continue.
+**On clean pass:** Report "Plan approved — proceeding to /implement" and continue.
 
-### Gate: After /vt-implement
+### Gate: After /implement
 
 **Check for:**
 - All plan phases completed
@@ -371,7 +371,7 @@ For architectural or scope questions that could reshape the work. The flow:
 
 ### Gate: After /virtual-team:review + /virtual-team:validate  (Quality Gate)
 
-**Level 2 and Level 3:** This gate runs `/vt-review` only. The verdict determines pass/fail — APPROVE or APPROVE WITH NOTES proceeds to `/vt-pr`, REQUEST CHANGES halts. The validation columns in the gate table below do not apply.
+**Level 2 and Level 3:** This gate runs `/review` only. The verdict determines pass/fail — APPROVE or APPROVE WITH NOTES proceeds to `/pr`, REQUEST CHANGES halts. The validation columns in the gate table below do not apply.
 
 **Level 1:** This gate runs both `/virtual-team:review` and `/virtual-team:validate` in parallel** after the `/virtual-team:implement` gate passes. They check orthogonal concerns — code quality vs spec alignment — so they don't need to wait for each other.
 
@@ -399,7 +399,7 @@ The gate halts if `/virtual-team:review` has **any Must Fix issues** OR `/virtua
 
 **On halt — present a combined quality report:**
 ```
-Quality gate failed. Fix the issues below before proceeding to /vt-pr.
+Quality gate failed. Fix the issues below before proceeding to /pr.
 
 ## Code Review
 Verdict: [verdict]
@@ -465,9 +465,9 @@ Before halting, classify each Must Fix finding and attempt to auto-fix mechanica
 - Architectural Must Fix or any spec gaps → **halt even in `--auto`**
 - Without `--auto`: the auto-fix cycle still runs for mechanical issues, but pauses for confirmation before each iteration
 
-**On clean pass:** Report "Quality gate passed — proceeding to /vt-pr" and continue.
+**On clean pass:** Report "Quality gate passed — proceeding to /pr" and continue.
 
-### Gate: After /vt-pr
+### Gate: After /pr
 
 This is the final step. No gate evaluation needed — just report completion:
 ```
@@ -499,27 +499,27 @@ Delete the flow checkpoint file on successful completion.
 
 When executing each step, you follow the FULL logic of that command as defined in its `commands/*.md` file. You don't simplify or shortcut. Specifically:
 
-### Executing /vt-feature
+### Executing /feature
 - **Level 1:** Follow all phases from `feature.md`: Initial Response, Understand, YAGNI Assessment, Research, Specify, Document, Stories. Full spec template.
 - **Level 2:** Follow `feature.md` but use the compact spec template (from `skills/triage/SKILL.md`). Compress Phases 1-4 into a focused conversation. Skip Phase 6 (story breakdown) if single-story — add one backlog entry directly.
-- **Level 3:** Skip `/vt-feature` entirely. The feature description goes directly to `/vt-implement`, and context is captured in the PR description.
+- **Level 3:** Skip `/feature` entirely. The feature description goes directly to `/implement`, and context is captured in the PR description.
 - Pass `--deep` if `/virtual-team:flow --deep` was used
 - The feature description from `/virtual-team:flow`'s arguments becomes the input
 - Write the checkpoint after the spec is committed
 
-### Executing /vt-contracts
+### Executing /contracts
 - **Level 1 only.** Skip for Level 2 and Level 3.
 - Follow `contracts.md`: extract contracts from the feature spec just produced
 - Use `contracts extract docs/features/<the-spec-just-written>.md`
 - Validate all schemas for completeness before passing the gate
 
-### Executing /vt-plan
+### Executing /plan
 - **Level 1 only.** Skip for Level 2 and Level 3.
 - Follow `plan.md`: read the feature spec and contracts, produce a phased plan
 - Pass `--deep` if `/virtual-team:flow --deep` was used
 - Reference the contracts as implementation constraints
 
-### Executing /vt-implement
+### Executing /implement
 
 **Dispatch decision:** If `--deep` is active, or the context budget heuristic triggers, dispatch as a fresh-context subagent (see "Fresh-Context Dispatch" section). Otherwise, run inline.
 
@@ -541,7 +541,7 @@ When executing each step, you follow the FULL logic of that command as defined i
 
 ### Executing /virtual-team:review + /virtual-team:validate  (parallel)
 
-**Level 2 and Level 3:** Run `/vt-review` only — skip `/vt-validate`. The review checks acceptance criteria inline. For Level 3, use a single-pass review (inline, no specialized agents) focused on correctness.
+**Level 2 and Level 3:** Run `/review` only — skip `/validate`. The review checks acceptance criteria inline. For Level 3, use a single-pass review (inline, no specialized agents) focused on correctness.
 
 **Level 1 (full dispatch):**
 
@@ -560,10 +560,10 @@ When executing each step, you follow the FULL logic of that command as defined i
   1. Review subagent (opus): git diff, spec, plan → verdict + issues
   2. Validate subagent (sonnet): spec, plan, diff → coverage + gaps
 - Wait for both to complete before evaluating the quality gate
-- Combine results using the gate evaluation table (unchanged — see "Gate: After /virtual-team:review + /vt-validate" above)
+- Combine results using the gate evaluation table (unchanged — see "Gate: After /virtual-team:review + /validate" above)
 - If halted: present the combined report and suggest `--from=review` to re-run after fixes
 
-### Executing /vt-pr
+### Executing /pr
 - Follow `pr.md`: review changes, write PR description, submit
 - Always include the feature ID and story references in the PR
 - Call **`complete(id, pr_number)`** for each implemented story to mark items done
@@ -630,7 +630,7 @@ context to execute the implementation with maximum precision.
 - Contracts: [contracts dir or "none"]
 - Stack: [stack.md path]
 
-**Execute:** Follow `commands/vt-implement.md` to implement the plan.
+**Execute:** Follow `commands/implement.md` to implement the plan.
 **Flags:** [pass through --auto, --sdd, --deep as applicable]
 
 **Skill loading:** Load Layer 0 (behavioral) skills upfront. Load Layer 1/2 (domain + stack) skills
@@ -687,7 +687,7 @@ precision.
 - Feature spec: [spec path] — acceptance criteria and definition of done
 - Implementation plan: [plan path] — what was supposed to be built
 
-**Execute:** Follow `commands/vt-review.md` to review the git diff on branch [branch].
+**Execute:** Follow `commands/review.md` to review the git diff on branch [branch].
 Run `git diff main...HEAD` to see all changes. The feature spec at [spec path] has the
 acceptance criteria. Report your verdict:
 - APPROVE / APPROVE WITH NOTES / REQUEST CHANGES
@@ -711,7 +711,7 @@ maximum precision.
 - Feature spec: [spec path] — the requirements to validate against
 - Implementation plan: [plan path] — what was supposed to be built
 
-**Execute:** Follow `commands/vt-validate.md` for feature [FEAT-NNN]. The spec is at
+**Execute:** Follow `commands/validate.md` for feature [FEAT-NNN]. The spec is at
 [spec path], the plan is at [plan path]. Run `git diff main...HEAD` to see what changed.
 Produce the gap report. Report:
 - Per-requirement status (Met, Partial, Missing, Deviated, Scope creep)
@@ -731,7 +731,7 @@ Produce the gap report. Report:
 **5. Handle combined results:**
 - Extract the review verdict and any Must Fix / Should Fix / Nit issues from the review subagent
 - Extract the per-requirement coverage and any gaps from the validate subagent
-- Apply the gate evaluation table (unchanged — see "Gate: After /virtual-team:review + /vt-validate" above)
+- Apply the gate evaluation table (unchanged — see "Gate: After /virtual-team:review + /validate" above)
 - Update the flow checkpoint with both results (see "Result Integration with Checkpoints" below)
 - If the gate passes → proceed to `/virtual-team:pr`
 - If the gate halts → present the combined quality report with issues from both subagents
@@ -756,7 +756,7 @@ This heuristic is deliberately simple. Do not over-engineer it with token counti
 **How the flow applies this:**
 1. After `/virtual-team:plan` completes (or on `--from` or bare invocation resume), count the tasks in the plan
 2. If the count meets the threshold, set an internal flag: `dispatch_mode = subagent`
-3. Both "Executing /vt-implement" and "Executing /virtual-team:review + /vt-validate" check this flag (along with `--deep`) to decide inline vs. subagent
+3. Both "Executing /implement" and "Executing /virtual-team:review + /validate" check this flag (along with `--deep`) to decide inline vs. subagent
 
 ### Execution Modes
 
@@ -776,9 +776,9 @@ When a step is executed as a subagent, the flow checkpoint records the execution
 - [x] /virtual-team:plan → docs/plans/2026-04-10-search.md [inline]
 - [x] /virtual-team:implement [subagent — fresh context]
 - [x] /virtual-team:review + /virtual-team:validate  [subagent — parallel fresh context]
-  - /vt-review: APPROVE WITH NOTES (2 nits)
-  - /vt-validate: 8/8 requirements met
-- [ ] /vt-pr
+  - /review: APPROVE WITH NOTES (2 nits)
+  - /validate: 8/8 requirements met
+- [ ] /pr
 ```
 
 The `[inline]`, `[subagent — fresh context]`, or `[subagent — parallel fresh context]` annotation is informational — it helps the user understand what happened. It does not change resume behavior. The checkpoint protocol already handles step completion regardless of execution mode.
@@ -789,7 +789,7 @@ The subagent writes its own `/virtual-team:implement` checkpoint (in `docs/check
 
 ## Bug Fix Pipeline (`--fix` mode)
 
-**If `--fix` was passed:** Read `commands/vt-flow-fix-pipeline.md` for the complete bug fix pipeline — gates, checkpoint format, completion report, and step execution. Then return here for Error Recovery and Important Constraints below.
+**If `--fix` was passed:** Read `commands/flow-fix-pipeline.md` for the complete bug fix pipeline — gates, checkpoint format, completion report, and step execution. Then return here for Error Recovery and Important Constraints below.
 
 **If `--fix` was NOT passed:** Skip this section entirely. The bug fix pipeline is not relevant to feature flows.
 

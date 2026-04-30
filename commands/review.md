@@ -1,5 +1,5 @@
 ---
-name: vt-review
+name: review
 description: CCode review of staged or recent changes against patterns, security, and acceptance criteria
 model: opus
 ---

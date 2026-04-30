@@ -1,5 +1,5 @@
 ---
-name: vt-start
+name: start
 description: Initialize a repository with stack definition, project structure, and team configuration
 model: opus
 ---
@@ -62,22 +62,22 @@ Create the `docs/` directory tree based on repo type.
 **For Hub repos:**
 ```
 docs/
-├── epics/          # Product-level initiatives from /vt-epic
-├── research/       # Research outputs from /vt-research
+├── epics/          # Product-level initiatives from /epic
+├── research/       # Research outputs from /research
 ├── decisions/      # Cross-team agreements and ADRs
-└── reviews/        # Tech review outputs from /vt-tech-review
+└── reviews/        # Tech review outputs from /tech-review
 ```
 
 **For Service repos:**
 ```
 docs/
-├── features/       # Feature specs from /vt-feature
-├── research/       # Research outputs from /vt-research
-├── plans/          # Implementation plans from /vt-plan
+├── features/       # Feature specs from /feature
+├── research/       # Research outputs from /research
+├── plans/          # Implementation plans from /plan
 ├── decisions/      # Local architectural decision records (ADRs)
-├── handoffs/       # Session handoff notes from /vt-handoff
-├── bugs/           # Bug reports from /vt-bug
-└── reviews/        # Tech review outputs from /vt-tech-review
+├── handoffs/       # Session handoff notes from /handoff
+├── bugs/           # Bug reports from /bug
+└── reviews/        # Tech review outputs from /tech-review
 ```
 
 Create each directory with a `.gitkeep` file so they're tracked by git.

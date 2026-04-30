@@ -1,5 +1,5 @@
 ---
-name: vt-handoff
+name: handoff
 description: Capture session state for clean context transfer between sessions
 model: sonnet
 ---

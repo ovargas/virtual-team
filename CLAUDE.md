@@ -5,7 +5,7 @@ This is a Claude Code plugin that provides a virtual development team workflow: 
 ## Repository Structure
 
 ```
-commands/       — Slash commands (/vt-flow, /vt-implement, /vt-commit, etc.)
+commands/       — Slash commands (/flow, /implement, /commit, etc.)
 skills/         — Skills loaded by commands (TDD, git-practices, etc.)
 agents/         — Specialized sub-agents (pattern-finder, security-reviewer, etc.)
 hooks/          — Platform hook scripts (session-start, run-hook.cmd)

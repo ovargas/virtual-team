@@ -1,5 +1,5 @@
 ---
-name: vt-epic
+name: epic
 description: Define a product-level initiative in the hub, identify affected repos, and capture cross-team agreements
 model: opus
 ---

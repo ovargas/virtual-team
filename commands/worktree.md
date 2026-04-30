@@ -1,5 +1,5 @@
 ---
-name: vt-worktree
+name: worktree
 description: Create, remove, or list git worktrees for branch-based parallel work
 model: sonnet
 ---

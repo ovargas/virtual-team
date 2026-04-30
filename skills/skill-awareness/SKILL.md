@@ -11,7 +11,7 @@ Behavioral skills must be active when relevant, even in ad-hoc sessions without 
 
 | Context | Skill to load | Trigger |
 |---------|--------------|---------|
-| Starting a pipeline | `virtual-team:triage` | Before `/vt-flow` executes any step, or when `/vt-feature`/`/vt-implement` need to determine ceremony level |
+| Starting a pipeline | `virtual-team:triage` | Before `/flow` executes any step, or when `/feature`/`/implement` need to determine ceremony level |
 | Writing production code | `virtual-team:test-driven-development` | Before any Edit/Write to non-test files (reads `stack.md` `tdd:` field for mode: strict, recommended, off) |
 | Writing production code | `virtual-team:design-principles` | Before writing function signatures, constructors, or service boundaries (reads `stack.md` `design:` field for mode: strict, recommended, off) |
 | Claiming completion | `virtual-team:verification-before-completion` | Before saying "done", "complete", "passes" |

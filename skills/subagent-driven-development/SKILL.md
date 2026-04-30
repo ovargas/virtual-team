@@ -183,4 +183,4 @@ When in doubt, use Sonnet — it's the safe middle ground.
 
 This skill is loaded by:
 - `/virtual-team:implement` — When `--sdd` flag is active, defines the execution model
-- `/virtual-team:flow` — Propagates `--sdd` to `/virtual-team:implement` when `--deep` is used (SDD is not a direct `/vt-flow` flag — it's implied by `--deep`)
+- `/virtual-team:flow` — Propagates `--sdd` to `/virtual-team:implement` when `--deep` is used (SDD is not a direct `/flow` flag — it's implied by `--deep`)

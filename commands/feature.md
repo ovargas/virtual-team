@@ -1,5 +1,5 @@
 ---
-name: vt-feature
+name: feature
 description: Capture, research, and spec a feature for an existing product — from rough idea to actionable stories
 model: opus
 ---
@@ -53,8 +53,8 @@ When this command is invoked:
 
 3. **If an epic reference was provided (`--epic=EPIC-003`):**
    - Read the hub path from `stack.md` (the `Hub` field under Project)
-   - Read the epic document from `{hub-path}/vt-docs/epics/` matching EPIC-NNN
-   - Read ALL decision records that reference this epic: search `{hub-path}/vt-docs/decisions/` for files with `epic: EPIC-NNN` in frontmatter
+   - Read the epic document from `{hub-path}/docs/epics/` matching EPIC-NNN
+   - Read ALL decision records that reference this epic: search `{hub-path}/docs/decisions/` for files with `epic: EPIC-NNN` in frontmatter
    - These decisions (API contracts, conventions, data agreements) become **constraints** for this feature — they are not optional, they are the agreed interface
    - Pre-fill the feature context from the epic's description, scope, and this repo's role from the "Affected Repos" section
    - **Update epic lifecycle status:** If the epic's frontmatter is `status: draft`, update it to `status: active` in the hub. This is the first concrete work being done for this epic, so it's no longer a draft. (If the hub is not writable, note it and suggest the founder update it manually.)
@@ -405,12 +405,12 @@ If the founder adds context here, incorporate it into the spec. If they say "loo
 1. **Determine template based on triage level:**
    - **Level 1 (Full):** Use the full template below (all 18 sections)
    - **Level 2 (Standard):** Use the compact template defined in `skills/triage/SKILL.md` under "Compact Feature Spec". Add `triage: standard` to the frontmatter.
-   - **Level 3 (Minimal):** Skip this phase entirely — `/vt-feature` is not executed at Level 3.
+   - **Level 3 (Minimal):** Skip this phase entirely — `/feature` is not executed at Level 3.
 
    The triage level is determined by:
-   - The `--level=N` flag if passed to `/vt-flow`
-   - The triage skill's auto-detection if running within `/vt-flow`
-   - Default to Level 1 if `/vt-feature` is invoked standalone (unless the user says the feature is simple)
+   - The `--level=N` flag if passed to `/flow`
+   - The triage skill's auto-detection if running within `/flow`
+   - Default to Level 1 if `/feature` is invoked standalone (unless the user says the feature is simple)
 
 2. **Create the spec** at `docs/features/YYYY-MM-DD-feature-name.md` where:
    - YYYY-MM-DD is today's date
@@ -623,7 +623,7 @@ Key things to check:
 
 **Level 2 (Standard) — single-story shortcut:** If triage assessed Level 2 and the feature is a single capability, skip the story breakdown. Add one backlog entry directly with the feature ID, title, and spec path. Proceed to the next pipeline step.
 
-**Level 3 (Minimal):** This phase is skipped — `/vt-feature` is not executed at Level 3.
+**Level 3 (Minimal):** This phase is skipped — `/feature` is not executed at Level 3.
 
 **Level 1 (Full):** Full story breakdown below.
 

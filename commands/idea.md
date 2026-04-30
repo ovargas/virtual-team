@@ -1,5 +1,5 @@
 ---
-name: vt-idea
+name: idea
 description: Capture, refine, and document a product idea through structured interview and optional research
 model: opus
 ---

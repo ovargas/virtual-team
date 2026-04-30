@@ -1,5 +1,5 @@
 ---
-name: vt-research
+name: research
 description: Investigate a question thoroughly — market, technical, or codebase — and document findings
 model: opus
 ---

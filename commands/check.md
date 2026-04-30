@@ -1,5 +1,5 @@
 ---
-name: vt-check
+name: check
 description: Knowledge check — quiz the developer on technical decisions in the current work
 model: sonnet
 ---

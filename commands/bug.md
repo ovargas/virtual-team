@@ -1,5 +1,5 @@
 ---
-name: vt-bug
+name: bug
 description: Document a bug report with reproduction steps, severity, and expected behavior
 model: sonnet
 ---

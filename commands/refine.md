@@ -1,5 +1,5 @@
 ---
-name: vt-refine
+name: refine
 description: Revisit and sharpen an existing idea brief or feature spec with new context
 model: opus
 ---

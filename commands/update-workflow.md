@@ -1,5 +1,5 @@
 ---
-name: vt-update-workflow
+name: update-workflow
 description: Check for plugin updates and show the current virtual-team plugin version
 model: sonnet
 ---

@@ -1,7 +1,7 @@
 ---
 name: checkpoints
 description: Checkpoint protocol for resuming multi-phase commands after session interruptions
-loaded_when: /vt-debug, /vt-epic, /vt-feature, /vt-implement, /vt-plan
+loaded_when: /debug, /epic, /feature, /implement, /plan
 ---
 
 # Checkpoints Skill
@@ -116,10 +116,10 @@ Each command defines its own phases in its command file. The checkpoint tracks p
 
 | Command | Phases | Source of truth |
 |---|---|---|
-| `/virtual-team:debug` | 4 phases (Reproduce → Document) | `commands/vt-debug.md` |
-| `/virtual-team:epic` | 6 phases (Decision Sync → Document) | `commands/vt-epic.md` |
-| `/virtual-team:feature` | 6 phases (Understand → Stories) | `commands/vt-feature.md` |
-| `/virtual-team:plan` | 5 phases (Arch Gate → Update Backlog) | `commands/vt-plan.md` |
+| `/virtual-team:debug` | 4 phases (Reproduce → Document) | `commands/debug.md` |
+| `/virtual-team:epic` | 6 phases (Decision Sync → Document) | `commands/epic.md` |
+| `/virtual-team:feature` | 6 phases (Understand → Stories) | `commands/feature.md` |
+| `/virtual-team:plan` | 5 phases (Arch Gate → Update Backlog) | `commands/plan.md` |
 | `/virtual-team:implement` | Dynamic (from plan document) | The plan file being implemented |
 
 When writing a checkpoint, copy the phase names from the command's definition. Do not invent or rename phases here.

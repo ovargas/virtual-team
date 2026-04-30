@@ -1,5 +1,5 @@
 ---
-name: vt-grill
+name: grill
 description: Stress-test a feature spec or plan for untested assumptions, unresolved dependencies, and terminology drift. Use when a document has been written and needs adversarial review before implementation begins.
 model: opus
 ---

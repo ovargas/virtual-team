@@ -1,5 +1,5 @@
 ---
-name: vt-plan
+name: plan
 description: Create a detailed technical implementation plan from an approved feature spec
 model: opus
 ---

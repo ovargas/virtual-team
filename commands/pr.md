@@ -1,5 +1,5 @@
 ---
-name: vt-pr
+name: pr
 description: Create a pull request with proper title, summary, and testing notes
 model: sonnet
 ---

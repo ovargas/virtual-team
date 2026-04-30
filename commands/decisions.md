@@ -1,5 +1,5 @@
 ---
-name: vt-decisions
+name: decisions
 description: Query project conventions, architectural decisions, and design patterns — quick answers with source references
 model: sonnet
 ---
@@ -60,8 +60,8 @@ Extract the topic from `$ARGUMENTS`. The topic can be:
 7. **`commands/`** — workflow commands (for process questions like "how does branching work?")
 
 **Hub sources (if `stack.md` has a Hub reference):**
-8. **`{hub-path}/vt-docs/decisions/`** — cross-team decision records. API contracts, shared data formats, naming conventions, event schemas that ALL service repos must follow. These are binding constraints, not suggestions.
-9. **`{hub-path}/vt-docs/epics/`** — epic documents. Contain cross-team routing decisions (why this repo handles X), agreements between repos, and the original context for features driven by epics.
+8. **`{hub-path}/docs/decisions/`** — cross-team decision records. API contracts, shared data formats, naming conventions, event schemas that ALL service repos must follow. These are binding constraints, not suggestions.
+9. **`{hub-path}/docs/epics/`** — epic documents. Contain cross-team routing decisions (why this repo handles X), agreements between repos, and the original context for features driven by epics.
 
 **When presenting results from the hub, label them clearly:**
 ```

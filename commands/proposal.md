@@ -1,5 +1,5 @@
 ---
-name: vt-proposal
+name: proposal
 description: Generate a detailed business proposal from an idea brief or feature breakdown — scope, timeline, infrastructure, and pricing
 model: opus
 ---
@@ -43,7 +43,7 @@ This command uses `opus` because it requires deep reasoning about cost estimatio
 - `--tier=[comma-separated tier names]` — generate a tier comparison table showing what's included at each level and estimated costs per tier. Useful for SaaS pricing decisions.
 - `--voice-sample=<path>` — passes a writing sample to the humanizer skill for voice calibration. Useful when building a consistent personal voice across multiple proposals.
 - `--lang=<code>` — explicit language override for the generated document (e.g., `--lang=es`, `--lang=fr`, `--lang=en`). When omitted, the language is inferred from `$ARGUMENTS` and the founder's conversation. With `--auto` and no signal, defaults to English. See **Language** in Important Guidelines for the translate-vs-preserve policy.
-- `--auto` — skip interactive prompts; use defaults (`--target-role=client`, `--length=medium`) when flags are missing. Forwarded here by `/vt-yolo` and `/vt-flow --auto`.
+- `--auto` — skip interactive prompts; use defaults (`--target-role=client`, `--length=medium`) when flags are missing. Forwarded here by `/yolo` and `/flow --auto`.
 - `--deep` — spawn agents for infrastructure cost research and competitive pricing analysis. Default is no agents.
 - `--currency=[USD|EUR|etc]` — currency for cost estimates. Default: USD.
 

@@ -1,5 +1,5 @@
 ---
-name: vt-commit
+name: commit
 description: Create clean, atomic git commits following project conventions
 model: sonnet
 ---

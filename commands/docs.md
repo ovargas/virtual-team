@@ -1,5 +1,5 @@
 ---
-name: vt-docs
+name: docs
 description: Document a project — setup guides, config references, runbooks, and operational notes
 model: sonnet
 ---

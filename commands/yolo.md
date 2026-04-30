@@ -1,5 +1,5 @@
 ---
-name: vt-yolo
+name: yolo
 description: Run /virtual-team:flow with --auto baked in. Same pipeline, less friction, more regret potential. All /virtual-team:flow flags pass through.
 model: haiku
 ---
@@ -50,9 +50,9 @@ After printing the joke, execute the full `/virtual-team:flow` command with `--a
 
 **Important:** `--auto` is always added. If the user somehow passed `--auto` explicitly, don't double it — just ensure it's present.
 
-## Step 3: Execute /vt-flow
+## Step 3: Execute /flow
 
-Now read `commands/vt-flow.md` and execute it fully, following every instruction in that file. You ARE the flow orchestrator now — the only difference is that `--auto` is always active.
+Now read `commands/flow.md` and execute it fully, following every instruction in that file. You ARE the flow orchestrator now — the only difference is that `--auto` is always active.
 
 **Do not:**
 - Skip any pipeline steps

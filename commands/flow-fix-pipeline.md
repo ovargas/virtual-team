@@ -1,6 +1,6 @@
 ---
-name: vt-flow-fix-pipeline
-description: Bug fix pipeline for /vt-flow --fix mode. Loaded conditionally by flow.md when --fix is passed.
+name: flow-fix-pipeline
+description: Bug fix pipeline for /flow --fix mode. Loaded conditionally by flow.md when --fix is passed.
 model: opus
 ---
 
@@ -10,24 +10,24 @@ When `--fix` is passed, the orchestrator runs a compressed pipeline designed for
 
 **Level 1 — Full:**
 ```
-/vt-bug → /vt-debug → implement fix → /vt-review + /vt-validate → /vt-pr
+/bug → /debug → implement fix → /review + /validate → /pr
 ```
 
 **Level 2 — Standard:**
 ```
-/vt-bug → implement fix → /vt-review → /vt-pr
+/bug → implement fix → /review → /pr
 ```
 
 **Level 3 — Minimal (same as `--quick`):**
 ```
-implement fix → /vt-review (single-pass) → /vt-pr
+implement fix → /review (single-pass) → /pr
 ```
 
 No `/virtual-team:feature`, `/virtual-team:contracts`, or formal `/virtual-team:plan` — the bug report and debug investigation serve as the spec. The debug output (root cause, all occurrences, suggested fix) becomes the implementation guide.
 
-**Level 2 note:** `/vt-debug` is skipped — the developer goes straight from documenting the bug to fixing it. This works when the bug has a known or obvious cause. If the fix attempt reveals the root cause is unclear, the developer can escalate mid-pipeline: "this needs investigation" triggers `/vt-debug` on the fly.
+**Level 2 note:** `/debug` is skipped — the developer goes straight from documenting the bug to fixing it. This works when the bug has a known or obvious cause. If the fix attempt reveals the root cause is unclear, the developer can escalate mid-pipeline: "this needs investigation" triggers `/debug` on the fly.
 
-**Level 3 note:** Both `/vt-bug` and `/vt-debug` are skipped — equivalent to `--quick`. The fix description and PR carry the context.
+**Level 3 note:** Both `/bug` and `/debug` are skipped — equivalent to `--quick`. The fix description and PR carry the context.
 
 ### Mode Detection
 
@@ -43,7 +43,7 @@ This is explicit, not inferred. The user decides whether they're fixing a bug or
 - `/virtual-team:flow --fix BUG-NNN` → skip `/virtual-team:bug`, load the existing report, start at `/virtual-team:debug`
 - `/virtual-team:flow --fix --quick "description"` → skip `/virtual-team:bug`, description becomes input to `/virtual-team:debug`
 
-### Gate: After /vt-bug
+### Gate: After /bug
 
 **Check for:**
 - Bug report has reproduction steps (at minimum, what was observed and what was expected)
@@ -54,7 +54,7 @@ This is explicit, not inferred. The user decides whether they're fixing a bug or
 
 **Auto mode:** Auto-accept if reproduction steps and severity exist. Stop only if the report is too vague to investigate.
 
-**On clean pass:** Report "Bug documented — proceeding to /vt-debug" and continue.
+**On clean pass:** Report "Bug documented — proceeding to /debug" and continue.
 
 ### Gate: After /virtual-team:debug (Complexity Gate)
 
@@ -120,11 +120,11 @@ After implementation passes, the quality gate adapts to the triage level:
 - The auto-fix cycle applies here too — mechanical Must Fix issues are auto-fixed and re-reviewed (max 3 iterations), architectural concerns halt for human judgment
 
 **Level 2 (Standard):**
-- `/virtual-team:review` only — skip `/vt-validate`. The review checks correctness and patterns.
+- `/virtual-team:review` only — skip `/validate`. The review checks correctness and patterns.
 - Halt on Must Fix issues (even in `--auto`)
 
 **Level 3 (Minimal):**
-- Single-pass `/vt-review` (inline, no specialized agents) — focus on correctness only
+- Single-pass `/review` (inline, no specialized agents) — focus on correctness only
 - Halt on Must Fix issues (even in `--auto`)
 
 ### Executing /virtual-team:pr (fix mode)
@@ -150,11 +150,11 @@ triage_level: 2  # 1=full, 2=standard, 3=minimal
 - [x] /virtual-team:bug → docs/bugs/2026-04-09-login-after-reset.md (BUG-007)
 - [x] /virtual-team:debug → root cause found: session token not invalidated on password change
 - [ ] implement fix
-- [ ] /virtual-team:review + /vt-validate
-- [ ] /vt-pr
+- [ ] /virtual-team:review + /validate
+- [ ] /pr
 
 ## Resolved Gates
-- Gate after /vt-debug: Straightforward — isolated to 1 file (auth/session.go:142)
+- Gate after /debug: Straightforward — isolated to 1 file (auth/session.go:142)
 ```
 
 ### Bug Fix Completion Report

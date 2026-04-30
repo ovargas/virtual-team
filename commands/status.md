@@ -1,5 +1,5 @@
 ---
-name: vt-status
+name: status
 description: Morning standup — summarize project state, backlog health, and what to work on next
 model: sonnet
 ---

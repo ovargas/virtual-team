@@ -1,5 +1,5 @@
 ---
-name: vt-contracts
+name: contracts
 description: Extract, define, and validate API contracts (payloads, models, events) as concrete schema files
 model: opus
 ---

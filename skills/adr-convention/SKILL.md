@@ -60,11 +60,11 @@ Hub agreements (cross-repo decisions) add:
 
 | Command | Role | Behavior |
 |---------|------|----------|
-| `vt-plan` | Active | Three-gate check after plan review; prompt to create ADR or flag for review |
-| `vt-feature` | Light | Prompt on YAGNI overrides and non-obvious approach decisions |
-| `vt-tech-review` | Passive | Read existing ADRs; tag findings as ADR candidates; never auto-create |
-| `vt-start` | Reference | Point to this skill for local ADR format |
-| `vt-epic` | Reference | Point to this skill for hub ADR format |
+| `plan` | Active | Three-gate check after plan review; prompt to create ADR or flag for review |
+| `feature` | Light | Prompt on YAGNI overrides and non-obvious approach decisions |
+| `tech-review` | Passive | Read existing ADRs; tag findings as ADR candidates; never auto-create |
+| `start` | Reference | Point to this skill for local ADR format |
+| `epic` | Reference | Point to this skill for hub ADR format |
 
 ## ID Generation
 

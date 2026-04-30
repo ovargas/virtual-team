@@ -1,5 +1,5 @@
 ---
-name: vt-implement
+name: implement
 description: Execute a technical implementation plan phase by phase, with verification at each step
 model: opus
 ---
@@ -98,7 +98,7 @@ When this command is invoked:
    **Triage level detection:** Check (in order):
    - If `--level=2` or `--level=3` was passed → use that level (2=standard, 3=minimal)
    - If the feature spec has `triage: standard` or `triage: minimal` in frontmatter → use that level
-   - If invoked from `/vt-flow`, the flow passes the triage level → use it
+   - If invoked from `/flow`, the flow passes the triage level → use it
    - Otherwise → default to Level 1 (full), which requires a plan
 
    **Level 1 (Full) — Plan required:**
@@ -214,7 +214,7 @@ When this command is invoked:
 
 ## Inline Analysis (Level 2 and Level 3)
 
-When no formal plan exists, `/vt-implement` does lightweight analysis before writing code. This replaces the plan document — it's "planning in your head," not "planning on paper."
+When no formal plan exists, `/implement` does lightweight analysis before writing code. This replaces the plan document — it's "planning in your head," not "planning on paper."
 
 ### Level 2 Inline Analysis
 

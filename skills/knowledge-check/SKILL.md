@@ -1,6 +1,6 @@
 ---
 name: knowledge-check
-description: Protocol for validating developer understanding of AI-generated technical decisions. Loaded by /vt-plan, /vt-pr, and the standalone /virtual-team:check command.
+description: Protocol for validating developer understanding of AI-generated technical decisions. Loaded by /plan, /pr, and the standalone /virtual-team:check command.
 ---
 
 # Knowledge Check Skill

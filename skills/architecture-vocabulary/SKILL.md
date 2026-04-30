@@ -1,6 +1,6 @@
 ---
 name: architecture-vocabulary
-description: Use when evaluating architecture in vt-tech-review — provides formal vocabulary (Depth, Seam, Leverage, Locality, Adapter, Pass-through) with diagnostic heuristics that produce precise, falsifiable findings instead of generic descriptions
+description: Use when evaluating architecture in tech-review — provides formal vocabulary (Depth, Seam, Leverage, Locality, Adapter, Pass-through) with diagnostic heuristics that produce precise, falsifiable findings instead of generic descriptions
 ---
 
 # Architecture Vocabulary
@@ -43,4 +43,4 @@ When forming architecture findings, follow this protocol:
 ## Integration
 
 This skill is loaded by:
-- `commands/vt-tech-review.md` — used during the Architecture & Structure evaluation dimension
+- `commands/tech-review.md` — used during the Architecture & Structure evaluation dimension

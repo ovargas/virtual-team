@@ -60,7 +60,7 @@ Shows what's in progress, what's blocked, and suggests the right command to run 
 This runs the full pipeline in one session:
 
 ```
-/vt-feature → /vt-contracts → /vt-plan → /vt-implement → /vt-review + /vt-validate → /vt-pr
+/feature → /contracts → /plan → /implement → /review + /validate → /pr
 ```
 
 Interactive gates between each step resolve decisions and TBDs without leaving the session. If the session is interrupted, just run `/virtual-team:flow` again — it auto-detects where you left off.
@@ -74,7 +74,7 @@ Interactive gates between each step resolve decisions and TBDs without leaving t
 Runs the bug fix pipeline with a mandatory pattern sweep to catch all occurrences:
 
 ```
-/vt-bug → /vt-debug → fix → /vt-review + /vt-validate → /vt-pr
+/bug → /debug → fix → /review + /validate → /pr
 ```
 
 ### Common variations
@@ -92,14 +92,14 @@ Runs the bug fix pipeline with a mandatory pattern sweep to catch all occurrence
 
 ## Want More Control?
 
-`/vt-flow` chains the pipeline automatically. You can run each step individually when you want to pause, review, or iterate between steps.
+`/flow` chains the pipeline automatically. You can run each step individually when you want to pause, review, or iterate between steps.
 
 ### The Pipeline Steps
 
-These are the commands that `/vt-flow` runs under the hood. Use them directly when you want granular control:
+These are the commands that `/flow` runs under the hood. Use them directly when you want granular control:
 
 ```
-/vt-feature → /vt-contracts → /vt-plan → /vt-implement → /vt-review + /vt-validate → /vt-pr
+/feature → /contracts → /plan → /implement → /review + /validate → /pr
 ```
 
 | Step | Command | What it produces |
@@ -127,15 +127,15 @@ These are the commands that `/vt-flow` runs under the hood. Use them directly wh
 
 ### Pipeline Flags
 
-These flags work with both `/vt-flow` and the individual pipeline commands:
+These flags work with both `/flow` and the individual pipeline commands:
 
 | Flag | Effect | Available in |
 |------|--------|-------------|
-| `--deep` | Spawn specialized agents for thorough analysis | `/vt-feature`, `/vt-plan`, `/vt-implement`, `/vt-debug`, `/vt-flow` |
-| `--auto` | Skip confirmations, stop only on failures | `/vt-feature`, `/vt-plan`, `/vt-implement`, `/vt-flow` |
-| `--sdd` | Subagent-driven development — parallel implementation | `/vt-implement` |
-| `--fresh` | Delete checkpoint, start from scratch | `/vt-feature`, `/vt-plan`, `/vt-implement`, `/vt-debug`, `/vt-flow` |
-| `--phase=N` | Resume from a specific phase | `/vt-implement` |
+| `--deep` | Spawn specialized agents for thorough analysis | `/feature`, `/plan`, `/implement`, `/debug`, `/flow` |
+| `--auto` | Skip confirmations, stop only on failures | `/feature`, `/plan`, `/implement`, `/flow` |
+| `--sdd` | Subagent-driven development — parallel implementation | `/implement` |
+| `--fresh` | Delete checkpoint, start from scratch | `/feature`, `/plan`, `/implement`, `/debug`, `/flow` |
+| `--phase=N` | Resume from a specific phase | `/implement` |
 
 ---
 
@@ -156,7 +156,7 @@ Use these **before** the pipeline — when you're still exploring what to build.
 
 ### Bug Investigation
 
-Use these to investigate bugs independently of `/vt-flow --fix`.
+Use these to investigate bugs independently of `/flow --fix`.
 
 | Command | What it does |
 |---------|-------------|
@@ -217,14 +217,14 @@ Skills are domain-specific coding standards that load automatically based on wha
 
 | Agent | Role | Spawned by |
 |-------|------|-----------|
-| `product-owner` | Market analysis, YAGNI checks | `/vt-idea`, `/vt-feature`, `/vt-epic` |
-| `software-architect` | Architecture decisions, dependency gatekeeper | `/vt-plan`, `/vt-epic` |
-| `security-reviewer` | Security vulnerability scanning | `/vt-review` |
-| `pattern-finder` | Find existing code patterns as templates | `/vt-plan`, `/vt-implement` |
-| `codebase-analyzer` | Trace data flow and system behavior | `/vt-debug`, `/vt-plan` |
-| `codebase-locator` | Find relevant files by area/concern | `/vt-feature`, `/vt-plan` |
-| `docs-locator` | Find docs, plans, decisions by topic | `/vt-feature`, `/vt-plan` |
-| `web-researcher` | External research with source attribution | `/vt-research`, `/vt-idea` |
+| `product-owner` | Market analysis, YAGNI checks | `/idea`, `/feature`, `/epic` |
+| `software-architect` | Architecture decisions, dependency gatekeeper | `/plan`, `/epic` |
+| `security-reviewer` | Security vulnerability scanning | `/review` |
+| `pattern-finder` | Find existing code patterns as templates | `/plan`, `/implement` |
+| `codebase-analyzer` | Trace data flow and system behavior | `/debug`, `/plan` |
+| `codebase-locator` | Find relevant files by area/concern | `/feature`, `/plan` |
+| `docs-locator` | Find docs, plans, decisions by topic | `/feature`, `/plan` |
+| `web-researcher` | External research with source attribution | `/research`, `/idea` |
 
 Agents are spawned with the `--deep` flag. Without it, commands use direct tools (faster, cheaper).
 

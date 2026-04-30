@@ -16,7 +16,7 @@ description: Use when a consumer project has a CONTEXT.md file — defines the d
 Create `CONTEXT.md` when:
 - The same concept has multiple names in specs or code ("order" vs "transaction" vs "purchase")
 - New team members (or AI) use wrong terms because the domain isn't documented
-- `vt-start` offers to scaffold it during repo initialization
+- `start` offers to scaffold it during repo initialization
 
 ## Format
 
@@ -46,10 +46,10 @@ Create `CONTEXT.md` when:
 ## Pipeline Behavior
 
 Commands that read `CONTEXT.md`:
-- **vt-feature** — uses vocabulary when writing the feature spec
-- **vt-plan** — references terms when naming phases, steps, and components
-- **vt-implement** — uses terms in variable names, function names, comments, and commit messages; avoids synonyms listed in the "Avoid" column
-- **vt-tech-review** — checks that code uses defined vocabulary consistently; flags terminology drift
+- **feature** — uses vocabulary when writing the feature spec
+- **plan** — references terms when naming phases, steps, and components
+- **implement** — uses terms in variable names, function names, comments, and commit messages; avoids synonyms listed in the "Avoid" column
+- **tech-review** — checks that code uses defined vocabulary consistently; flags terminology drift
 
 ## Graceful Degradation
 
@@ -60,5 +60,5 @@ Commands that read `CONTEXT.md`:
 ## Related
 
 - ADR-002 defines this convention: `docs/decisions/2026-04-29-domain-glossary-convention.md`
-- `vt-start` scaffolds CONTEXT.md when the user opts in during repo initialization
+- `start` scaffolds CONTEXT.md when the user opts in during repo initialization
 - The `/virtual-team:grill` command maintains CONTEXT.md inline during grilling sessions

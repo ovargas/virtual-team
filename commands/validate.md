@@ -1,5 +1,5 @@
 ---
-name: vt-validate
+name: validate
 description: Compare the feature spec against the actual implementation to find gaps, missing requirements, and unmet acceptance criteria
 model: sonnet
 ---

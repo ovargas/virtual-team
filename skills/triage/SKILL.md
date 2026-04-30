@@ -1,7 +1,7 @@
 ---
 name: triage
 description: Assess work complexity and determine the right documentation ceremony level before starting the pipeline
-loaded_when: /vt-flow (Step 0), /vt-feature, /vt-bug, /vt-implement (when invoked standalone)
+loaded_when: /flow (Step 0), /feature, /bug, /implement (when invoked standalone)
 ---
 
 # Triage Skill
@@ -10,10 +10,10 @@ Triage classifies work into one of three ceremony levels before the pipeline sta
 
 ## When to Load
 
-- **`/vt-flow`** — always, as Step 0 before the pipeline begins
-- **`/vt-feature`** — to determine which spec template to use (full vs compact)
-- **`/vt-bug`** — to determine whether to create a formal bug report or skip to debug
-- **`/vt-implement`** — when invoked standalone without a plan, to determine if planless execution is appropriate
+- **`/flow`** — always, as Step 0 before the pipeline begins
+- **`/feature`** — to determine which spec template to use (full vs compact)
+- **`/bug`** — to determine whether to create a formal bug report or skip to debug
+- **`/implement`** — when invoked standalone without a plan, to determine if planless execution is appropriate
 
 ## Ceremony Levels
 
@@ -21,8 +21,8 @@ Triage classifies work into one of three ceremony levels before the pipeline sta
 
 The current default. Every artifact, every gate, every verification step.
 
-**Pipeline (feature):** `/vt-feature` → `/vt-contracts` → `/vt-plan` → `/vt-implement` → `/vt-review` + `/vt-validate` → `/vt-pr`
-**Pipeline (bug fix):** `/vt-bug` → `/vt-debug` → `/vt-plan` → `/vt-implement` → `/vt-review` + `/vt-validate` → `/vt-pr`
+**Pipeline (feature):** `/feature` → `/contracts` → `/plan` → `/implement` → `/review` + `/validate` → `/pr`
+**Pipeline (bug fix):** `/bug` → `/debug` → `/plan` → `/implement` → `/review` + `/validate` → `/pr`
 
 **Artifacts produced:**
 - Feature spec (full template) or bug report (full template)
@@ -37,10 +37,10 @@ The current default. Every artifact, every gate, every verification step.
 
 ### Level 2 — Standard
 
-Skips the plan document, contracts step, and standalone validation. The feature spec expands its Implementation Hints section to cover pattern references and file list. `/vt-implement` does inline analysis instead of requiring a formal plan.
+Skips the plan document, contracts step, and standalone validation. The feature spec expands its Implementation Hints section to cover pattern references and file list. `/implement` does inline analysis instead of requiring a formal plan.
 
-**Pipeline (feature):** `/vt-feature` → `/vt-implement` → `/vt-review` → `/vt-pr`
-**Pipeline (bug fix):** `/vt-bug` → `/vt-implement` → `/vt-review` → `/vt-pr`
+**Pipeline (feature):** `/feature` → `/implement` → `/review` → `/pr`
+**Pipeline (bug fix):** `/bug` → `/implement` → `/review` → `/pr`
 
 **Artifacts produced:**
 - Feature spec (compact template) or bug report (full template)
@@ -48,9 +48,9 @@ Skips the plan document, contracts step, and standalone validation. The feature 
 - Decision records (if architectural choices made)
 
 **Skipped:**
-- `/vt-contracts` — types in code are the contracts
-- `/vt-plan` — Implementation Hints in the spec + inline analysis in `/vt-implement`
-- `/vt-validate` — `/vt-review` covers acceptance criteria
+- `/contracts` — types in code are the contracts
+- `/plan` — Implementation Hints in the spec + inline analysis in `/implement`
+- `/validate` — `/review` covers acceptance criteria
 - Research doc — unless `--deep` is explicitly passed
 
 **Feature spec template:** Compact (see "Compact Feature Spec" section below)
@@ -59,16 +59,16 @@ Skips the plan document, contracts step, and standalone validation. The feature 
 
 For trivial changes where the commit message and PR description *are* the documentation. No separate spec document.
 
-**Pipeline (feature):** `/vt-implement` → `/vt-review` → `/vt-pr`
-**Pipeline (bug fix):** `/vt-implement` → `/vt-review` → `/vt-pr`
+**Pipeline (feature):** `/implement` → `/review` → `/pr`
+**Pipeline (bug fix):** `/implement` → `/review` → `/pr`
 
 **Artifacts produced:**
 - Backlog entry (one line)
 - PR description carries the context (problem, solution, verification)
 
 **Skipped:**
-- `/vt-feature` or `/vt-bug` — no separate spec document
-- `/vt-contracts`, `/vt-plan`, `/vt-validate` — all skipped
+- `/feature` or `/bug` — no separate spec document
+- `/contracts`, `/plan`, `/validate` — all skipped
 - Checkpoints — not needed for single-phase work
 - Research doc — not applicable
 
@@ -143,35 +143,35 @@ Skipping: [skipped steps, or "nothing — full ceremony"]
 
 - **If `--auto`:** Use the detected level, no prompt. Log the assessment in the flow checkpoint.
 - **If interactive:** Wait for user confirmation or override. If the user overrides, use their choice.
-- Store the assessed level in the flow checkpoint (if `/vt-flow`) or pass it forward to the next command.
+- Store the assessed level in the flow checkpoint (if `/flow`) or pass it forward to the next command.
 
 ## How Commands Use Triage Level
 
-### `/vt-feature`
+### `/feature`
 
 | Level | Behavior |
 |---|---|
 | 1 (Full) | Full 6-phase process, full spec template |
 | 2 (Standard) | Phases 1-4 (Understand, YAGNI, Research, Specify) compressed. Compact spec template. Skip Phase 6 story breakdown if single-story. |
-| 3 (Minimal) | Skip `/vt-feature` entirely. Context goes into `/vt-implement` and PR description. |
+| 3 (Minimal) | Skip `/feature` entirely. Context goes into `/implement` and PR description. |
 
-### `/vt-bug`
+### `/bug`
 
 | Level | Behavior |
 |---|---|
 | 1 (Full) | Full bug report with all sections |
 | 2 (Standard) | Full bug report (bugs are already lightweight) |
-| 3 (Minimal) | Skip `/vt-bug`. Description goes directly to `/vt-implement`. |
+| 3 (Minimal) | Skip `/bug`. Description goes directly to `/implement`. |
 
-### `/vt-plan`
+### `/plan`
 
 | Level | Behavior |
 |---|---|
 | 1 (Full) | Full plan document, separate file in `docs/plans/` |
-| 2 (Standard) | **Skipped.** `/vt-implement` does inline analysis instead. |
+| 2 (Standard) | **Skipped.** `/implement` does inline analysis instead. |
 | 3 (Minimal) | **Skipped.** |
 
-### `/vt-implement`
+### `/implement`
 
 | Level | Behavior |
 |---|---|
@@ -179,7 +179,7 @@ Skipping: [skipped steps, or "nothing — full ceremony"]
 | 2 (Standard) | **No plan required.** Before coding, does inline analysis: reads the feature spec's Implementation Hints, scans codebase for patterns, identifies files to modify, and presents a brief summary before starting. This is "planning in your head" — lightweight, not documented. |
 | 3 (Minimal) | **No plan, no spec required.** Works from the bug/feature description alone. Reads codebase, identifies the change, implements it. |
 
-### `/vt-contracts`
+### `/contracts`
 
 | Level | Behavior |
 |---|---|
@@ -187,15 +187,15 @@ Skipping: [skipped steps, or "nothing — full ceremony"]
 | 2 (Standard) | **Skipped.** Types in code are the contracts. |
 | 3 (Minimal) | **Skipped.** |
 
-### `/vt-validate`
+### `/validate`
 
 | Level | Behavior |
 |---|---|
 | 1 (Full) | Full validation report, gap analysis |
-| 2 (Standard) | **Skipped.** `/vt-review` checks acceptance criteria inline. |
+| 2 (Standard) | **Skipped.** `/review` checks acceptance criteria inline. |
 | 3 (Minimal) | **Skipped.** |
 
-### `/vt-review`
+### `/review`
 
 | Level | Behavior |
 |---|---|
@@ -205,7 +205,7 @@ Skipping: [skipped steps, or "nothing — full ceremony"]
 
 ## Compact Feature Spec
 
-When triage assigns Level 2, `/vt-feature` uses this reduced template instead of the full 18-section template:
+When triage assigns Level 2, `/feature` uses this reduced template instead of the full 18-section template:
 
 ```markdown
 ---

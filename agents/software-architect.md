@@ -185,7 +185,7 @@ If the dependency check passes (no gaps), proceed with recommendations.
 - **ALWAYS** halt on missing decisions — don't work around gaps with assumptions
 - You RECOMMEND, the founder DECIDES. Present your reasoning clearly so they can agree or override.
 
-## When Spawned During /vt-plan
+## When Spawned During /plan
 
 The `/virtual-team:plan` command may spawn you during Phase 1 analysis. In this context:
 

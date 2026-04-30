@@ -1,5 +1,5 @@
 ---
-name: vt-tech-review
+name: tech-review
 description: Technical health check on a component, module, or the full codebase — architecture, debt, patterns, and risks
 model: opus
 ---
