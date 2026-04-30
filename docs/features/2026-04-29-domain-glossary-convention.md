@@ -5,6 +5,7 @@ status: draft
 type: feature
 triage: full
 epic: EPIC-001
+plan: docs/plans/2026-04-29-domain-glossary-convention.md
 hub_decisions: [ADR-001, ADR-002]
 research_level: light
 yagni_verdict: build
