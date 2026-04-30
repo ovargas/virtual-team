@@ -17,6 +17,7 @@ Behavioral skills must be active when relevant, even in ad-hoc sessions without 
 | Claiming completion | `virtual-team:verification-before-completion` | Before saying "done", "complete", "passes" |
 | Receiving review feedback | `virtual-team:receiving-code-review` | When processing review comments |
 | Executing multi-task plan with `--sdd` | `virtual-team:subagent-driven-development` | When `/virtual-team:vt-implement --sdd` is active |
+| User requests compressed output | `virtual-team:token-efficient` | User says "caveman mode", "terse", "compress", or similar activation phrase |
 
 Project-provided domain and stack skills are NOT auto-triggered. They are discovered and loaded by `/virtual-team:vt-implement` Layer 1 based on `domain` and `stack` frontmatter fields matching the current work.
 
