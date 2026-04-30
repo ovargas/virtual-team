@@ -1,7 +1,7 @@
 ---
 id: FEAT-015
 date: 2026-04-11
-status: implemented
+status: done
 plan: docs/plans/2026-04-11-token-consumption-optimization.md
 type: feature
 research_level: light
