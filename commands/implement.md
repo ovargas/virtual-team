@@ -494,18 +494,27 @@ Before writing code, load the relevant skills in three layers:
 - **`virtual-team:verification-before-completion`** — No completion claims without fresh verification evidence. Every "done" must cite proof from this message.
 - **`virtual-team:receiving-code-review`** — No performative agreement with review feedback. Verify before implementing, push back when wrong.
 
-**Layer 1 — Project skills.** The project may provide its own domain and stack-specific skills. These encode the team's conventions — REST response formats, ORM patterns, component structure, service organization, framework idioms. The plugin does not ship these; each project defines what matters for their stack.
+**Layer 1 — Project skills.** The project may provide its own domain and stack-specific skills, and the plugin (or user-global config) may provide pre-built ones for common stacks (e.g., `go-foundations`, `db-foundations`, `go-gin-api`). Both encode conventions — REST response formats, ORM patterns, component structure, framework idioms — so the LLM doesn't implement blindly.
 
-To discover project skills, read `stack.md` to identify the technologies in use, then scan `skills/*/SKILL.md` for skills whose `domain` or `stack` frontmatter fields match the current work:
+To discover applicable skills, read `stack.md` to identify the technologies in use, then resolve skills in this order based on the `Skills:` field in `stack.md`'s Workflow section:
+
+**Resolution policy:**
+
+- `Skills: global` (default — also used when the field is missing or invalid) — scan **project-local** `skills/*/SKILL.md` first, then fall back to **plugin/user-global** skills surfaced in this session via the Skill tool's available-skills list.
+- `Skills: local` — only scan project-local `skills/*/SKILL.md`. Do not load global skills for stack matching.
+
+**Matching rules** (apply at both tiers):
 
 - `domain` field — matches the type of work: `api`, `ui`, `data`, `service`. Load if the files you're about to change fall in that domain.
 - `stack` field — a comma-separated list of technologies (e.g., `stack: python, django`). A skill matches if **any** of its entries appears as a technology in `stack.md` (case-insensitive).
 
-A project might provide one skill per domain, one per framework, or both — load whatever matches the current phase. If two skills cover the same area (e.g., a generic `api` domain skill and a `gin` stack skill), load both — the stack-specific skill takes precedence on conflicts.
+**Collision handling:**
 
-If a project skill conflicts with the implementation plan, the plan takes precedence — but flag the conflict.
+- A project-local skill always wins over a global skill with the same name or overlapping coverage. The local skill is the team's customization — respect it.
+- If two skills at the same tier cover the same area (e.g., a generic `api` domain skill and a `gin` stack skill), load both. The stack-specific skill takes precedence on conflicts.
+- If a skill conflicts with the implementation plan, the plan takes precedence — but flag the conflict.
 
-If no project skills exist, that's fine — Layer 0 behavioral discipline still applies, and the LLM's built-in knowledge of standard conventions (REST semantics, migration safety, accessibility basics) fills the gap.
+If no skills match, that's fine — Layer 0 behavioral discipline still applies, and the LLM's built-in knowledge of standard conventions (REST semantics, migration safety, accessibility basics) fills the gap. The developer can run `/virtual-team:doctor` to surface coverage gaps and decide whether to author a project skill.
 
 Layer 0 is always loaded. For Layer 1, only load the skill(s) relevant to the current phase — don't load all of them at once.
 

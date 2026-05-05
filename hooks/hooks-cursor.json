@@ -5,6 +5,12 @@
       {
         "command": "./hooks/session-start"
       }
+    ],
+    "postToolUse": [
+      {
+        "matcher": "Edit|Write",
+        "command": "./hooks/stack-md-changed"
+      }
     ]
   }
 }

@@ -324,6 +324,10 @@ How will this repo be developed?
 Gather:
 - **Mode** — `solo` (one developer, default) or `team` (multiple developers working concurrently)
 - **Backlog** — `local` (file-based `docs/backlog.md`, default) or `external` (GitHub Issues, Linear, JIRA)
+- **Skills scope** — `global` (default — load project-local `skills/` first, fall back to plugin/user-global skills) or `local` (only project-local `skills/`, no fallback). If unset, missing, or invalid, treat as `global`.
+
+If `local`:
+- Warn: "With `skills: local`, only `skills/*/SKILL.md` in this repo will match Layer 1 discovery. Plugin-shipped skills (`go-foundations`, `db-foundations`, etc.) won't be loaded for stack matching. Most projects want `global`."
 
 If `team`:
 - Recommend `backlog: external` — local file-based backlogs cause merge conflicts when multiple developers work concurrently
@@ -431,6 +435,10 @@ Write `stack.md` at the repository root. The template depends on the repo type.
 ## Workflow
 - **Mode:** [solo | team]
 - **Backlog:** [local | external]
+- **Skills:** [local | global]
+  <!-- global (default): project skills/ first, then plugin/user-global skills.
+       local: only project skills/. Missing/invalid → treated as global. -->
+- **Skills ignore:** [comma-separated list of stack tokens to silence in skill-coverage audit, or empty]
 
 ## Decisions Made
 <!-- Links to local ADRs in docs/decisions/ — starts empty -->
@@ -440,6 +448,16 @@ Write `stack.md` at the repository root. The template depends on the repo type.
 <!-- Items not yet decided — the virtual-team:software-architect will flag these when needed -->
 - [List every item marked TBD above, with a note about when it'll matter]
 ```
+
+### Step 4.5: Skill-Coverage Audit (Service repos only)
+
+**Skip for Hub repos.**
+
+Run `/virtual-team:doctor` once. It reads the just-written `stack.md`, audits skill coverage against local and global skills, and surfaces any gaps as suggestions. Continue to Step 5 regardless of findings — the audit is advisory and never blocks.
+
+**Why this runs here:** The developer just decided their stack. They have the most context and the lowest activation energy to author a tailored skill if one is missing. Surfacing the gap later (during `/implement`) would interrupt feature work.
+
+The audit's full procedure lives in `commands/doctor.md` — a single source of truth shared with the on-demand command.
 
 ### Step 5: Create Initial Decision Records (if any)
 
@@ -496,6 +514,11 @@ Created:
 
 **TBD items** (the virtual-team:software-architect will flag these when needed):
 - [List each TBD with when it'll matter]
+
+**Skill coverage** (from Step 4.5 audit):
+- ✓ [N] technologies covered by local skills
+- ✓ [N] technologies covered by global skills
+- ⚠ [N] technologies with no skill match — see suggestions above
 
 **Next steps:**
 - `/virtual-team:feature` — if you already know what to build first

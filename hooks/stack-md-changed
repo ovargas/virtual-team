@@ -1,0 +1,30 @@
+#!/usr/bin/env bash
+# PostToolUse hook for virtual-team plugin
+# Fires after Edit|Write tool calls; emits a nudge if stack.md was the target.
+# Exits silently for any other path so the hook is effectively a no-op for
+# unrelated edits.
+
+set -euo pipefail
+
+# Read tool input/output JSON from stdin (Claude Code convention)
+input=$(cat)
+
+# Cheap path filter: look for "stack.md" inside a file_path string.
+# Avoids spawning a JSON parser on every Edit/Write call.
+if ! printf '%s' "$input" | grep -Eq '"file_path"[[:space:]]*:[[:space:]]*"[^"]*/?stack\.md"'; then
+    exit 0
+fi
+
+nudge="stack.md was edited — run \`/virtual-team:doctor\` to refresh skill-coverage suggestions. (Advisory only; never blocks.)"
+
+# Match the JSON-output pattern used by session-start so the message reaches
+# the right consumer per platform.
+if [ -n "${CURSOR_PLUGIN_ROOT:-}" ]; then
+  printf '{\n  "additional_context": "%s"\n}\n' "$nudge"
+elif [ -n "${CLAUDE_PLUGIN_ROOT:-}" ] && [ -z "${COPILOT_CLI:-}" ]; then
+  printf '{\n  "hookSpecificOutput": {\n    "hookEventName": "PostToolUse",\n    "additionalContext": "%s"\n  }\n}\n' "$nudge"
+else
+  printf '{\n  "additionalContext": "%s"\n}\n' "$nudge"
+fi
+
+exit 0
