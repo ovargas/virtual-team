@@ -78,9 +78,12 @@ Read the `Skills ignore:` field from the Workflow section. If present, drop any 
 
 For each token, check skills in this order, stopping at the first match:
 
+**Note on `stack:`:** the frontmatter `stack:` field is **optional**. Skills that declare it get deterministic exact-match coverage. Skills without it can still match — fall back to name correspondence (`go-foundations/` matches `go`) or, in ambiguous cases, the skill's `description:` field. Behavioral skills (`tdd`, `design-principles`, etc.) intentionally omit `stack:` because they apply regardless of technology.
+
 1. **Project-local skills** — scan `skills/*/SKILL.md` files in this repo. A skill *matches* when:
-   - Its frontmatter `stack:` field (comma-separated, case-insensitive) contains the token, OR
-   - Its directory name obviously corresponds to the token (e.g., `go-foundations/` matches `go`)
+   - Its frontmatter `stack:` field contains the token. The field accepts **any valid YAML list shape** — comma-separated string (`stack: go, gin`), inline list (`stack: [go, gin]`), or block list with `-` prefixes. All forms work and can mix freely across skills. Match is case-insensitive.
+   - OR its directory name obviously corresponds to the token (e.g., `go-foundations/` matches `go`)
+   - OR its `description:` field clearly names the token as in-scope (use this as a last resort — name and `stack:` are more reliable signals)
 
 2. **Plugin/user-global skills** (only if `Skills: global` or unset) — scan the available-skills list surfaced in this session via the Skill tool. Same matching rules. Plugin-shipped skills like `go-foundations`, `go-gin-api`, `db-foundations` count here.
 
@@ -155,7 +158,7 @@ This nudges the developer to set it explicitly without forcing them to.
 
 3. **Concise output:** Three buckets, one line per item. The developer should be able to scan the whole report in under 15 seconds.
 
-4. **Match honestly:** If a skill's `stack:` field doesn't actually list a token, don't claim coverage just because the names look similar. False positives are worse than false negatives — they mask real gaps. When in doubt, report the token as uncovered.
+4. **Match honestly:** When `stack:` is declared, treat it as authoritative — exact match only. When falling back to name correspondence or `description:`, require a clear signal (e.g., `go-foundations/` for the `go` token, or a description that explicitly names the technology). False positives are worse than false negatives — they mask real gaps. When in doubt, report the token as uncovered.
 
 5. **Respect the ignore list:** If a token appears in `Skills ignore:`, do not surface it in any bucket — not even the covered ones. The developer has signaled they don't want it audited.
 

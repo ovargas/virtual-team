@@ -506,7 +506,9 @@ To discover applicable skills, read `stack.md` to identify the technologies in u
 **Matching rules** (apply at both tiers):
 
 - `domain` field — matches the type of work: `api`, `ui`, `data`, `service`. Load if the files you're about to change fall in that domain.
-- `stack` field — a comma-separated list of technologies (e.g., `stack: python, django`). A skill matches if **any** of its entries appears as a technology in `stack.md` (case-insensitive).
+- `stack` field (**optional**) — a list of technologies. Accepts any valid YAML list shape: comma-separated string (`stack: python, django`), inline list (`stack: [python, django]`), or block list with `-` prefixes. All forms work and can mix freely across skills. A skill matches if **any** of its entries appears as a technology in `stack.md` (case-insensitive).
+- **Name correspondence** — when `stack:` is absent, a skill whose directory name obviously corresponds to a stack token still matches (e.g., `go-foundations/` matches `go`). This lets behavioral and pre-built skills participate without forcing every author to maintain a `stack:` field.
+- **Description fallback** — as a last resort, the skill's `description:` field can signal applicability. Use this only when name and `stack:` are both inconclusive — it's the least deterministic signal.
 
 **Collision handling:**
 
