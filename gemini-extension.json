@@ -1,6 +1,6 @@
 {
   "name": "virtual-team",
   "description": "Virtual development team: TDD, debugging, code review, backlog management, and proven workflow patterns",
-  "version": "1.0.0",
+  "version": "1.3.0",
   "contextFileName": "GEMINI.md"
 }
