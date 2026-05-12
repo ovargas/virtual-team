@@ -1,6 +1,6 @@
 ---
 name: subagent-driven-development
-description: Use when /virtual-team:vt-implement --sdd is active — defines orchestration protocol for fresh subagent per task with two-stage review
+description: Use when /virtual-team:implement --sdd is active — defines orchestration protocol for fresh subagent per task with two-stage review
 ---
 
 # Subagent-Driven Development
@@ -9,10 +9,10 @@ description: Use when /virtual-team:vt-implement --sdd is active — defines orc
 
 The orchestrator dispatches, never implements. Fresh subagent per task. Two-stage review, every task.
 
-When `/virtual-team:vt-implement --sdd` is active, the main session becomes an **orchestrator** that never writes code itself. It dispatches implementer subagents, manages review cycles, and tracks progress.
+When `/virtual-team:implement --sdd` is active, the main session becomes an **orchestrator** that never writes code itself. It dispatches implementer subagents, manages review cycles, and tracks progress.
 
 **Use SDD when:** Plans with 5+ tasks, multi-file implementations, complex features.
-**Don't use SDD when:** Small plans (< 3 tasks), quick fixes, single-file changes. Use inline `/virtual-team:vt-implement` instead.
+**Don't use SDD when:** Small plans (< 3 tasks), quick fixes, single-file changes. Use inline `/virtual-team:implement` instead.
 
 ## Wave Analysis
 
@@ -154,7 +154,7 @@ Log the outcome.
 
 Build cumulative scene-setting context including ALL tasks from this wave and all previous waves. Proceed to the next wave.
 
-**After all waves:** Dispatch a final holistic code review across the entire implementation (all tasks combined). Then proceed to the standard `/virtual-team:vt-implement` completion flow (verification, DoD alignment, backlog updates).
+**After all waves:** Dispatch a final holistic code review across the entire implementation (all tasks combined). Then proceed to the standard `/virtual-team:implement` completion flow (verification, DoD alignment, backlog updates).
 
 ## Key Rules
 
@@ -182,5 +182,5 @@ When in doubt, use Sonnet — it's the safe middle ground.
 ## Integration
 
 This skill is loaded by:
-- `/virtual-team:vt-implement` — When `--sdd` flag is active, defines the execution model
-- `/virtual-team:vt-flow` — Propagates `--sdd` to `/virtual-team:vt-implement` when `--deep` is used (SDD is not a direct `/vt-flow` flag — it's implied by `--deep`)
+- `/virtual-team:implement` — When `--sdd` flag is active, defines the execution model
+- `/virtual-team:flow` — Propagates `--sdd` to `/virtual-team:implement` when `--deep` is used (SDD is not a direct `/flow` flag — it's implied by `--deep`)

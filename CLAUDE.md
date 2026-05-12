@@ -5,7 +5,7 @@ This is a Claude Code plugin that provides a virtual development team workflow: 
 ## Repository Structure
 
 ```
-commands/       — Slash commands (/vt-flow, /vt-implement, /vt-commit, etc.)
+commands/       — Slash commands (/flow, /implement, /commit, etc.)
 skills/         — Skills loaded by commands (TDD, git-practices, etc.)
 agents/         — Specialized sub-agents (pattern-finder, security-reviewer, etc.)
 hooks/          — Platform hook scripts (session-start, run-hook.cmd)
@@ -24,6 +24,7 @@ tests/          — Static validation tests (frontmatter, refs, commands)
 - Skills live in `skills/<name>/SKILL.md`
 - Cross-references use root-relative paths (e.g., `skills/git-practices/SKILL.md`, not `.claude/skills/...`)
 - The bootstrap skill is `virtual-team:skill-awareness` — it loads via SessionStart hook
+- For detailed skill authoring rules (size budget, descriptions, reference files, review checklist), see `skills/skill-authoring/SKILL.md`
 
 ## Testing
 

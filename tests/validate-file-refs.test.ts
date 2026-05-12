@@ -61,7 +61,7 @@ function extractFileRefs(content: string): string[] {
     // Skip runtime-generated files (settings.local.json, backlog-index, etc.)
     if (/settings\.local\.json/.test(ref)) continue;
     // Skip docs subdirectories that are created at runtime
-    if (/docs\/(bugs|decisions|documentation|handoffs|proposals|research|validations)\//.test(ref)) continue;
+    if (/docs\/(bugs|decisions|documentation|handoffs|out-of-scope|proposals|research|validations)\//.test(ref)) continue;
     // Skip backlog helper files (created by external backlog skill)
     if (/docs\/backlog-(index|archive)\.md/.test(ref)) continue;
     refs.push(ref);

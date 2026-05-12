@@ -4,7 +4,25 @@
 
 ## Ready
 
+## Doing
+
 ## Done
+- [x] S-035: Add out-of-scope convention with vt-feature/vt-idea pre-check | feature:FEAT-026 — completed on main
+- [x] S-034: Pre-fill ADR Alternatives Considered from rejected design proposals | feature:FEAT-025 — completed on main
+- [x] S-033: Add convergence detection and graceful skip for design alternatives | feature:FEAT-025 — completed on main
+- [x] S-032: Add Phase 1.5 Design Alternatives to vt-plan with parallel architect dispatch | feature:FEAT-025 — completed on main
+- [x] S-031: Create architecture-vocabulary skill and integrate into vt-tech-review | feature:FEAT-024 — completed on main
+- [x] S-030: Create token-efficient skill and register in skill-awareness | feature:FEAT-023 — completed on main
+- [x] S-029: Unify inline ADR templates in vt-start and vt-epic by replacing with skill references | feature:FEAT-022 — completed on main
+- [x] S-028: Add light ADR prompt to vt-feature and passive ADR tagging to vt-tech-review | feature:FEAT-022 — completed on main
+- [x] S-027: Add active ADR prompt to vt-plan with --auto suppression | feature:FEAT-022 — completed on main
+- [x] S-026: Create adr-convention skill and backfill ADR-001/002/003 | feature:FEAT-022 — completed on main
+- [x] S-025: Create vt-grill command with decision-tree walking and CONTEXT.md integration | feature:FEAT-021 — completed on main
+- [x] S-024: Create domain-glossary skill and integrate into pipeline commands | feature:FEAT-020 — completed on main
+- [x] S-023: Create skill-authoring meta-skill and update CLAUDE.md | feature:FEAT-019 — completed on main
+- [x] S-022: Rewrite vt-debug Phase 1 as feedback-loop-first | feature:FEAT-018 — completed on main
+- [x] S-021: Insert hypothesize-before-trace phase into vt-debug | feature:FEAT-017 — completed on main
+- [x] S-020: Add horizontal slicing anti-pattern and split TDD skill into reference files | feature:FEAT-016 — completed on main
 - [x] S-019: Add cost transparency and stack skill size guidance | feature:FEAT-015 — completed on main
 - [x] S-018: Reinforce lazy domain skill loading in /implement and subagent dispatch | feature:FEAT-015 — completed on main
 - [x] S-017: Extract bug-fix pipeline from flow.md into conditional file | feature:FEAT-015 — completed on main
