@@ -41,6 +41,26 @@ You only need **5 commands** for daily work:
 
 That's it. Everything else is optional.
 
+### Working with an existing codebase?
+
+If your project has been around for years and you're adopting this plugin retroactively, the workflow is the same — but you'll spend the first few sessions **documenting what already exists** rather than deciding fresh. **Nothing in your code changes during onboarding.** The plugin only adds documentation (`stack.md`, `docs/`) alongside your existing code.
+
+Run this sequence the first time you open the repo:
+
+| # | Command | Why |
+|---|---------|-----|
+| 1 | `/virtual-team:start` | Generates `stack.md` from what already exists. It reads `go.mod` / `package.json` / `pyproject.toml` / etc. and pre-fills the interview — you confirm what's there instead of deciding from scratch. Anything genuinely inconsistent across the codebase gets marked `TBD` and resolved later when a feature touches it. |
+| 2 | `/virtual-team:doctor` | Audits `stack.md` against available skills. Surfaces which technologies in your stack have no coding-convention skill yet — so you know where the LLM will be working without guardrails. Read-only, never blocks. (Runs once automatically at the end of `/start`; re-run after editing `stack.md`.) |
+| 3 | `/virtual-team:tech-review` | Baseline health reading — architecture drift, technical debt, dependency health, test coverage and security gaps. Output goes to `docs/reviews/` and becomes your first backlog candidates. Skip if you don't need an audit. |
+| 4 | `/virtual-team:docs` | Captures the tribal knowledge — setup guide, deploy guide, config reference — that's lived in people's heads. Years-old projects rarely have current docs. |
+| 5 | `/virtual-team:flow <new feature>` | Resume normal workflow. From here, every new feature uses the full pipeline; old code stays as-is until you touch it. |
+
+A few tips specific to legacy code:
+
+- **Don't retrofit conventions everywhere.** The plugin grows consistency at the edges where work happens. Trying to make the entire codebase match `stack.md` before any feature work is a death march.
+- **Set `tdd: recommended`, not `strict`.** Legacy code often can't be test-driven without large refactors. `recommended` mode (in `stack.md` Workflow section) lets the TDD skill adapt instead of blocking.
+- **Capture decisions just-in-time.** When you hit a "why on earth did we do X" moment during feature work, write an ADR in `docs/decisions/` then. Don't backfill every historical decision upfront — only record ones that are hard to reverse, surprising without context, AND a real trade-off.
+
 ## Daily Workflow
 
 ### Start your day
