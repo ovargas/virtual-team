@@ -672,6 +672,25 @@ After the spec is approved:
    - Stories for different services → separate groups (different repos)
    - A single standalone story → its own group (solo branch)
 
+   **Title format:**
+   - Each story title is **3-10 words**, imperative verb first (e.g., `Add reviews migration`, `Wire review module factory`, `Expose review endpoints`).
+   - **Hard ceiling: 80 characters.** The `create(items)` operation rejects longer titles — this is enforced by the backlog skill, not optional.
+   - **No implementation detail in the title** — no file paths, code fragments, config keys, error code lists, schema definitions, or `+ … + …` chains. Implementation lives in the spec file (linked via the `spec:` tag), and detailed task breakdown lives in the plan.
+   - The title exists so a human scanning `docs/backlog.md` can recognize the story at a glance. If a reader can't tell what the story does from the title in one second, it's the wrong title.
+
+   **Good:**
+   ```
+   - [ ] S-010: Add reviews migration | feature:FEAT-017 | group:1 | order:1 | service:be
+   - [ ] S-011: Wire review module factory | feature:FEAT-017 | group:1 | order:2 | service:be
+   - [ ] S-012: Expose review endpoints | feature:FEAT-017 | group:1 | order:3 | service:be
+   ```
+
+   **Bad — dumps implementation into the title:**
+   ```
+   - [ ] S-010: migration `0000012_reviews.{up,down}.sql` (`reviews` table — PK `booking_id`, FK→bookings/looks/users, rating SMALLINT CHECK 1..5, comment TEXT length<=4000…) + `internal/config/review.go` (REVIEW_WINDOW_DAYS=30…) wired into Config.Validate() + new internal/review/ module + handler + tests | feature:FEAT-017 …
+   ```
+   ⛔ This belongs in the spec, not the title. A backlog reader can't scan it, the line is unreadable in any editor, and the same content already lives in the spec and plan.
+
    ```
    Here's how I'd break this into stories:
 

@@ -80,6 +80,12 @@ Add new items to the backlog in ready status.
 
 **Parameters:** List of items, each with: id, title, feature, group, order, service, spec path.
 
+**Title contract:**
+- `title` must be **≤ 80 characters** — implementations MUST reject longer titles and surface the error to the caller. This is part of the backlog interface, not a soft suggestion.
+- `title` should be an imperative verb phrase describing the capability (e.g., `Add reviews migration`, `Wire review module factory`, `Expose review endpoints`).
+- Implementation detail (file paths, schema definitions, config keys, code fragments) belongs in the spec file referenced by `spec:` — not in the title.
+- Rationale: the title is the scanning surface for `list()` operations. Long titles destroy readability of `docs/backlog.md` and any external tracker UI; the spec link exists so detail has a proper home.
+
 **Behavior:**
 - Items are created in **ready** status
 - Items are placed in the Ready section/state, ordered by group then order number

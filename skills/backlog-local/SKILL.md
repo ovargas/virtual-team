@@ -88,14 +88,26 @@ Items are ordered within sections. `## Ready` items are in priority order (top =
 
 ### create(items)
 
-1. Read `docs/backlog.md`
-2. Find the `## Ready` section (create it if it doesn't exist — place between `## Doing` and `## Inbox`, or at the top)
-3. For each item, append a line in this format:
+1. **Validate each item's title (enforces the abstract `backlog/SKILL.md` title contract):**
+   - Measure `len(title)` — the title string only, excluding the `S-NNN: ` prefix and the ` | tag:value` suffix that gets appended at write time.
+   - If `len(title) > 80`, **abort immediately**. Do not write any item to the file (not even the valid ones — fail the whole batch so the caller fixes the source). Surface this error to the caller:
+     ```
+     ⛔ Story title too long: {N} chars (max 80) for {id}.
+        Title: "{title[:60]}..."
+
+        Rewrite as a short imperative verb phrase (e.g., "Add reviews migration",
+        "Wire review module factory"). Implementation detail — file paths, schema,
+        config keys, code fragments — belongs in the spec file referenced by spec:,
+        not the title.
+     ```
+2. Read `docs/backlog.md`
+3. Find the `## Ready` section (create it if it doesn't exist — place between `## Doing` and `## Inbox`, or at the top)
+4. For each item, append a line in this format:
    ```
    - [ ] {id}: {title} | feature:{feature_id} | group:{group} | order:{order} | service:{service} | spec:{spec_path}
    ```
-4. Write the updated file
-5. **Do not commit** — the calling command handles the commit (usually grouped with the feature spec commit)
+5. Write the updated file
+6. **Do not commit** — the calling command handles the commit (usually grouped with the feature spec commit)
 
 ### start(id)
 
