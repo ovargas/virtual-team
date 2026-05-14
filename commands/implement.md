@@ -259,10 +259,27 @@ No presentation step — just do it.
 ### For Each Phase
 
 1. **Announce the phase:**
+
+   Always prepend a status line so the founder can see at a glance that an `/virtual-team:implement` run is still driving the session (vs. free-form chat). Format:
+
    ```
+   [implement <ID> · phase <N>/<total> · <mode>]
    ## Phase [N]: [Phase Name]
    [Overview from the plan]
    ```
+
+   - `<ID>` — the FEAT/BUG/story identifier being implemented (e.g., `FEAT-003`). If implementing a bare plan path with no ID, use the plan filename stem.
+   - `<N>/<total>` — current phase index and total phase count from the plan (e.g., `2/4`).
+   - `<mode>` — a compact flag summary. Default `interactive`. If `--auto` is active: `auto`. If `--sdd`: this section does not apply (SDD has its own protocol). Combine with `·` when multiple flags are present (e.g., `auto · deep`).
+
+   Example:
+   ```
+   [implement FEAT-003 · phase 2/4 · interactive]
+   ## Phase 2: Add API endpoint
+   Wire POST /api/users to the registration service.
+   ```
+
+   This status line is required at the start of every phase, including after resumes from `--phase=N` and after returning from a manual pause point. It does not apply to Level 2 or Level 3 runs (they execute as a single phase with no boundaries).
 
 2. **Execute each step in the phase:**
    - Read the plan step carefully
