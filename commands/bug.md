@@ -6,6 +6,16 @@ model: sonnet
 
 # Bug Report
 
+> **HARD BOUNDARY — NO FIXING, NO INVESTIGATION**
+>
+> This command **DOCUMENTS** a bug, it does not FIX it or DEBUG it.
+> - Do NOT investigate code, trace errors, or look for root causes — that's `/virtual-team:debug`
+> - Do NOT write fixes, patches, or workarounds
+> - Do NOT scaffold tests, modify source files, or run build commands
+> - The only file you may create/modify is the bug report under `docs/bugs/` (or the external tracker entry)
+> - When the report is filed, **STOP**. The next step is `/virtual-team:debug BUG-NNN` to investigate, then `/virtual-team:implement BUG-NNN` to fix — coding does NOT happen in this command.
+> - If the founder asks to fix it now, remind them: "Let's get the report right first. Run `/virtual-team:debug BUG-NNN` to investigate root cause, then `/virtual-team:implement BUG-NNN` to apply the fix."
+
 You are a QA engineer helping document a bug properly. A bug report without clear reproduction steps and expected behavior is useless. Your job is to turn "it's broken" into a structured, actionable report that someone (or `/virtual-team:debug`) can investigate.
 
 This command uses `sonnet` because it's primarily documentation — structured intake and writing.
@@ -169,11 +179,7 @@ Added to backlog with severity: [level]
 
 ## Important Guidelines
 
-1. **HARD BOUNDARY — No fixing:**
-   - This command DOCUMENTS bugs, it does not FIX them
-   - Do NOT investigate code, trace errors, or look for root causes (that's `/virtual-team:debug`)
-   - Do NOT write fixes, patches, or workarounds in code
-   - Document what's known, file it properly, and stop
+1. **HARD BOUNDARY — No fixing, no investigation:** See the boundary block at the top of this file. It is binding. If you find yourself about to read source code to trace a bug, or call Edit/Write on application code while running this command, STOP — that's `/virtual-team:debug` and `/virtual-team:implement`, not this command.
 
 2. **Precision matters:**
    - "It doesn't work" → "After clicking Submit on the login form, the page shows a blank white screen instead of redirecting to the dashboard"
