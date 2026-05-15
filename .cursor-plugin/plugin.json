@@ -2,7 +2,7 @@
   "name": "virtual-team",
   "displayName": "Virtual Team",
   "description": "Virtual development team workflows: TDD, debugging, code review, backlog management, and proven workflow patterns",
-  "version": "1.3.3",
+  "version": "1.3.4",
   "author": {
     "name": "Orlando Vargas",
     "email": "ovargas@gmail.com"

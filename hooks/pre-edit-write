@@ -1,0 +1,105 @@
+#!/usr/bin/env bash
+# PreToolUse hook for virtual-team plugin
+# Fires before Edit|Write tool calls; reads stack.md `tdd:` field and emits
+# either an advisory nudge, a blocking message, or a silent no-op depending on
+# the configured mode. Never blocks if stack.md is absent or tdd: is off.
+
+set -euo pipefail
+
+# --- I/O scaffolding (do not modify) -----------------------------------------
+
+input=$(cat)
+
+# Extract file_path from the tool input JSON via grep+sed (avoids jq dependency).
+file_path=$(printf '%s' "$input" \
+  | grep -Eo '"file_path"[[:space:]]*:[[:space:]]*"[^"]+"' \
+  | head -n1 \
+  | sed -E 's/.*"file_path"[[:space:]]*:[[:space:]]*"([^"]+)"/\1/')
+
+# No file_path → not our concern.
+[ -z "$file_path" ] && exit 0
+
+# Skip test files themselves (prevents nudge-on-test-edit recursion).
+case "$file_path" in
+  *test*|*spec*|*__tests__*|*.test.*|*.spec.*) exit 0 ;;
+esac
+
+# Locate stack.md (consumer project root, then docs/). Silent no-op if absent.
+stack_md=""
+for candidate in "./stack.md" "./docs/stack.md"; do
+  if [ -f "$candidate" ]; then stack_md="$candidate"; break; fi
+done
+[ -z "$stack_md" ] && exit 0
+
+# Parse the `tdd:` field. Default to "recommended" if missing (matches the
+# TDD skill's documented default in skills/test-driven-development/SKILL.md:10).
+tdd_mode=$(grep -E '^[[:space:]]*tdd:' "$stack_md" 2>/dev/null \
+  | head -n1 \
+  | sed -E 's/^[[:space:]]*tdd:[[:space:]]*([a-zA-Z]+).*/\1/' \
+  | tr '[:upper:]' '[:lower:]')
+tdd_mode="${tdd_mode:-recommended}"
+
+emit() {
+  local msg="$1"
+  local decision="${2:-}"  # "block" or empty for advisory
+
+  # PreToolUse uses permissionDecision: "deny" to block, omitted to allow with context.
+  if [ "$decision" = "block" ]; then
+    if [ -n "${CURSOR_PLUGIN_ROOT:-}" ]; then
+      printf '{\n  "permission": {"decision": "deny", "reason": "%s"}\n}\n' "$msg"
+    elif [ -n "${CLAUDE_PLUGIN_ROOT:-}" ] && [ -z "${COPILOT_CLI:-}" ]; then
+      printf '{\n  "hookSpecificOutput": {\n    "hookEventName": "PreToolUse",\n    "permissionDecision": "deny",\n    "permissionDecisionReason": "%s"\n  }\n}\n' "$msg"
+    else
+      printf '{\n  "decision": "block",\n  "reason": "%s"\n}\n' "$msg"
+    fi
+  else
+    if [ -n "${CURSOR_PLUGIN_ROOT:-}" ]; then
+      printf '{\n  "additional_context": "%s"\n}\n' "$msg"
+    elif [ -n "${CLAUDE_PLUGIN_ROOT:-}" ] && [ -z "${COPILOT_CLI:-}" ]; then
+      printf '{\n  "hookSpecificOutput": {\n    "hookEventName": "PreToolUse",\n    "additionalContext": "%s"\n  }\n}\n' "$msg"
+    else
+      printf '{\n  "additionalContext": "%s"\n}\n' "$msg"
+    fi
+  fi
+}
+
+# --- Decision logic (YOUR 5–10 lines go here) --------------------------------
+#
+# You have three variables in scope:
+#   $tdd_mode   → "strict" | "recommended" | "off"   (lowercased, defaulted)
+#   $file_path  → the file Claude is about to Edit/Write (non-test file)
+#   $stack_md   → path to the resolved stack.md
+#
+# You have one helper:
+#   emit "message"          → advisory context, does NOT block
+#   emit "message" block    → hard-blocks the Edit/Write with that reason
+#
+# Reference behavior from skills/test-driven-development/SKILL.md:10-18:
+#   strict      = iron law, no production code without a failing test
+#   recommended = TDD expected, warn but proceed
+#   off         = stop reading; no enforcement
+#
+# TODO: implement the case branches below.
+
+case "$tdd_mode" in
+  strict)
+    # TODO: emit a blocking message reminding Claude to write a failing test
+    # first. Reference $file_path so the message is specific.
+    :
+    ;;
+  recommended)
+    # TODO: emit an advisory nudge (no block) about loading the TDD skill
+    # before editing $file_path.
+    :
+    ;;
+  off)
+    # No-op. TDD enforcement is disabled for this project.
+    :
+    ;;
+  *)
+    # Unknown mode — fail open (no-op) rather than block on a typo.
+    :
+    ;;
+esac
+
+exit 0
