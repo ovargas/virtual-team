@@ -45,8 +45,9 @@ Return backlog items matching the filter criteria.
 - `feature` — feature ID (e.g., `FEAT-005`)
 - `service` — service tag (e.g., `be`, `fe`)
 - `group` — group number within a feature
+- `plan` — plan path (items linked to that plan via `link_plan`)
 
-**Returns:** List of items, each with: id, title, status, feature, group, order, service, spec path.
+**Returns:** List of items, each with: id, title, status, feature, group, order, service, spec path, plan path (if linked).
 
 ### get(id)
 
@@ -91,6 +92,19 @@ Add new items to the backlog in ready status.
 - Items are placed in the Ready section/state, ordered by group then order number
 - This is called by `/virtual-team:feature` during story breakdown
 
+### link_plan(ids, plan_path)
+
+Record which implementation plan covers a set of items.
+
+**Parameters:**
+- `ids` — the story IDs the plan covers (every story of the feature, or only the group the plan was written for)
+- `plan_path` — e.g., `docs/plans/2026-02-12-task-notifications.md`
+
+**Behavior:**
+- Store the plan path on each item, replacing any earlier link
+- Called by `/virtual-team:plan` after approval — the caller commits the change together with the plan
+- `complete()` reads this link to know when a plan has been fully executed
+
 ### start(id)
 
 Move an item from ready to doing.
@@ -122,9 +136,11 @@ Mark an item as done.
 - `reference` — PR number (branch flow) or "completed on main" (direct flow)
 
 **Behavior:**
-- Change item status: doing → done (direct flow) or implemented → done (branch flow)
+- Change item status: doing → done (direct flow) or implemented → done (branch flow). An item still in ready is completed too — a skipped earlier transition never blocks completion.
 - Add reference (PR number or "on main") to the item
-- Check if all stories for the parent feature are done — if yes, update the feature spec status
+- Update the parent document: when every story of the parent feature is done, set the feature spec to `status: done`; for a bug item, set the bug report to `status: fixed`
+- Close the plan: when every item linked to the same plan is done, set that plan to `status: done`. An item with no plan link falls back to the plan named in its feature spec, closed together with the spec.
+- Verify the item, the parent document, and the plan show the new status before committing
 
 ---
 

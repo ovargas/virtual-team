@@ -52,7 +52,7 @@ When this command is invoked:
      - If a story is `doing` → continue from the in-progress story
      - If some stories are `done` and some are `ready` → pick the first `ready` story (resume from where left off, by `order:N`)
      - If all stories are `ready` → start from the first story (lowest `order:N`), call **`start(id)`** to mark it doing
-   - Read the feature spec and find/read the implementation plan in `docs/plans/`
+   - Read the feature spec and the implementation plan — the plan path linked to the story, or else the spec's `plan:` frontmatter
 
    **If a plan path was provided:**
    - Read the plan directly
@@ -76,13 +76,14 @@ When this command is invoked:
      - Present via `AskUserQuestion`
 
    **Status handling for the selected item:**
+   - If the item is `ready`: call **`start(id)`** before any code change, whichever path above selected it (argument, plan path, or picker).
    - If the item is marked as Implemented (`[=]`):
      - **If on a feature branch → STOP:**
        ```
        ✅ This story is already implemented (marked [=] in the backlog).
        It's waiting for a PR. Run `/virtual-team:pr` to commit and create the pull request.
        ```
-     - **If on main/master/develop:** Fix stale status: update `[=]` to `[x]`, update the feature spec status if all stories are done, and commit. Then **STOP:**
+     - **If on main/master/develop:** Fix stale status: call **`complete(id, 'completed on main')`**. Then **STOP:**
        ```
        ✅ This story was already implemented. Fixed stale status: [=] → [x].
        Nothing to implement. Run `/virtual-team:implement` to pick up more work.
@@ -115,6 +116,7 @@ When this command is invoked:
      update the plan's frontmatter to `status: approved` if you've already
      reviewed it.
      ```
+   - If `status: done` → the plan was already fully executed, so it does not cover the selected story (typically a gap story added after the plan closed). Say so and continue as Level 2 (planless) for this story.
    - Do NOT proceed with implementation on an unapproved plan. This is not optional.
 
    **Level 2 (Standard) — Plan not required, inline analysis instead:**
@@ -338,7 +340,7 @@ No presentation step — just do it.
 
 After completing all phases for the current story within a multi-story feature:
 
-1. **Update the backlog** — call **`complete(id, reference)`** to mark the current story done (see "After All Phases" below for branch-aware behavior)
+1. **Update the backlog** — on a feature branch call **`mark_implemented(id)`** (`/virtual-team:pr` completes it); on main/master/develop call **`complete(id, 'completed on main')`**. Same branch rule as "After All Phases" below.
 2. **Check for remaining stories** — call **`list(feature=FEAT-NNN, status=ready)`** to find remaining stories
 3. **If more stories exist:**
    - Announce: "Story [id] complete. Advancing to next story: [next_id] — [title]"
@@ -374,6 +376,7 @@ After completing all phases for the current story within a multi-story feature:
 3. **Update the plan document:**
    - Mark completed phases with checkmarks
    - Note any deviations from the plan with brief explanations
+   - Leave the frontmatter `status:` alone — `complete()` sets it to `done` once every story linked to the plan is done
 
 4. **Update the backlog (branch-aware):**
 
@@ -383,7 +386,7 @@ After completing all phases for the current story within a multi-story feature:
    ```
 
    **If on a feature branch (not main/master/develop)** — PR flow:
-   - Call **`mark_implemented(id)`** — this updates the item status from doing to implemented (pending PR) and commits the change
+   - Call **`mark_implemented(id)`** for any story of this run not yet marked by Story Advancement — this updates the item status from doing to implemented (pending PR) and commits the change
    - The implemented status means: code is done, tests pass, but it hasn't been committed/PR'd yet
 
    **If on main/master/develop** — direct completion (no PR coming):

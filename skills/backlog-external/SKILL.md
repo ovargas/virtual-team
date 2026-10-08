@@ -171,6 +171,12 @@ For each item:
 | S-011 | #43 | FEAT-005 | ready |
 ```
 
+### link_plan(ids, plan_path)
+
+**Intent:** Record which implementation plan covers a set of items.
+
+- Add `Plan: {plan_path}` to each issue's description, next to the spec link (replace an earlier one)
+
 ### start(id)
 
 **Intent:** Move an item from ready to doing.
@@ -194,7 +200,8 @@ For each item:
 - Move the issue to the `done` state in the external service
 - Add comment with PR reference: "Completed — PR #{number}" or "Completed on main"
 - Update local index
-- Check feature completion: if all stories for the feature are done, update the feature spec status
+- Update the parent document: if all stories for the feature are done, set the feature spec to `status: done`; for a bug item, set the bug report to `status: fixed`
+- Close the plan: if every item linked to the same plan is done, set that plan to `status: done` (no plan link: close the spec's plan together with the spec)
 
 ---
 

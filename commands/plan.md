@@ -600,7 +600,9 @@ After the plan is approved:
 
 1. **Update the feature spec** frontmatter to add `plan: docs/plans/YYYY-MM-DD-feature-name.md`
 2. **Update the backlog** via the backlog skill — move the feature's stories to a clear "ready for implementation" state, now that the plan exists
-3. **Note the plan in each story's reference** so `/virtual-team:implement` can find it later
+3. **Link the plan to its stories** — call **`link_plan(ids, plan_path)`** with the stories this plan covers (every story of the feature, or only the group the plan was written for). `/virtual-team:implement` finds the plan through this link.
+
+**Plan status lifecycle:** `draft` → `approved` (this command) → `done`. The last step is not set here: the backlog's `complete()` operation sets `status: done` once every story linked to the plan is done.
 
 ---
 

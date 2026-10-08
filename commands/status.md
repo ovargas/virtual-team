@@ -250,6 +250,8 @@ While reading the project state, flag anything that looks off:
 
 - **Stuck work:** Something in Doing (`[>]`) for more than a few days with no handoff or progress
 - **Implemented but not PR'd:** Items marked `[=]` (implemented) — remind the founder to run `/virtual-team:pr` to ship them. **Note:** If the work was done on main (no feature branch), `[=]` should not appear — `/virtual-team:implement` goes directly to `[x]`. If you see `[=]` on main, flag it as a status inconsistency and suggest updating to `[x]`.
+- **Misfiled items:** An item whose status and backlog section disagree (e.g., done but still listed under Ready or Doing) — offer to re-file it
+- **Stale document status:** Every story of a feature is done but the spec is not `status: done`, or a done bug's report is not `status: fixed`, or a plan is still `status: approved` although every story it covers is done — offer to update the frontmatter
 - **Orphaned stories:** Stories in the backlog that don't link to a feature spec
 - **Missing plans:** Features with stories in Ready but no implementation plan
 - **Stale specs:** Feature specs in draft status for more than 2 weeks

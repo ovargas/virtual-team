@@ -20,12 +20,16 @@ This skill implements the backlog interface using a local markdown file. It is t
 
 ## Status Markers
 
-| Status | Marker | Example |
-|---|---|---|
-| ready | `[ ]` | `- [ ] S-003: Story title \| feature:FEAT-005 \| group:1 \| order:1` |
-| doing | `[>]` | `- [>] S-003: Story title` |
-| implemented | `[=]` | `- [=] S-003: Story title — implemented, pending PR` |
-| done | `[x]` | `- [x] S-003: Story title — PR #42` |
+| Status | Marker | Section | Example |
+|---|---|---|---|
+| ready | `[ ]` | `## Ready` | `- [ ] S-003: Story title \| feature:FEAT-005 \| group:1 \| order:1` |
+| doing | `[>]` | `## Doing` | `- [>] S-003: Story title \| feature:FEAT-005 \| ...` |
+| implemented | `[=]` | `## Doing` | `- [=] S-003: Story title — implemented, pending PR \| feature:FEAT-005 \| ...` |
+| done | `[x]` | `## Done` | `- [x] S-003: Story title — PR #42 \| feature:FEAT-005 \| ...` |
+
+**Marker and section always agree.** Every status change does two things: rewrite the marker, and move the whole line under the matching heading (create the heading if it is missing). A `[x]` line left under `## Ready` is a failed transition — the item still reads as ready to anyone scanning the file.
+
+**Tags survive every transition.** Keep each ` | tag:value` on the line; status notation (`— PR #42`) goes right after the title, before the first ` | `. Feature progress is counted from the `feature:` tag, so a line that loses it drops out of its feature.
 
 ## Backlog File Structure
 
@@ -63,6 +67,7 @@ Items are ordered within sections. `## Ready` items are in priority order (top =
    - `feature`: match `feature:FEAT-NNN` tag
    - `service`: match `service:xx` tag
    - `group`: match `group:N` tag
+   - `plan`: match `plan:{plan_path}` tag
 4. Return matching items with all parsed metadata
 
 ### get(id)
@@ -109,12 +114,19 @@ Items are ordered within sections. `## Ready` items are in priority order (top =
 5. Write the updated file
 6. **Do not commit** — the calling command handles the commit (usually grouped with the feature spec commit)
 
+### link_plan(ids, plan_path)
+
+1. Read `docs/backlog.md`
+2. For each ID, find the item line and append ` | plan:{plan_path}` — or replace the value if the line already has a `plan:` tag
+3. Write the updated file
+4. **Do not commit** — the calling command commits it together with the plan
+
 ### start(id)
 
 1. Read `docs/backlog.md`
 2. Find the item line with the matching ID
 3. Change `- [ ]` to `- [>]`
-4. Update notation: `- [>] {id}: {title}`
+4. Move the line to the end of `## Doing`
 5. Commit:
    ```bash
    git add docs/backlog.md
@@ -125,9 +137,10 @@ Items are ordered within sections. `## Ready` items are in priority order (top =
 
 1. Read `docs/backlog.md`
 2. Find the item line
-3. Change `- [>]` to `- [=]`
-4. Update notation: `- [=] {id}: {title} — implemented, pending PR`
-5. Commit:
+3. Change `- [>]` (or `- [ ]`, if `start` never ran) to `- [=]`
+4. Add notation after the title: `— implemented, pending PR`
+5. Move the line under `## Doing` if it is not already there
+6. Commit:
    ```bash
    git add docs/backlog.md
    git commit -m "chore(backlog): mark {id} implemented, pending PR"
@@ -136,15 +149,21 @@ Items are ordered within sections. `## Ready` items are in priority order (top =
 ### complete(id, reference)
 
 1. Read `docs/backlog.md`
-2. Find the item line
-3. Change `[>]` or `[=]` to `[x]`
-4. Update notation:
-   - Branch flow: `- [x] {id}: {title} — PR #{number}`
-   - Direct flow: `- [x] {id}: {title} — completed on main`
-5. Check if all stories for this feature are now `[x]`. If yes, update the feature spec's `status:` frontmatter to `done`.
-6. Commit:
+2. Find the item line. Any open marker qualifies: `[ ]`, `[>]`, or `[=]`. An item whose work shipped without `start` having run is completed, never skipped. If it is already `[x]`, still run steps 4–7 — they repair a half-finished transition.
+3. Change the marker to `[x]`
+4. Set the notation after the title, replacing `— implemented, pending PR` if present:
+   - Branch flow: `— PR #{number}`
+   - Direct flow: `— completed on main`
+5. Move the line to the end of `## Done`
+6. Update the `status:` frontmatter of the documents the item belongs to:
+   - **Story** (has a `feature:` tag): call list(feature, status=all). If every item is now `[x]`, set the feature spec (the `spec:` path) to `status: done`, whatever it says today (`draft`, `ready`, `in progress`). If some items are still open, leave it.
+   - **Bug** (`BUG-NNN`): set the bug report (the `bug:` path, or the file in `docs/bugs/` with that `id:`) to `status: fixed`.
+   - **Plan** (has a `plan:` tag): call list(plan, status=all). If every item linked to that plan is now `[x]`, set the plan to `status: done`. With no `plan:` tag, close the plan named in the spec's `plan:` frontmatter only when the spec itself was just set to done.
+   - No such document: skip.
+7. Verify by re-reading every file touched before committing: the line is `[x]` under `## Done`, no copy of it remains in another section, and each document's `status:` matches step 6. Fix any miss now.
+8. Commit:
    ```bash
-   git add docs/backlog.md docs/features/{feature_file}
+   git add docs/backlog.md {parent_document} {plan}
    git commit -m "chore(backlog): complete {id}"
    ```
 

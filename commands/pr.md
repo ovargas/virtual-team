@@ -239,14 +239,26 @@ gh pr create --base develop --title "<title>" --body "..."
 
 1. Load the backlog skill (read `stack.md` → backlog interface → implementation).
 
-2. Call **`complete(id, pr_number)`** for each implemented story on this branch — this marks items as done with the PR reference. The operation handles:
+2. **Identify the stories this PR ships.** Call **`list(feature=<ticket>, status=all)`** for the branch's FEAT ID (for a BUG or single-story branch, **`get(id)`**). The ship set is:
+   - every item in `implemented` or `doing`, and
+   - any `ready` item whose work is on this branch (its ID appears in the branch commits, or its plan phase is checked off) — it shipped without its status ever moving.
+
+   Stories of a later group that this branch did not touch stay `ready`.
+
+   **If the ship set is empty → STOP** and report it. Do not skip this step silently: the backlog would still show the work as open after the merge.
+
+3. Call **`complete(id, pr_number)`** for each story in the ship set. The operation handles:
    - Marking the item as done with PR reference
-   - Checking feature completion status
+   - Updating the parent document status (feature spec → `done` once all its stories are done, bug report → `fixed`)
+   - Closing the plan (`approved` → `done`) once every story linked to it is done
    - Committing all changes
 
-3. **Push the new commit** so the PR includes it:
+4. **Verify.** Call **`list(feature=<ticket>, status=all)`** again: every story in the ship set is `done`, and the `status:` of the parent document and of the plan match. Fix any miss before pushing.
+
+5. **Push the new commits** so the PR includes them, then confirm nothing is left behind:
    ```bash
    git push
+   git status -sb   # must not show "ahead" — an unpushed backlog commit does not merge with the PR
    ```
 
 **Why on the branch, not main:** When the PR merges, the backlog updates land on main together with the code. Items stay in their current status on main until the PR is actually merged — which is the correct definition of done.
@@ -322,6 +334,8 @@ gh pr create --base develop --title "<title>" --body "..."
 
 **Backlog updated (included in PR):**
 - **Stories marked Done:** [list each story, e.g., S-001, S-002, S-003]
+- **Spec status:** [FEAT-NNN → done | unchanged — N stories still open | BUG-NNN → fixed]
+- **Plan status:** [plan path → done | unchanged — N linked stories still open | no plan]
 - **Locks released:** ✅ [branch-name] unlocked
 - These changes merge with the code when the PR lands
 
