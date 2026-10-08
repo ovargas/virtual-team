@@ -1,6 +1,6 @@
 {
   "name": "virtual-team",
-  "version": "1.7.1",
+  "version": "1.8.0",
   "description": "Virtual development team: TDD, debugging, code review, backlog management, and proven workflow patterns",
   "type": "module",
   "main": ".opencode/plugins/virtual-team.js",

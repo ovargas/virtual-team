@@ -1,6 +1,6 @@
 {
   "name": "virtual-team",
-  "version": "1.7.1",
+  "version": "1.8.0",
   "description": "Virtual development team workflows for TDD, planning, implementation, review, and delivery",
   "author": {
     "name": "Orlando Vargas",
