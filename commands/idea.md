@@ -163,6 +163,7 @@ Do the research yourself using WebSearch:
 1. **Competitors:** Search for existing solutions, check pricing, features, and user complaints
 2. **Market context:** Look for demand signals, trends, market size if relevant
 3. **Product assessment:** Apply your product knowledge — is there demand? Who are the competitors? What's the gap? What's the biggest risk?
+4. **Policy scan:** Load `virtual-team:policy-risk` and scan the business model: how money flows, where the product is distributed, who the users are, and what data it needs. This is the cheapest moment to learn that, for example, paying providers requires a marketplace payments product, or that selling digital content in an iOS app requires IAP and its commission.
 
 Present findings concisely:
 
@@ -177,6 +178,8 @@ Here's what I found:
 - [Market opportunity]
 - [Early adopter profile]
 - [Biggest risk]
+
+**Policy risks:** [Blockers and Must-address items, each with its source, or "No triggers"]
 
 **Common patterns:**
 - [Pattern observed across solutions]
@@ -194,7 +197,7 @@ Spawn agents for comprehensive investigation (max 2):
 
 2. **Spawn virtual-team:web-researcher** agent: "Research competitors, market size, user discussions, and technical feasibility for [idea]. Check Product Hunt, G2, Reddit, forums. For each competitor: features, pricing, user complaints, gaps."
 
-Wait for both agents to return.
+Wait for both agents to return. Then run the policy scan (default-mode step 4) yourself. If it hits payments or store distribution, spawn **virtual-team:policy-risk-reviewer** instead: "Scan this business model for policy risks: [money flow, distribution, audience, data]. Follow skills/policy-risk/SKILL.md."
 
 **Synthesize:** The PO agent's analysis is the backbone. Web-researcher findings provide supporting evidence. Present the PO's recommendation prominently.
 
@@ -315,6 +318,10 @@ appetite: [time budget chosen]
 
 **Biggest risk:** [The single most dangerous assumption]
 
+## Policy & Compliance Risks
+
+[Table from skills/policy-risk/SKILL.md, or "Policy scan: no triggers". Blockers here shape the business model. Resolve them before /feature.]
+
 ## Business Model
 
 [How this makes money, or how it will eventually. Keep it simple for MVP.]
@@ -350,13 +357,14 @@ The founder's original description: "[Original idea text as first provided]"
    Scope of positive-framing:
    - DO transform: Problem Statement, Value Proposition (Before/After block),
      MVP Scope Must Have bullets, Open Questions narrative.
-   - DO NOT alter: "Not Doing" section, Risks and Assumptions table, Current
-     Alternatives table, Business Model section, frontmatter, headers.
+   - DO NOT alter: "Not Doing" section, Risks and Assumptions table, Policy &
+     Compliance Risks table, Current Alternatives table, Business Model
+     section, frontmatter, headers.
    ```
 
    No `--target-role` applies in `/idea` — apply the catalog uniformly without Voice Profile constraints. If a future feature adds `--lang` support to `/idea`, positive-framing must run before translation (same ordering invariant as `/proposal`'s Editorial Pipeline).
 
-   After the skill returns, verify "Not Doing", Risks, Assumptions, Current Alternatives, and Business Model are byte-identical to the pre-framing draft. If any were altered, restore from the draft.
+   After the skill returns, verify "Not Doing", Risks, Assumptions, Policy & Compliance Risks, Current Alternatives, and Business Model are byte-identical to the pre-framing draft. If any were altered, restore from the draft.
 
 4. **Determine the next step based on repo type:**
    - Read `stack.md` and check for a `Hub` field or the presence of `examples/CLAUDE-hub.md`

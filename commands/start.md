@@ -186,7 +186,16 @@ That's fine — add repos here as you create them. The teams registry is a
 living document. Run `/virtual-team:start   --update` later to add new teams.
 ```
 
-Repeat for each repo. Then move to Step 4 (Generate stack.md).
+Repeat for each repo. Then continue to Round 3.
+
+#### Round 3: Compliance Profile
+
+```
+Where will this ship, and how does money move? This tells the team which
+store, payment, and privacy rules to check each feature against.
+```
+
+Gather the `## Compliance Profile` fields (see the Hub template in Step 4). Mark anything undecided as `TBD`. The `policy-risk` gate HALTs only when a feature actually depends on that field. Then move to Step 4 (Generate stack.md).
 
 ---
 
@@ -335,6 +344,25 @@ If `team`:
 
 If `backlog: external`, gather the `backlog_config` section (service, project, state mappings, labels — see `skills/backlog-external/SKILL.md` for the full schema).
 
+#### Round 10: Compliance Profile
+
+**Skip if the service has a hub whose `stack.md` already has a `## Compliance Profile`.** Write `- **Inherits:** hub` instead.
+
+```
+Where will this ship, and how does money move? This tells the team which
+store, payment, and privacy rules to check each feature against.
+```
+
+Gather:
+- **Distribution** — iOS App Store, Google Play, web, desktop stores, internal only
+- **Payments** — processor and model (Stripe direct charges, Stripe Connect, IAP / Play Billing, none, TBD)
+- **Money flow** — `own revenue` or `pass-through` (the money goes to third parties: marketplace, tips, payouts)
+- **Markets** — countries or regions where users live (drives GDPR, CCPA, and local rules)
+- **Audience** — adults only, or may include minors
+- **Data sensitivity** — PII, location, health, financial, biometric, none
+
+Mark undecided fields as `TBD`. The `policy-risk` gate (`skills/policy-risk/SKILL.md`) HALTs only when a feature depends on one of them.
+
 ### Step 4: Generate stack.md
 
 Write `stack.md` at the repository root. The template depends on the repo type.
@@ -372,6 +400,15 @@ Write `stack.md` at the repository root. The template depends on the repo type.
 - **Stack:** [Dart + Flutter]
 
 <!-- Add new teams as repos are created -->
+
+## Compliance Profile
+<!-- Read by the policy-risk gate (skills/policy-risk/SKILL.md) -->
+- **Distribution:** [iOS App Store, Google Play, web, ... or TBD]
+- **Payments:** [Stripe direct | Stripe Connect | IAP / Play Billing | none | TBD]
+- **Money flow:** [own revenue | pass-through | TBD]
+- **Markets:** [countries/regions or TBD]
+- **Audience:** [adults | may include minors | TBD]
+- **Data sensitivity:** [PII, location, health, financial, ... or none]
 
 ## Decisions Made
 <!-- Links to cross-team ADRs in docs/decisions/ -->
@@ -439,6 +476,15 @@ Write `stack.md` at the repository root. The template depends on the repo type.
   <!-- global (default): project skills/ first, then plugin/user-global skills.
        local: only project skills/. Missing/invalid → treated as global. -->
 - **Skills ignore:** [comma-separated list of stack tokens to silence in skill-coverage audit, or empty]
+
+## Compliance Profile
+<!-- Read by the policy-risk gate (skills/policy-risk/SKILL.md). Use "- **Inherits:** hub" when the hub defines it. -->
+- **Distribution:** [iOS App Store, Google Play, web, ... or TBD]
+- **Payments:** [Stripe direct | Stripe Connect | IAP / Play Billing | none | TBD]
+- **Money flow:** [own revenue | pass-through | TBD]
+- **Markets:** [countries/regions or TBD]
+- **Audience:** [adults | may include minors | TBD]
+- **Data sensitivity:** [PII, location, health, financial, ... or none]
 
 ## Decisions Made
 <!-- Links to local ADRs in docs/decisions/ — starts empty -->

@@ -30,7 +30,7 @@ You are a pipeline orchestrator that runs the full development cycle from idea t
 - `--to=STEP` — stop after this step completes. Feature mode values: `feature`, `contracts`, `plan`, `implement`, `review`, `pr`. Fix mode values: `bug`, `debug`, `implement`, `review`, `pr`.
 - `--from=STEP` — start from this step (assumes prior steps are done). Feature mode values: `contracts`, `plan`, `implement`, `review`, `pr`. Fix mode values: `debug`, `implement`, `review`, `pr`.
 - `--deep` — pass `--deep` to `/virtual-team:feature`, `/virtual-team:plan`, `/virtual-team:implement`, and `/virtual-team:validate` for agent-powered analysis. Also passes `--sdd` to `/virtual-team:implement` for subagent-driven execution. Note: `/virtual-team:review` always uses specialized dispatch (no `--deep` needed).
-- `--auto` — minimize interactive gates. Only stop on hard failures (incomplete contracts, failing tests, unresolved architectural decisions). Soft gates (TBDs that have reasonable defaults, optional improvements) are auto-resolved.
+- `--auto` — minimize interactive gates. Only stop on hard failures (incomplete contracts, failing tests, unresolved architectural decisions, open policy Blockers). Soft gates (TBDs that have reasonable defaults, optional improvements) are auto-resolved.
 - `--fresh` — delete any existing flow checkpoint and start from scratch
 - `--level=N` — override the triage-assessed ceremony level (1=full, 2=standard, 3=minimal). Without this flag, triage auto-detects the level. `--deep` forces Level 1. `--quick` (with `--fix`) forces Level 3.
 
@@ -287,6 +287,7 @@ For architectural or scope questions that could reshape the work. The flow:
 - YAGNI concerns the Product Owner agent raised that weren't addressed
 - Missing references (e.g., spec mentions an API that doesn't exist yet)
 - `stack.md` gaps — the feature needs a technology not declared in the stack
+- Policy risks — any `Open` Blocker in the spec's `## Policy & Compliance Risks`, a missing scan when the feature hits a `skills/policy-risk/SKILL.md` trigger, or a Compliance Profile field the feature depends on that is still `TBD`
 
 **Patch-and-continue examples:**
 - "Database engine: TBD" → ask, update spec + stack.md
@@ -297,8 +298,9 @@ For architectural or scope questions that could reshape the work. The flow:
 - YAGNI assessment scored the feature as "defer" → present the reasoning, let user override or agree
 - Feature implies a new service/repo → present options
 - Feature conflicts with an existing decision record → present the conflict
+- Open policy Blocker (e.g., "pays providers with direct Stripe charges") → present the skill's options; on "Accept", create the ADR and set the status to `Accepted`
 
-**Auto mode:** Skip soft TBDs that don't affect contracts (e.g., "UI copy: TBD" is fine, "API endpoint path: TBD" is not). Stop only on technology gaps and architectural concerns.
+**Auto mode:** Skip soft TBDs that don't affect contracts (e.g., "UI copy: TBD" is fine, "API endpoint path: TBD" is not). Stop only on technology gaps, architectural concerns, and open policy Blockers. Never auto-accept a policy risk.
 
 **On clean pass:** Report "Feature spec complete — proceeding to /contracts" and continue.
 

@@ -392,7 +392,7 @@ If your stack conventions exceed 200 lines:
 
 ## Agents
 
-8 read-only sub-agents that analyze and recommend. Spawned with `--deep`.
+9 read-only sub-agents that analyze and recommend. Spawned with `--deep`.
 
 | Agent | Model | Purpose |
 |-------|-------|---------|
@@ -404,6 +404,7 @@ If your stack conventions exceed 200 lines:
 | `pattern-finder` | sonnet | Find existing code as templates for new work |
 | `docs-locator` | sonnet | Find docs, plans, decisions by topic |
 | `security-reviewer` | sonnet | Security vulnerability scanning |
+| `policy-risk-reviewer` | opus | Platform-policy, terms-of-service, and regulatory risk detection |
 
 ---
 

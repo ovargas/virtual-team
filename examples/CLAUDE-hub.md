@@ -39,6 +39,7 @@ Eight specialized agents live in `agents/`. They are read-only sub-agents spawne
 | **pattern-finder** | Finds existing implementation patterns | `/plan`, `/feature` |
 | **docs-locator** | Finds relevant docs, plans, decisions | `/feature`, `/plan` |
 | **security-reviewer** | Reviews code for security concerns | `/review`, `/tech-review` |
+| **policy-risk-reviewer** | Flags store, payment, and privacy policy risks | `/idea`, `/feature`, `/review` |
 
 ## Quick Start
 
