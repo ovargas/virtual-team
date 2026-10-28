@@ -128,7 +128,7 @@ from this summary alone.]
 - [Edge cases covered]
 
 ## Ticket
-[TICKET-ID](link to ticket if available)
+[TICKET-ID — link to ticket if available]
 ```
 
 **Examples:**
