@@ -105,7 +105,7 @@ Then wait for input.
 ```
 Phase 1: Understand → What is this and why does it matter?
 Phase 2: Challenge → YAGNI check, is this worth building?
-Phase 3: Research → Codebase patterns, existing solutions, technical feasibility
+Phase 3: Research → Codebase patterns, existing solutions, technical feasibility, policy risk scan
 Phase 4: Specify → Scope, definition of done, success metrics
 Phase 5: Document → Feature spec with everything needed for implementation
 Phase 6: Story Breakdown → Actionable stories for the backlog
@@ -255,6 +255,14 @@ Spawn parallel research tasks:
 
 Save deep research as `docs/research/YYYY-MM-DD-feature-name.md` and reference it from the spec.
 
+### Policy Risk Scan (always — independent of research level)
+
+Load `virtual-team:policy-risk` and run its trigger check against the feature. This runs even when research was skipped, because a feature can follow existing code patterns and still break a store or processor rule.
+
+- **No triggers:** write `Policy scan: no triggers` in the spec and continue.
+- **Triggers hit:** scan, verify each risk against the current source, and draft the `## Policy & Compliance Risks` table. With `--deep`, spawn **virtual-team:policy-risk-reviewer** for this step (see Agent Usage).
+- **Open Blocker or missing profile field:** present the HALT from the skill **before Phase 4**. The founder's choice changes the scope, so specifying first and patching later wastes the spec.
+
 ---
 
 ## Phase 4: Specify
@@ -294,6 +302,7 @@ This is not a checklist of tasks. It's a description of the state of the world w
 - [ ] Edge cases [list specific ones] are handled
 - [ ] Existing functionality is not broken (regression check)
 - [ ] Documentation/changelog is updated if user-facing
+- [ ] [One line per Must-address policy risk — e.g., "In-app account deletion is available (PR-2)"]
 ```
 
 ### Success Metrics
@@ -586,6 +595,10 @@ event: [event.name]
 ### Technical risks
 - [Risk] — [mitigation]
 
+## Policy & Compliance Risks
+
+[Table from skills/policy-risk/SKILL.md, or "Policy scan: no triggers". Each Must-address item also appears in the Definition of Done.]
+
 ## Research Summary
 
 [If research was conducted, key findings. Link to full research doc for deep research.]
@@ -808,6 +821,9 @@ After the spec is approved:
 **If `--deep` was passed:** Spawn research agents for Phase 3 only. Maximum 2 agents in parallel:
 - Spawn **virtual-team:codebase-analyzer** agent: "Analyze how [existing related system] works and find the closest implementation pattern. Trace from entry to output with file:line references."
 - Spawn **virtual-team:web-researcher** agent: "Research [specific external question — competitors, UX patterns, technical approaches]."
+- Spawn **virtual-team:policy-risk-reviewer** agent (only if the policy trigger check hit): "Scan the feature [summary] for policy risks. Read stack.md's Compliance Profile and follow skills/policy-risk/SKILL.md. Return the risk table and any HALT." This agent does not count toward the 2-agent limit, because it answers a different question than research does.
+
+**Validate the policy agent's output before using it:** every Source must be a URL it fetched or must be marked `Unverified`. Spot-check one Blocker's source yourself with WebFetch before presenting the HALT.
 
 **Never spawn agents for Phase 1 or Phase 2**, regardless of flags. Context gathering and YAGNI checks are always done directly.
 

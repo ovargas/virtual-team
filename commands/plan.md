@@ -128,7 +128,18 @@ Please make these decisions, then:
 
 **If the architect passes:**
 - Note any architectural recommendations for use in the plan
-- Proceed to Phase 1
+- Continue to the Policy Risk Gate
+
+#### Policy Risk Gate
+
+Read the spec's `## Policy & Compliance Risks` section. Specs written before this gate existed won't have one. In that case, load `virtual-team:policy-risk` and run its trigger check now.
+
+- **Any `Open` Blocker:** HALT with the skill's decision format. Do not proceed to Phase 1. The plan would encode a design the platform or provider will reject.
+- **`Accepted` Blockers:** confirm the linked ADR exists in `docs/decisions/`.
+- **Must-address items:** each one must become an explicit plan task with a test or a verification step.
+- **Mitigations that imply stack changes** (for example, Stripe Connect): they must already appear in `stack.md`. Otherwise, treat them as an architectural gap above.
+
+Note "Policy gate: ✅ Passed" (or "no triggers") and proceed to Phase 1.
 
 ---
 

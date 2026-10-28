@@ -259,13 +259,14 @@ Skills are domain-specific coding standards that load automatically based on wha
 
 ### Agents (specialized sub-agents)
 
-8 read-only agents that analyze and recommend — they never write code:
+9 read-only agents that analyze and recommend — they never write code:
 
 | Agent | Role | Spawned by |
 |-------|------|-----------|
 | `product-owner` | Market analysis, YAGNI checks | `/idea`, `/feature`, `/epic` |
 | `software-architect` | Architecture decisions, dependency gatekeeper | `/plan`, `/epic` |
 | `security-reviewer` | Security vulnerability scanning | `/review` |
+| `policy-risk-reviewer` | Store, payment-provider, and privacy policy risks (Blocker → HALT) | `/idea`, `/feature`, `/review` |
 | `pattern-finder` | Find existing code patterns as templates | `/plan`, `/implement` |
 | `codebase-analyzer` | Trace data flow and system behavior | `/debug`, `/plan` |
 | `codebase-locator` | Find relevant files by area/concern | `/feature`, `/plan` |
@@ -294,7 +295,7 @@ Two hooks run automatically — no setup needed:
 commands/       — 26 workflow commands (slash commands)
 skills/workflow-* — Codex adapters for the canonical workflows
 skills/         — 15 coding standards (domain, behavioral, backlog)
-agents/         — 8 specialized sub-agents (read-only)
+agents/         — 9 specialized sub-agents (read-only)
 hooks/          — Automatic enforcement (SessionStart, PreToolUse)
 examples/       — CLAUDE.md templates for hub and service repos
 tests/          — Structural validation (frontmatter, references)

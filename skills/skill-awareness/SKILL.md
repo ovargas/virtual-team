@@ -28,6 +28,7 @@ Load `virtual-team:grounded-claims` for the full protocol and the rationalizatio
 | Writing production code | `virtual-team:design-principles` | Before writing function signatures, constructors, or service boundaries (reads `stack.md` `design:` field for mode: strict, recommended, off) |
 | Claiming completion | `virtual-team:verification-before-completion` | Before saying "done", "complete", "passes" |
 | Asserting a fact a decision rests on | `virtual-team:grounded-claims` | Before stating how existing code, a dependency, or a recalled fact behaves (summary above is always active) |
+| Defining or changing behavior around payments, app-store distribution, login, personal data, or third-party APIs | `virtual-team:policy-risk` | Before committing to a design that a store, payment provider, or regulator could reject |
 | Receiving review feedback | `virtual-team:receiving-code-review` | When processing review comments |
 | Executing multi-task plan with `--sdd` | `virtual-team:subagent-driven-development` | When `/virtual-team:implement --sdd` is active |
 | User requests compressed output | `virtual-team:token-efficient` | User says "caveman mode", "terse", "compress", or similar activation phrase |

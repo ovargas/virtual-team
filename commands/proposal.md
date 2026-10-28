@@ -246,6 +246,11 @@ Wait for confirmation before proceeding when run interactively. This command nor
 | Scale (5,000 users) | $XXX | $X,XXX | $X,XXX | $X.XX |
 ```
 
+4. **Policy scan:** Load `virtual-team:policy-risk` and scan the scope. A proposal is a commitment, so a policy Blocker found later becomes a scope or price change you have to renegotiate. Record the results in the document:
+   - Blockers and their compliant alternatives go under **Dependencies**, with the source. Example: "Provider payouts require Stripe Connect onboarding (Stripe SSA §…)."
+   - Policy-driven costs go into the cost tables. Examples: store commissions, Connect fees, and consent or KYC vendors.
+   - Must-address items become deliverables or **Assumptions**.
+
 ### Phase 5: Tier Comparison (if `--tier` was passed)
 
 **Goal:** Help the founder decide what to offer at each pricing level.

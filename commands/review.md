@@ -36,7 +36,7 @@ This is the founder's "second pair of eyes" since they're working solo.
 
 ### Step 2: Specialized Review Dispatch
 
-Dispatch 3 parallel review passes, each focused on one dimension. This ensures thorough coverage without a single reviewer context-switching between concerns.
+Dispatch 3 parallel review passes, plus a conditional policy pass, each focused on one dimension. This ensures thorough coverage without a single reviewer context-switching between concerns.
 
 **Pass 1 — Code quality (agent):**
 Spawn **virtual-team:pattern-finder** agent (`agents/pattern-finder.md`):
@@ -55,7 +55,17 @@ Determine the relevant domain from the changed file paths and check if the proje
 - If no project skills exist: review against standard conventions for the domain (REST semantics, migration safety, accessibility basics, etc.). Note in the review that no project-specific domain skills were found — the team may want to define them.
 - If multiple domains: load the primary (most files changed), note secondary domains.
 
-**Dispatch order:** Spawn Pass 1 and Pass 2 agents in parallel (use the Agent tool with two calls in a single message). Run Pass 3 inline while waiting for agents to return. Wait for all 3 passes to complete before proceeding.
+**Pass 4 — Policy risk (inline, conditional):**
+Run this pass only if the spec has a `## Policy & Compliance Risks` table with entries, or if the changed files match a signal in `skills/policy-risk/references/code-signals.md`. Otherwise, record `policy: no triggers` and skip it.
+
+Load `virtual-team:policy-risk` in Code Review Mode and check that:
+- each `Mitigated` risk's compliant alternative is what the code actually does. Example: payouts go through Connect, not `transfers.create` to an arbitrary account.
+- each Must-address item has an implementation in the diff, or already exists.
+- the diff doesn't introduce a trigger the spec never scanned.
+
+Every finding quotes the code at `file:line`. Spawn **virtual-team:policy-risk-reviewer** in code-review mode instead only when the diff introduces a new unscanned trigger that needs source verification.
+
+**Dispatch order:** Spawn Pass 1 and Pass 2 agents in parallel (use the Agent tool with two calls in a single message). Run Pass 3 (and Pass 4, when it applies) inline while waiting for agents to return. Wait for all passes to complete before proceeding.
 
 ### Step 2.5: Validate Agent Evidence (gate — do this before merging)
 
@@ -82,6 +92,7 @@ Combine results from all 3 passes into a unified findings list:
    - `virtual-team:security-reviewer`: Critical → **Must Fix**, Warning → **Should Fix**, Note → **Nit**
    - `virtual-team:pattern-finder`: Pattern violations → **Should Fix**, adaptation notes → **Nit**
    - Domain pass: findings already in Must Fix / Should Fix / Nit format (no mapping needed)
+   - Policy pass: violated mitigation of a recorded Blocker or a missing Must-address implementation → **Must Fix**; new unscanned trigger → **Should Fix**
 
 2. **Deduplicate:** If two passes flag the same `file:line`, keep the higher-severity finding and merge the descriptions from both passes into one entry. Example: if security flags a Critical at `auth.py:42` and domain flags a Should Fix at the same location, keep it as Must Fix with both explanations.
 
@@ -119,7 +130,7 @@ Using the security-reviewer's results (already merged in Step 3):
 # Code Review: [Feature/Story Name]
 
 **Files reviewed:** [N]
-**Review passes:** code-quality ✅ | security ✅ | domain ([domain-name]) ✅
+**Review passes:** code-quality ✅ | security ✅ | domain ([domain-name]) ✅ | policy ✅ / no triggers
 **Verdict:** [APPROVE | APPROVE WITH NOTES | REQUEST CHANGES]
 
 ## Issues
@@ -138,6 +149,9 @@ Using the security-reviewer's results (already merged in Step 3):
 
 ## Pattern Consistency
 [Summary from pattern-finder comparison, or "Follows established patterns."]
+
+## Policy Risk
+[Pass 4 summary: mitigations honored, Must-address items implemented, or "No policy triggers."]
 
 ## Spec Alignment
 - [x] [Acceptance criteria 1] — met in [file]

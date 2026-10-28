@@ -49,10 +49,15 @@ Eight specialized agents live in `agents/`. They are sub-agents spawned by comma
 | **docs-locator** | Finds relevant docs, plans, decisions | `/feature`, `/plan` |
 | **web-researcher** | External research — libraries, APIs, patterns | `/research`, `/feature` |
 | **security-reviewer** | Reviews code for security concerns | `/review`, `/tech-review` |
+| **policy-risk-reviewer** | Flags store, payment, and privacy policy risks | `/feature`, `/review` |
 
 ### The Architect as Gatekeeper
 
 The software-architect agent has a special role: it runs a **dependency check** before any plan is written. It reads `stack.md`, identifies TBD items, and cross-references them against the feature's requirements. If the feature needs something that hasn't been decided (e.g., database is TBD but the feature needs queries), it **halts** the entire planning process with options and recommendations. This is not optional — it prevents building on unresolved foundations.
+
+### Policy Risk Gate
+
+The same gate applies to business rules. `stack.md`'s `## Compliance Profile` declares where the app ships and how money moves. When a feature touches payments, store distribution, login, personal data, or third-party APIs, `/feature` scans it against the current store, payment-provider, and privacy policies (`skills/policy-risk/SKILL.md`). Every risk cites its source. An open **Blocker**, such as paying providers without Stripe Connect or selling a subscription in the app through an external checkout, halts `/plan` and `/flow` until it is mitigated or accepted in an ADR.
 
 ## Quick Start
 
