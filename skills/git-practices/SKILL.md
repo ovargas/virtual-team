@@ -209,41 +209,33 @@ The scope should be a single word identifying the affected module or layer. Use 
 
 ## Git Worktrees
 
-We use git worktrees instead of switching branches. Each branch lives in its own directory, allowing parallel work across multiple features.
+We use git worktrees instead of switching branches. Each branch lives in its own directory inside the repo, allowing parallel work across multiple features.
 
 **Folder convention:**
 ```
-my-repo/                    ← main branch (cloned from GitHub)
-my-repo-worktrees/          ← worktree directory (sibling, auto-created)
-  feat/CTR-12/              ← one worktree per branch
-  fix/CTR-45/
+my-repo/                    ← main checkout, always on the default branch
+  .claude/worktrees/        ← worktree directory (git-ignored)
+    feat-CTR-12/            ← one worktree per branch: branch name with "/" → "-"
+    fix-CTR-45/
 ```
 
-**Creating a worktree:**
-```bash
-git wt feat/CTR-12
-```
-This uses the global alias `git wt` which:
-- Creates the worktree at `../{repo}-worktrees/{branch}`
-- Reuses the branch if it already exists, or creates it with `-b`
+- **Directory name:** the branch name with `/` replaced by `-` (`feat/CTR-12` → `feat-CTR-12`). Only letters, digits, `.`, `_` and `-`; max 64 chars.
+- **Branch name:** unchanged, `<type>/<ticket-id>` (see Branch Naming).
+- **Ignored:** `.claude/worktrees/` must be in the repo's `.gitignore`, or the main checkout sees every worktree as untracked files.
+- **Local files:** untracked files a worktree needs to run (e.g. `.env`) are listed in `stack.md` under `worktree_copy:` and copied from the main checkout when the worktree is created:
+  ```yaml
+  worktree_copy:
+    - .env
+  ```
 
-**Removing a worktree:**
-```bash
-git wtr feat/CTR-12
-```
-This uses the global alias `git wtr` which removes the worktree from `../{repo}-worktrees/{branch}`.
-
-**Listing worktrees:**
-```bash
-git worktree list
-```
+**Creating, removing, listing, migrating:** use `/virtual-team:worktree` — it owns the exact steps for each host.
 
 **Rules:**
-- Always create worktrees from the main repo directory (not from inside another worktree)
+- Always create worktrees from the main checkout (not from inside another worktree)
 - Branch name follows the Branch Naming convention above: `<type>/<ticket-id>`
 - One worktree per ticket — matches one-branch-per-ticket rule
 - Remove worktrees after the PR is merged to keep the directory clean
-- The main repo directory always stays on the default branch (main/master) — never switch branches there
+- The main checkout always stays on the default branch (main/master) — never switch branches, stash, pull or edit there while working in a worktree
 
 ## Story Groups
 
