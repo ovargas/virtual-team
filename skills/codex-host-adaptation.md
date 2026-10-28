@@ -17,6 +17,12 @@ The files under `commands/` are the canonical Virtual Team workflow specificatio
 - Translate `AskUserQuestion` to a concise user question only when a consequential choice cannot be inferred safely.
 - Translate plan-mode instructions to a tracked implementation plan when the Codex environment exposes one; otherwise maintain the same phases explicitly.
 
+## Worktrees
+
+- Codex has no `EnterWorktree` or `ExitWorktree`. Create worktrees with `git worktree add .claude/worktrees/<dir> -b <branch> origin/<default-branch>` (after `git fetch origin`), or without `-b` and the base ref when the branch already exists.
+- Since the session cannot move into the worktree, run later commands with `git -C <worktree>` or from that directory, and tell the founder to open a new Codex session there.
+- Remove worktrees with `git worktree remove .claude/worktrees/<dir>`.
+
 ## Specialized agents
 
 - Claude agent files under `agents/` are role specifications, not directly executable Codex configuration.

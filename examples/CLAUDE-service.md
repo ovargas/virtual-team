@@ -165,7 +165,7 @@ These are defined in the `git-practices` skill. Summary:
 - **Branches:** `<type>/<ticket-id>` — e.g., `feat/CTR-12`, `fix/CTR-45`
 - **Commits:** `<type>(<scope>): <short message> [<ticket-id>]` with a mandatory description body
 - **PRs:** Same title format as commits. Body has Summary, Changes, Testing, Ticket sections. Testing is mandatory.
-- **Worktrees:** Sibling `{repo}-worktrees/` directory. Create with `git wt <branch>`, remove with `git wtr <branch>`. One worktree per ticket.
+- **Worktrees:** In `.claude/worktrees/<branch with / → ->` (git-ignored). Manage them with `/worktree`. Untracked files to copy into each worktree (e.g. `.env`) go in `stack.md` `worktree_copy:`. One worktree per ticket.
 - **Backlog status:** Items progress through `[ ]` Ready → `[>]` Doing → `[=]` Implemented → `[x]` Done. `/implement` starts work (via `start()`), `/pr` completes it (via `complete()`).
 
 ## Behavioral Expectations
