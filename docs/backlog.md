@@ -3,6 +3,10 @@
 ## Doing
 
 ## Ready
+- [ ] S-039: Declare and run fast and full gates | feature:FEAT-028 | group:1 | order:1 | service:plugin | spec:docs/features/2026-10-30-verification-gates-audit.md
+- [ ] S-040: Fill plan verification from declared gates | feature:FEAT-028 | group:1 | order:2 | service:plugin | spec:docs/features/2026-10-30-verification-gates-audit.md
+- [ ] S-041: Add the verification capability catalog | feature:FEAT-028 | group:2 | order:1 | service:plugin | spec:docs/features/2026-10-30-verification-gates-audit.md
+- [ ] S-042: Add the doctor gates audit | feature:FEAT-028 | group:2 | order:2 | service:plugin | spec:docs/features/2026-10-30-verification-gates-audit.md
 
 ## Done
 - [x] S-038: Wire positive-framing into vt-idea and register in skill-awareness | feature:FEAT-027 — completed on main
