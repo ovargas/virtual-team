@@ -7,6 +7,7 @@ triage: full
 research_level: skip
 appetite: 3-4 weeks
 yagni_verdict: slimmed
+plan: docs/plans/2026-10-30-verification-gates-audit.md
 tags: [doctor, stack-md, verification, gates, implement, flow, plan]
 ---
 
