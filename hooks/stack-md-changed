@@ -11,11 +11,11 @@ input=$(cat)
 
 # Cheap path filter: look for "stack.md" inside a file_path string.
 # Avoids spawning a JSON parser on every Edit/Write call.
-if ! printf '%s' "$input" | grep -Eq '"file_path"[[:space:]]*:[[:space:]]*"[^"]*/?stack\.md"'; then
+if ! grep -Eq '"file_path"[[:space:]]*:[[:space:]]*"([^"]*[/\\])?stack\.md"' <<<"$input"; then
     exit 0
 fi
 
-nudge="stack.md was edited — run \`/virtual-team:doctor\` to refresh skill-coverage suggestions. (Advisory only; never blocks.)"
+nudge="stack.md was edited — run \`/virtual-team:doctor\` to refresh skill-coverage and verification-gates audits. (Advisory only; never blocks.)"
 
 # Match the JSON-output pattern used by session-start so the message reaches
 # the right consumer per platform.

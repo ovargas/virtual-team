@@ -54,6 +54,7 @@ When this command is invoked:
 2. **Read the full context:**
    - The feature spec (or story) being planned
    - `stack.md` — understand the tech stack, conventions, folder structure
+   - `stack.md` `## Verification` — resolve the fast and full gates via `skills/verification-gates/SKILL.md`
    - Any research docs referenced in the spec
    - Any decision records that affect this feature
    - The relevant parts of the codebase — at minimum, the files that will be touched
@@ -392,6 +393,7 @@ Before starting implementation:
 ### Phase 1 Verification
 
 **Automated:**
+- [ ] Fast gate passes: `[declared fast gate]`
 - [ ] [Migration runs: e.g., `python manage.py migrate --check`]
 - [ ] [Tests pass: e.g., `pytest tests/test_registration.py`]
 - [ ] [Type check: e.g., `npm run typecheck`]
@@ -439,10 +441,8 @@ Before starting implementation:
 ## Final Verification
 
 **All automated checks:**
-- [ ] Full test suite passes: `[command]`
-- [ ] Linting passes: `[command]`
-- [ ] Type checking passes: `[command]`
-- [ ] Build succeeds: `[command]`
+- [ ] Full gate passes: `[declared full gate]`
+- [ ] [Any additional check the feature needs, e.g. a migration dry-run]
 
 **Manual testing:**
 - [ ] [End-to-end scenario 1 — specific steps to follow]
@@ -473,6 +473,8 @@ Before starting implementation:
 - Research: [link if applicable]
 - Pattern reference: [file:line references for the model implementation]
 ```
+
+Fill `[declared fast gate]` and `[declared full gate]` with the commands from `stack.md`. When the gates are inferred, write the inferred command and print the skill's `Inferred gate:` line, so the founder can correct it during plan review.
 
 ### Phase 3: Review and Validate
 
