@@ -356,8 +356,7 @@ For architectural or scope questions that could reshape the work. The flow:
 
 **Check for:**
 - All plan phases completed
-- Tests pass (run the test command from `stack.md`)
-- Linting passes
+- Full gate passes (resolve it via `skills/verification-gates/SKILL.md`)
 - No TODO/FIXME comments left in new code that indicate incomplete work
 - Implementation matches contracts (no drift from schemas)
 
@@ -444,7 +443,7 @@ Before halting, classify each Must Fix finding and attempt to auto-fix mechanica
 3. **If ANY findings are mechanical:**
    a. Generate a mini fix plan — one task per mechanical Must Fix with: the `file:line`, issue description, and suggested fix from the review finding
    b. Execute each fix task inline (load `virtual-team:test-driven-development` and `virtual-team:verification-before-completion` skills)
-   c. Run full verification (tests, lint, typecheck) after all fixes applied
+   c. Run full verification (the full gate, resolved via `skills/verification-gates/SKILL.md`) after all fixes applied
    d. Re-run the quality gate (`/virtual-team:review` + `/virtual-team:validate`) — this is iteration N+1
    e. **Iteration limit: max 3.** Track the iteration count in the flow checkpoint.
 4. **If architectural findings exist alongside mechanical ones** → auto-fix the mechanical issues first, then after the cycle completes (all mechanical resolved or iteration limit hit), halt to present the remaining architectural findings for human judgment
@@ -531,7 +530,7 @@ When executing each step, you follow the FULL logic of that command as defined i
 - **Level 3:** Follow `implement.md` in planless mode: pass `--level=3` so it works from the feature/bug description alone
 - Pass `--deep` if `/virtual-team:flow --deep` was used
 - Pass `--auto` if `/virtual-team:flow --auto` was used (skip manual pause points between phases, but still run verification)
-- Run full verification at the end (tests, lint, typecheck)
+- Run full verification at the end (the full gate, resolved via `skills/verification-gates/SKILL.md`)
 
 **Subagent mode (when dispatched):**
 - Dispatch a fresh subagent following the protocol in "Fresh-Context Dispatch > Dispatching `/virtual-team:implement`"
