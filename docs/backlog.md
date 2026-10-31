@@ -1,7 +1,7 @@
 # Backlog
 
 ## Doing
-- [>] S-039: Declare and run fast and full gates | feature:FEAT-028 | group:1 | order:1 | service:plugin | spec:docs/features/2026-10-30-verification-gates-audit.md | plan:docs/plans/2026-10-30-verification-gates-audit.md
+- [=] S-039: Declare and run fast and full gates — implemented, pending PR | feature:FEAT-028 | group:1 | order:1 | service:plugin | spec:docs/features/2026-10-30-verification-gates-audit.md | plan:docs/plans/2026-10-30-verification-gates-audit.md
 
 ## Ready
 - [ ] S-040: Fill plan verification from declared gates | feature:FEAT-028 | group:1 | order:2 | service:plugin | spec:docs/features/2026-10-30-verification-gates-audit.md | plan:docs/plans/2026-10-30-verification-gates-audit.md
