@@ -1,7 +1,7 @@
 ---
 id: FEAT-028
 date: 2026-10-30
-status: draft
+status: done
 type: feature
 triage: full
 research_level: skip
