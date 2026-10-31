@@ -2,7 +2,7 @@
 date: 2026-10-30
 feature: FEAT-028
 spec: docs/features/2026-10-30-verification-gates-audit.md
-status: approved
+status: done
 scope: group 2 (S-041, S-042)
 ---
 

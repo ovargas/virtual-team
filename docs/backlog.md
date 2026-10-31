@@ -1,10 +1,6 @@
 # Backlog
 
 ## Doing
-- [=] S-039: Declare and run fast and full gates — implemented, pending PR | feature:FEAT-028 | group:1 | order:1 | service:plugin | spec:docs/features/2026-10-30-verification-gates-audit.md | plan:docs/plans/2026-10-30-verification-gates-audit.md
-- [=] S-040: Fill plan verification from declared gates — implemented, pending PR | feature:FEAT-028 | group:1 | order:2 | service:plugin | spec:docs/features/2026-10-30-verification-gates-audit.md | plan:docs/plans/2026-10-30-verification-gates-audit.md
-- [=] S-041: Add the verification capability catalog — implemented, pending PR | feature:FEAT-028 | group:2 | order:1 | service:plugin | spec:docs/features/2026-10-30-verification-gates-audit.md | plan:docs/plans/2026-10-30-verification-gates-audit-group-2.md
-- [=] S-042: Add the doctor gates audit — implemented, pending PR | feature:FEAT-028 | group:2 | order:2 | service:plugin | spec:docs/features/2026-10-30-verification-gates-audit.md | plan:docs/plans/2026-10-30-verification-gates-audit-group-2.md
 
 ## Ready
 
@@ -47,5 +43,9 @@
 - [x] S-003: Update remaining pipeline commands and documentation — PR #6
 - [x] S-002: Update /next to use backlog interface — PR #6
 - [x] S-001: Create backlog interface and implementation skills — PR #6
+- [x] S-039: Declare and run fast and full gates — PR #17 | feature:FEAT-028 | group:1 | order:1 | service:plugin | spec:docs/features/2026-10-30-verification-gates-audit.md | plan:docs/plans/2026-10-30-verification-gates-audit.md
+- [x] S-040: Fill plan verification from declared gates — PR #17 | feature:FEAT-028 | group:1 | order:2 | service:plugin | spec:docs/features/2026-10-30-verification-gates-audit.md | plan:docs/plans/2026-10-30-verification-gates-audit.md
+- [x] S-041: Add the verification capability catalog — PR #17 | feature:FEAT-028 | group:2 | order:1 | service:plugin | spec:docs/features/2026-10-30-verification-gates-audit.md | plan:docs/plans/2026-10-30-verification-gates-audit-group-2.md
+- [x] S-042: Add the doctor gates audit — PR #17 | feature:FEAT-028 | group:2 | order:2 | service:plugin | spec:docs/features/2026-10-30-verification-gates-audit.md | plan:docs/plans/2026-10-30-verification-gates-audit-group-2.md
 
 ## Inbox
