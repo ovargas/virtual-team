@@ -38,7 +38,7 @@ Slice 1 (declared `fast`/`full` gates consumed by pipeline commands) fixes a liv
 
 ### What we're building
 
-1. **`verification-gates` skill** (`skills/verification-gates/SKILL.md` + `catalog.md`): defines the `## Verification` section format, the meaning of `fast` and `full` gates, the inferred-gate fallback, and the fixed, host-agnostic capability catalog.
+1. **`verification-gates` skill** (`skills/verification-gates/SKILL.md` + `references/catalog.md`): defines the `## Verification` section format, the meaning of `fast` and `full` gates, the inferred-gate fallback, and the fixed, host-agnostic capability catalog.
 2. **Declaration in `stack.md`:** `/start` adds `## Verification` to the template and gathers `fast`/`full` commands in Round 7. Existing repos add the section by hand.
 3. **Gate consumption:** `/implement`, `/flow`, and `/flow-fix-pipeline` run the declared gates; `/plan` fills Final Verification from them. When no declaration exists, the command infers as today and prints the inferred command plus a one-line suggestion to declare it.
 4. **`/virtual-team:doctor gates` audit:** reports each applicable capability as ✓/⚠/○, confirms mechanisms exist (and, on Claude Code, that hooks are registered), flags contradicted `n/a` entries, and always shows `n/a`/`deferred` reasons. Bare `/virtual-team:doctor` runs skill coverage first, then gates.
@@ -64,7 +64,7 @@ Each capability line is exactly one of: a mechanism (command, hook script, or fi
 
 **Gate consumption:** `fast` runs at phase boundaries in `/implement`; `full` runs at final verification in `/implement`, the post-implement gate in `/flow`, and the fix cycles in `/flow` and `/flow-fix-pipeline`. Without a declaration: `Inferred gate: <cmd> — declare it under ## Verification in stack.md`, printed once per run.
 
-**Catalog** (`skills/verification-gates/catalog.md`). Each entry names *what* is protected and *when it fires*, never *how*. Applicability derives from existing `stack.md` fields; a field set to `TBD` counts as applicable and reports ⚠ "field is TBD".
+**Catalog** (`skills/verification-gates/references/catalog.md`). Each entry names *what* is protected and *when it fires*, never *how*. Applicability derives from existing `stack.md` fields; a field set to `TBD` counts as applicable and reports ⚠ "field is TBD".
 
 | id | Fires | Applicable when |
 |---|---|---|

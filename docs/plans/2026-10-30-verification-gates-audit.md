@@ -30,7 +30,7 @@ This plan follows the same structure, with two adaptations: the fields are gathe
 
 ---
 
-## Phase 1: Declared gates run in `/implement` and `/flow` (S-039)
+## Phase 1: ✅ Declared gates run in `/implement` and `/flow` (S-039)
 
 ### Overview
 
@@ -103,11 +103,11 @@ A service repo can declare its fast and full gate commands, and the implementati
 ### Phase 1 Verification
 
 **Automated:**
-- [ ] `npm test` — frontmatter, file references, and command references pass
-- [ ] `wc -l skills/verification-gates/SKILL.md` — under 100
-- [ ] `grep -n "test command from \`stack.md\`" commands/flow.md` — no matches
-- [ ] `grep -n "type checker and linter" commands/implement.md` — no matches
-- [ ] `grep -rn "verification-gates/SKILL.md" commands/implement.md commands/flow.md commands/flow-fix-pipeline.md commands/start.md` — at least one match per file
+- [x] `npm test` — frontmatter, file references, and command references pass
+- [x] `wc -l skills/verification-gates/SKILL.md` — under 100
+- [x] `grep -n "test command from \`stack.md\`" commands/flow.md` — no matches
+- [x] `grep -n "type checker and linter" commands/implement.md` — no matches
+- [x] `grep -rn "verification-gates/SKILL.md" commands/implement.md commands/flow.md commands/flow-fix-pipeline.md commands/start.md` — at least one match per file
 
 **Manual:**
 - [ ] In GlamGo-api, add `## Verification` with `make check-fast` / `make check`, run `/virtual-team:implement` on a small story with the local plugin build, and confirm the declared commands run (note: installed plugin caches need a release or a local plugin dir to pick up changes)
@@ -118,7 +118,7 @@ A service repo can declare its fast and full gate commands, and the implementati
 
 ---
 
-## Phase 2: Plans list the declared gates (S-040)
+## Phase 2: ✅ Plans list the declared gates (S-040)
 
 ### Overview
 
@@ -140,8 +140,8 @@ Plans written by `/plan` carry the project's real gate commands, so plan and exe
 ### Phase 2 Verification
 
 **Automated:**
-- [ ] `npm test` passes
-- [ ] `grep -n "Full gate passes" commands/plan.md` — present in Final Verification
+- [x] `npm test` passes
+- [x] `grep -n "Full gate passes" commands/plan.md` — present in Final Verification
 
 **Manual:**
 - [ ] Run `/virtual-team:plan` on a small spec in GlamGo-api with the section declared; confirm the plan's verification blocks list `make check-fast` and `make check`
@@ -153,8 +153,8 @@ Plans written by `/plan` carry the project's real gate commands, so plan and exe
 ## Final Verification
 
 **All automated checks:**
-- [ ] Full test suite passes: `npm test`
-- [ ] Skill size budget: `wc -l skills/verification-gates/SKILL.md` under 100
+- [x] Full test suite passes: `npm test`
+- [x] Skill size budget: `wc -l skills/verification-gates/SKILL.md` under 100
 
 **Manual testing:**
 - [ ] GlamGo-api end-to-end: `/virtual-team:plan` lists declared gates; `/virtual-team:implement` runs them
@@ -196,3 +196,9 @@ Plans written by `/plan` carry the project's real gate commands, so plan and exe
 - Feature spec: `docs/features/2026-10-30-verification-gates-audit.md`
 - Pattern reference: `902e3be` (policy-risk), `commands/start.md:347-364`, `:477-485`, `skills/policy-risk/SKILL.md:1-5`
 - Skill rules: `skills/skill-authoring/SKILL.md`, `docs/decisions/2026-04-29-skill-size-budget.md`
+
+## Implementation Notes
+
+- Phases 1-2 complete; `npm test` 820 passed, `skills/verification-gates/SKILL.md` 70 lines.
+- Manual checks skipped at the founder's request; run them before release.
+- Deviation: none. The skill's Integration list gained the `/plan` entry in Phase 2, once `/plan` actually loads it.

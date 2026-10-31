@@ -30,11 +30,11 @@ Adaptations: a third bucket (○ set aside), a mechanism-existence check, a hook
 
 - [x] Group 1 (S-039, S-040) implemented on this branch
 - [ ] Feature spec approved: `docs/features/2026-10-30-verification-gates-audit.md`
-- [ ] `npm install` done (`npm test` runs)
+- [x] `npm install` done (`npm test` runs)
 
 ---
 
-## Phase 1: Capability catalog and declaration format (S-041)
+## Phase 1: Capability catalog and declaration format (S-041) ✅
 
 ### Overview
 
@@ -86,10 +86,10 @@ Maintainers get a list of what a repo's verification should protect, when each c
 ### Phase 1 Verification
 
 **Automated:**
-- [ ] Fast gate passes: `npm test`
-- [ ] `wc -l skills/verification-gates/SKILL.md` — under 100
-- [ ] `grep -c "^| " skills/verification-gates/references/catalog.md` — 15 (header + separator + 13 entries)
-- [ ] `grep -rn "references/catalog.md" skills/verification-gates/SKILL.md commands/start.md` — one match per file
+- [x] Fast gate passes: `npm test`
+- [x] `wc -l skills/verification-gates/SKILL.md` — under 100
+- [x] `grep -c "^| " skills/verification-gates/references/catalog.md` — 14 (header + 13 entries; the separator row does not match)
+- [x] `grep -rn "references/catalog.md" skills/verification-gates/SKILL.md commands/start.md` — one match per file
 
 **Manual:**
 - [ ] Hand-write a full `## Verification` for GlamGo-api from the catalog alone; note any entry whose wording does not fit
@@ -98,7 +98,7 @@ Maintainers get a list of what a repo's verification should protect, when each c
 
 ---
 
-## Phase 2: `/virtual-team:doctor gates` audit (S-042)
+## Phase 2: `/virtual-team:doctor gates` audit (S-042) ✅
 
 ### Overview
 
@@ -186,10 +186,10 @@ Maintainers run one command and see each applicable capability as declared and p
 ### Phase 2 Verification
 
 **Automated:**
-- [ ] Fast gate passes: `npm test`
-- [ ] `echo '{"file_path":"/x/stack.md"}' | CLAUDE_PLUGIN_ROOT=x bash hooks/stack-md-changed | python3 -m json.tool` — valid JSON containing "verification-gates"
-- [ ] `grep -n "doctor skills" commands/start.md` — present
-- [ ] `grep -n "Step 1[0-4]" commands/doctor.md` — Steps 10-14 present
+- [x] Fast gate passes: `npm test`
+- [x] `echo '{"file_path":"/x/stack.md"}' | CLAUDE_PLUGIN_ROOT=x bash hooks/stack-md-changed | python3 -m json.tool` — valid JSON containing "verification-gates"
+- [x] `grep -n "doctor skills" commands/start.md` — present
+- [x] `grep -n "Step 1[0-4]" commands/doctor.md` — Steps 10-14 present
 
 **Manual:**
 - [ ] `/virtual-team:doctor gates` in GlamGo-api — buckets match the declaration, reasons shown
@@ -205,8 +205,8 @@ Maintainers run one command and see each applicable capability as declared and p
 ## Final Verification
 
 **All automated checks:**
-- [ ] Full gate passes: `npm test`
-- [ ] `wc -l skills/verification-gates/SKILL.md` — under 100
+- [x] Full gate passes: `npm test`
+- [x] `wc -l skills/verification-gates/SKILL.md` — under 100
 
 **Manual testing:**
 - [ ] GlamGo-api and the Flutter app: full declarations written, `/virtual-team:doctor gates` reports correct buckets (replaces the skipped checkpoint)
@@ -234,6 +234,13 @@ Maintainers run one command and see each applicable capability as declared and p
 - **Catalog wording does not fit real repos (checkpoint skipped):** Fallback: the Phase 1 manual declaration of GlamGo-api is the early check; adjust wording before starting Phase 2.
 - **Doctor (sonnet) over-interprets settings.json:** Fallback: Step 12 states the exact rule ("script path appears under any hook event") and the rabbit-hole boundary from the spec.
 - **Changes do not reach installed plugins until release:** Fallback: test with a local plugin directory; bump the version in the PR.
+
+## Implementation Notes
+
+- Manual checks for Phases 1 and 2 were skipped at the founder's request (2026-10-30). The GlamGo-api and Flutter declarations remain open.
+- Phase 1 count check: `grep -c "^| "` returns 14, not 15 — the separator row starts with `|-`. Plan text corrected; the catalog has all 13 entries.
+- Deviation: `skills/workflow-doctor/SKILL.md` description updated to mention the gates audit, so the Codex adapter matches `commands/doctor.md`.
+- Extra in Step 12: a line whose id is neither in the catalog nor prefixed `extra /` is reported ⚠ `unknown capability id` (catches typos).
 
 ## References
 

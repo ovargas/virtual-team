@@ -356,6 +356,7 @@ If 10+ occurrences are found, the issue is flagged as systemic — requiring a f
 |-------|-------------|
 | `virtual-team:checkpoints` | Multi-phase commands (implement, debug, feature, plan) |
 | `virtual-team:knowledge-check` | Plan approval, PR creation, standalone check |
+| `virtual-team:verification-gates` | Verification steps in /implement, /flow, /flow-fix-pipeline, /plan; /doctor gates audit |
 | `virtual-team:backlog` | Any backlog operation (abstract interface) |
 | `virtual-team:backlog-local` | Default file-based implementation |
 | `virtual-team:backlog-external` | GitHub Issues, Linear, JIRA, YouTrack integration |
