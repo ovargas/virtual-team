@@ -1,6 +1,6 @@
 ---
 name: workflow-doctor
-description: Audit stack.md against available skills and report coverage gaps. Use when the user explicitly requests the Virtual Team doctor workflow or when this workflow is the next stage of an active Virtual Team pipeline.
+description: Audit stack.md against available skills and the verification capability catalog, and report gaps. Use when the user explicitly requests the Virtual Team doctor workflow or when this workflow is the next stage of an active Virtual Team pipeline.
 ---
 
 # Virtual Team: doctor

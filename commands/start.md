@@ -311,6 +311,8 @@ Gather:
 - **Linting** — golangci-lint, ESLint, ruff, etc.
 - **Type checking** — if applicable (TypeScript strict mode, mypy, etc.)
 - **CI/CD** — GitHub Actions, GitLab CI, none yet, etc.
+- **Fast gate** — the quickest command that catches most breakage (e.g., a lint + unit-test target). Mark `TBD` if none exists yet.
+- **Full gate** — the command CI or pre-push runs. Mark `TBD` if none exists yet.
 
 #### Round 8: Deployment
 
@@ -463,6 +465,12 @@ Write `stack.md` at the repository root. The template depends on the repo type.
 - **Type checking:** [tool or N/A]
 - **CI/CD:** [tool or TBD]
 
+## Verification
+<!-- Read by skills/verification-gates/SKILL.md. Commands run these verbatim. -->
+- **Fast gate:** `[command or TBD]`
+- **Full gate:** `[command or TBD]`
+<!-- Per-capability lines (mechanism | n/a — reason | deferred — reason): see skills/verification-gates/references/catalog.md. Run /virtual-team:doctor gates to see what is missing. -->
+
 ## Build & Deploy
 - **Build:** `[command]`
 - **Run locally:** `[command]`
@@ -499,7 +507,9 @@ Write `stack.md` at the repository root. The template depends on the repo type.
 
 **Skip for Hub repos.**
 
-Run `/virtual-team:doctor` once. It reads the just-written `stack.md`, audits skill coverage against local and global skills, and surfaces any gaps as suggestions. Continue to Step 5 regardless of findings — the audit is advisory and never blocks.
+Run `/virtual-team:doctor skills` once. It reads the just-written `stack.md`, audits skill coverage against local and global skills, and surfaces any gaps as suggestions. Continue to Step 5 regardless of findings — the audit is advisory and never blocks.
+
+Skip the gates audit here: the gates in a fresh `stack.md` are usually `TBD`, so it would report every capability as ⚠. Mention that `/virtual-team:doctor gates` audits verification coverage once gates are declared.
 
 **Why this runs here:** The developer just decided their stack. They have the most context and the lowest activation energy to author a tailored skill if one is missing. Surfacing the gap later (during `/implement`) would interrupt feature work.
 

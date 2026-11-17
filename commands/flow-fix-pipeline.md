@@ -101,10 +101,10 @@ This replaces the formal `/virtual-team:implement` step. The orchestrator implem
    b. Verify the test fails (confirms the bug exists)
    c. Apply the fix
    d. Verify the test passes
-   e. Run full verification (tests, lint, typecheck)
+   e. Run full verification (the full gate, resolved via `skills/verification-gates/SKILL.md`)
 6. **Cover ALL confirmed (🔴) and likely (🟡) occurrences** from the pattern sweep — not just the primary one. A fix that only patches the reported instance is incomplete.
 
-**Gate after implementation:** Same as the feature pipeline — all tests pass, lint clean, typecheck clean. If tests fail, fix and re-verify.
+**Gate after implementation:** Same as the feature pipeline — the full gate passes. If tests fail, fix and re-verify.
 
 **Auto mode:** Skip manual confirmations between occurrences, but still run all verification.
 

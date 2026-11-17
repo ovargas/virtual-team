@@ -246,7 +246,7 @@ When no formal plan exists, `/implement` does lightweight analysis before writin
 2. **Quick codebase scan** — find the file(s) to modify (Glob + Grep, max 3 queries)
 3. **Read the relevant file(s)** — understand what exists
 4. **Implement the change** — follow existing patterns in the file
-5. **Verify** — run tests, lint, typecheck
+5. **Verify** — run the full gate (resolve it via `skills/verification-gates/SKILL.md`)
 
 No presentation step — just do it.
 
@@ -254,7 +254,7 @@ No presentation step — just do it.
 
 **Level 1:** Follow the phased execution model below — one phase at a time, verify at boundaries, pause when the plan says to.
 
-**Level 2:** Treat the work as a single phase. Follow the Inline Analysis above, then implement all changes, then run final verification (tests, lint, typecheck). No phase boundaries or pause points unless the work naturally splits into testable milestones.
+**Level 2:** Treat the work as a single phase. Follow the Inline Analysis above, then implement all changes, then run final verification with the full gate (resolve it via `skills/verification-gates/SKILL.md`). No phase boundaries or pause points unless the work naturally splits into testable milestones.
 
 **Level 3:** Same as Level 2 but even simpler — implement the change, verify it works, done.
 
@@ -291,7 +291,7 @@ No presentation step — just do it.
    - Run any inline verification the step specifies
 
 3. **After all steps in the phase, run phase verification:**
-   - Execute every automated verification command listed in the plan
+   - Execute every automated verification command listed in the plan. If the plan lists none, run the fast gate (resolve it via `skills/verification-gates/SKILL.md`)
    - **DRY check:** Quickly scan the code written in this phase — did it duplicate logic that already exists in the codebase? Three lines of duplicated code beats a premature abstraction, but if the same pattern is repeated 3+ times across files, extract it. Flag it briefly:
      ```
      DRY: [clean | extracted X into Y | noted: Z duplicated in A and B, acceptable for now]
@@ -353,7 +353,7 @@ After completing all phases for the current story within a multi-story feature:
 
 ### After All Phases
 
-1. **Run final verification** from the plan:
+1. **Run final verification** from the plan. If the plan's Final Verification lists no commands, run the full gate (resolve it via `skills/verification-gates/SKILL.md`):
    ```
    **Final Verification:**
    - [x] Full test suite: `[command]` — passed ([N] tests)
@@ -556,7 +556,7 @@ Layer 0 is always loaded. For Layer 1, only load the skill(s) relevant to the cu
 
 2. **Verify at every boundary:**
    - Never skip verification steps, even if you're confident the code is correct
-   - If a verification command isn't specified in the plan, at minimum run the project's type checker and linter
+   - If a verification command isn't specified in the plan, run the gate resolved via `skills/verification-gates/SKILL.md` (fast at phase boundaries, full at the end). Declared gates fill gaps in a plan; they never override the commands it lists
    - Failed verification is not optional to fix — stop and fix before proceeding
 
 3. **Respect pause points:**
